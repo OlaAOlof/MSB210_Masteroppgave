@@ -5,14 +5,50 @@ editor: visual
 ---
 
 ```{r}
+# readxl for å lese excel-fil
 library(readxl)
+# httr og jsonlite for å suge inn API
+library(httr)
+library(jsonlite)
 ```
 
 ## Tittel
 
-En test av innlasting av data
+En test av innlasting av data fra Eiendomsverdi (EV)
 
 ```{r}
 EV <- read_excel("~/Library/CloudStorage/Dropbox/Master i økonomi og administrasjon/MSB210 Masteroppgave/Data/MSB210_Masteroppgave/data/EV-kommaseparert.xlsx")
 head(EV)
+```
+
+En test av API-greiene
+
+```{r}
+url <- "https://apim.p42.enova.no/ems/bank/v1/Fil/{year}/{month}"
+headers <- c("Ocp-Apim-Subscription-Key" = "x-api-key")
+
+response <- GET(url, add_headers(headers))
+
+# check the response status
+status_code(response)
+
+# 401 Unauthorized = Access denied due to invalid subscription key. Make sure to provide a valid key for an active subscription.
+```
+
+
+```{r}
+# energimerker opprettet i løpet av valgt år og måned
+res = GET("https://apim.p42.enova.no/ems/bank/v1/Fil/{year}/{month}")
+res
+
+```
+
+```{r}
+rawToChar(res$content)
+```
+
+```{r}
+# energimerker opprettet i løpet av valgt år
+res = GET("https://apim.p42.enova.no/ems/bank/v1/Fil/{year}")
+res
 ```
