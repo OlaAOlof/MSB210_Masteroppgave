@@ -1,0 +1,18 @@
+---
+title: "Master Test 18.02."
+format: html
+editor: visual
+---
+
+```{r}
+library(readxl)
+```
+
+## Tittel
+
+En test av innlasting av data
+
+```{r}
+EV <- read_excel("~/Library/CloudStorage/Dropbox/Master i økonomi og administrasjon/MSB210 Masteroppgave/Data/MSB210_Masteroppgave/data/EV-kommaseparert.xlsx")
+head(EV)
+```
