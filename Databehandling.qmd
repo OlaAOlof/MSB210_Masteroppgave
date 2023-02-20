@@ -1,0 +1,10 @@
+---
+title: "Masteroppgave"
+author: 
+  "Kevin Ha"
+  "Ola Andre Olofsson"
+format: html
+editor: visual
+---
+
+# Databehandling - Rådata
