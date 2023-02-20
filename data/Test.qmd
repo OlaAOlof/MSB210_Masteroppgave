@@ -2,6 +2,7 @@
 title: "Master Test 18.02."
 format: html
 editor: visual
+
 ---
 
 ```{r}
@@ -23,32 +24,34 @@ head(EV)
 
 En test av API-greiene
 
+
+# Create request object with headers
 ```{r}
-url <- "https://apim.p42.enova.no/ems/bank/v1/Fil/{year}/{month}"
-headers <- c("Ocp-Apim-Subscription-Key" = "x-api-key")
+url <- "https://apim.p42.enova.no/ems/bank/v1/Fil/2021/01"
+year <- "2021"
+month <- "01"
+request <- GET(sprintf(url, year = year, month = month), 
+               add_headers("x-api-key" = "d9176773bbc14dab9ce5da9a38959af8"))
 
-response <- GET(url, add_headers(headers))
+# Get response content as text
+response_text <- content(request, as = "text", encoding = "UTF-8")
 
-# check the response status
-status_code(response)
-
-# 401 Unauthorized = Access denied due to invalid subscription key. Make sure to provide a valid key for an active subscription.
+# Check if the response is successful and display the response content
+if (status_code(request) == 200) {
+  response_text <- content(request, as = "text")
+  response_list <- fromJSON(response_text)
+  print(response_list)
+} else {
+  print(paste0("Error: ", status_code(request), " - ", content(request, as = "text")))
+}
 ```
 
 
+# Convert response content from JSON to a list
 ```{r}
-# energimerker opprettet i løpet av valgt år og måned
-res = GET("https://apim.p42.enova.no/ems/bank/v1/Fil/{year}/{month}")
-res
-
+response_list <- fromJSON(response_text)
+# View response list
+response_list
 ```
 
-```{r}
-rawToChar(res$content)
-```
 
-```{r}
-# energimerker opprettet i løpet av valgt år
-res = GET("https://apim.p42.enova.no/ems/bank/v1/Fil/{year}")
-res
-```
