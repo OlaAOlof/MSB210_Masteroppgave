@@ -7,4 +7,75 @@ format: html
 editor: visual
 ---
 
+```{r setup}
+library(readxl)
+library(tidyverse)
+```
+
+
 # Databehandling - Rådata
+
+## Lager datasett av Excel fra ENOVA.
+
+```{r}
+Energi_2019 <- read_excel("Energikarakterer_2019.xls")
+Energi_2020 <- read_excel("Energikarakterer_2020.xlsx")
+Energi_2021 <- read_excel("Energikarakterer_2021.xlsx")
+Energi_2022 <- read_excel("Energikarakterer_2022.xls")
+```
+
+## Fjerner Fnr(festenummer).
+
+```{r}
+Energi_2019 <- Energi_2019[,-5]
+Energi_2020 <- Energi_2020[,-5]
+Energi_2021 <- Energi_2021[,-5]
+```
+
+## Filtrerer ut kun Bergen med omegn.
+
+```{r}
+Energi_2019_Vestland <- Energi_2019[Energi_2019$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
+Energi_2020_Vestland <- Energi_2020[Energi_2020$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
+Energi_2021_Vestland <- Energi_2021[Energi_2021$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
+Energi_2022_Vestland <- Energi_2022[Energi_2022$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
+```
+
+### Rydder vekk fullstendige datasett, for kontroll og unngå å rote.
+
+```{r Rydder_Fullstendige_Datasett}
+rm(Energi_2019)
+rm(Energi_2020)
+rm(Energi_2021)
+rm(Energi_2022)
+```
+
+## Sammenslår datasett, fom. 2019 tom. 2022.
+
+```{r}
+ENOVA_Vestland <- rbind(Energi_2019_Vestland, Energi_2020_Vestland, Energi_2021_Vestland, Energi_2022_Vestland) %>% 
+  select(-EnergiVurderingDato, -BeregnetFossilandel, -Attestnummer, -HarEnergiVurdering)
+```
+
+## Fjerner rekker observasjoner med organisasjonsnummer
+
+Vi velger å fjerne rekkene med organisasjonsnummer da dette er boliger eid og kjøpt av næringer. Vi er i denne oppgaven interesert i hvordan det i hovedsak påvirker private, og boliger med organisasjonsnummer blir dermed en verdi vi ikke har behov for.
+
+```{r}
+ENOVA_Vestland <- ENOVA_Vestland %>%
+  filter(is.na(Organisasjonsnummer))
+```
+
+## Fjerner nå kolonnen for organisasjonsnummer
+
+```{r}
+ENOVA_Vestland <- ENOVA_Vestland %>% 
+  select(-Organisasjonsnummer)
+```
+
+```{r}
+ENOVA_Vestland <- ENOVA_Vestland %>%
+  unite(col = "Matrikkelnummer", c("Knr", "Gnr", "Bnr", "Snr", "Andelsnummer"), sep = "/", remove = FALSE) %>% 
+  select(-Knr, -Gnr, -Bnr, -Snr, -Andelsnummer)
+```
+

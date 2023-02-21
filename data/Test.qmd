@@ -2,7 +2,6 @@
 title: "Master Test 18.02."
 format: html
 editor: visual
-
 ---
 
 ```{r}
@@ -24,8 +23,8 @@ head(EV)
 
 En test av API-greiene
 
-
 # Create request object with headers
+
 ```{r}
 url <- "https://apim.p42.enova.no/ems/bank/v1/Fil/2021/01"
 year <- "2021"
@@ -46,12 +45,10 @@ if (status_code(request) == 200) {
 }
 ```
 
-
 # Convert response content from JSON to a list
+
 ```{r}
 response_list <- fromJSON(response_text)
 # View response list
 response_list
 ```
-
-
