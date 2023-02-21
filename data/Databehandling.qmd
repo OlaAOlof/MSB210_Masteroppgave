@@ -8,12 +8,14 @@ editor: visual
 ---
 
 ```{r setup}
+library(readr)
 library(readxl)
 library(tidyverse)
+library(dplyr)
 ```
 
 
-# Databehandling - Rådata
+# Databehandling - Rådata, ENOVA
 
 ## Lager datasett av Excel fra ENOVA.
 
@@ -78,4 +80,19 @@ ENOVA_Vestland <- ENOVA_Vestland %>%
   unite(col = "Matrikkelnummer", c("Knr", "Gnr", "Bnr", "Snr", "Andelsnummer"), sep = "/", remove = FALSE) %>% 
   select(-Knr, -Gnr, -Bnr, -Snr, -Andelsnummer)
 ```
+
+# Databehandling - Rådata, Eigendomsverdi AS
+
+```{r}
+EV <- read_excel("EV_kommaseparert.xlsx") %>% 
+  select(-CityDistrict)
+```
+
+
+
+
+
+
+
+
 
