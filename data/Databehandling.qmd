@@ -71,7 +71,7 @@ ENOVA_Vestland <- ENOVA_Vestland %>%
 
 ```{r}
 ENOVA_Vestland <- ENOVA_Vestland %>% 
-  select(-Organisasjonsnummer)
+  select(-Organisasjonsnummer, -Poststed)
 ```
 
 ```{r}
@@ -86,10 +86,6 @@ ENOVA_Vestland <- ENOVA_Vestland %>%
 EV <- read_excel("EV_kommaseparert.xlsx") %>% 
   select(-CityDistrict)
 ```
-
-ENOVA_Vestland <- ENOVA_Vestland %>%
-  unite(col = "Matrikkelnummer", c("Knr", "Gnr", "Bnr", "Snr", "Andelsnummer"), sep = "/", remove = FALSE) %>% 
-  select(-Knr, -Gnr, -Bnr, -Snr, -Andelsnummer)
 
 # Koordinater Arbeid
 
@@ -109,9 +105,24 @@ KoordinaterVestland <- KoordinaterVestland %>%
 ```
 
 ```{r}
-
+merged_data <- inner_join(ENOVA_Vestland, KoordinaterVestland, by = "Matrikkelnummer")
 ```
 
+```{r}
+ENOVA_coords <- distinct(merged_data, GateAdresse, .keep_all = TRUE)
+```
+
+```{r}
+ENOVA_coords <- ENOVA_coords %>%
+  unite(col = "Matrikkel", c("Matrikkelnummer", "Snr"), sep = "/", remove = FALSE) %>% 
+  select(-Matrikkelnummer, -Snr, -Postnummer, -Utstedelsesdato, -TypeRegistrering, -Fnr)
+```
+
+### Rydder vekk fullstendige datasett, for kontroll og unngå å rote.
+
+```{r}
+rm(merged_data)
+```
 
 
 
