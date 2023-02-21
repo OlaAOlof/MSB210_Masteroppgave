@@ -122,6 +122,7 @@ ENOVA_coords <- ENOVA_coords %>%
 
 ```{r}
 rm(merged_data)
+rm(KoordinaterVestland)
 ```
 
 
