@@ -14,7 +14,6 @@ library(tidyverse)
 library(dplyr)
 ```
 
-
 # Databehandling - Rådata, ENOVA
 
 ## Lager datasett av Excel fra ENOVA.
@@ -77,8 +76,8 @@ ENOVA_Vestland <- ENOVA_Vestland %>%
 
 ```{r}
 ENOVA_Vestland <- ENOVA_Vestland %>%
-  unite(col = "Matrikkelnummer", c("Knr", "Gnr", "Bnr", "Snr", "Andelsnummer"), sep = "/", remove = FALSE) %>% 
-  select(-Knr, -Gnr, -Bnr, -Snr, -Andelsnummer)
+  unite(col = "Matrikkelnummer", c("Knr", "Gnr", "Bnr", "Andelsnummer"), sep = "/", remove = FALSE) %>% 
+  select(-Knr, -Gnr, -Bnr, -Andelsnummer)
 ```
 
 # Databehandling - Rådata, Eigendomsverdi AS
@@ -88,9 +87,30 @@ EV <- read_excel("EV_kommaseparert.xlsx") %>%
   select(-CityDistrict)
 ```
 
+ENOVA_Vestland <- ENOVA_Vestland %>%
+  unite(col = "Matrikkelnummer", c("Knr", "Gnr", "Bnr", "Snr", "Andelsnummer"), sep = "/", remove = FALSE) %>% 
+  select(-Knr, -Gnr, -Bnr, -Snr, -Andelsnummer)
 
+# Koordinater Arbeid
 
+```{r}
+KoordinaterVestland <- read_delim("KoordinaterVestland.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+```
 
+```{r}
+KoordinaterVestland <- KoordinaterVestland[KoordinaterVestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
+```
+
+```{r}
+KoordinaterVestland <- KoordinaterVestland %>%
+  unite(col = "Matrikkelnummer", c("Knr", "Gnr", "Bnr", "Andelsnummer"), sep = "/", remove = FALSE) %>% 
+  select(-Knr, -Gnr, -Bnr, -Andelsnummer)
+```
+
+```{r}
+
+```
 
 
 
