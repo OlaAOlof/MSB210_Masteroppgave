@@ -16,7 +16,7 @@ library(dplyr)
 
 # Databehandling - Rådata, ENOVA
 
-## Lager datasett av Excel fra ENOVA.
+## Lager datasett av Excel fra ENOVA
 
 ```{r}
 Energi_2019 <- read_excel("Energikarakterer_2019.xls")
@@ -25,7 +25,7 @@ Energi_2021 <- read_excel("Energikarakterer_2021.xlsx")
 Energi_2022 <- read_excel("Energikarakterer_2022.xls")
 ```
 
-## Fjerner Fnr(festenummer).
+## Fjerner Fnr(festenummer)
 
 ```{r}
 Energi_2019 <- Energi_2019[,-5]
@@ -33,7 +33,7 @@ Energi_2020 <- Energi_2020[,-5]
 Energi_2021 <- Energi_2021[,-5]
 ```
 
-## Filtrerer ut kun Bergen med omegn.
+## Filtrerer ut kun Bergen med omegn
 
 ```{r}
 Energi_2019_Vestland <- Energi_2019[Energi_2019$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
@@ -42,7 +42,7 @@ Energi_2021_Vestland <- Energi_2021[Energi_2021$Knr %in% c(4601, 4623, 4624, 462
 Energi_2022_Vestland <- Energi_2022[Energi_2022$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
 ```
 
-### Rydder vekk fullstendige datasett, for kontroll og unngå å rote.
+### Rydder vekk fullstendige datasett, for kontroll og unngå å rote
 
 ```{r Rydder_Fullstendige_Datasett}
 rm(Energi_2019)
@@ -51,7 +51,7 @@ rm(Energi_2021)
 rm(Energi_2022)
 ```
 
-## Sammenslår datasett, fom. 2019 tom. 2022.
+## Sammenslår datasett, fom. 2019 tom. 2022
 
 ```{r}
 ENOVA_Vestland <- rbind(Energi_2019_Vestland, Energi_2020_Vestland, Energi_2021_Vestland, Energi_2022_Vestland) %>% 
@@ -87,16 +87,22 @@ EV <- read_excel("EV_kommaseparert.xlsx") %>%
   select(-CityDistrict)
 ```
 
-# Koordinater Arbeid
+# Koordinater, Boliger
+
+## Leser inn filen for koordinater boliger
 
 ```{r}
 KoordinaterVestland <- read_delim("KoordinaterVestland.csv", 
     delim = ";", escape_double = FALSE, trim_ws = TRUE)
 ```
 
+## Filterer ut relevante kommuner
+
 ```{r}
 KoordinaterVestland <- KoordinaterVestland[KoordinaterVestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
 ```
+
+## Slår sammen på koordinater for boliger med ENOVA_Vestland
 
 ```{r}
 KoordinaterVestland <- KoordinaterVestland %>%
@@ -125,6 +131,23 @@ rm(merged_data)
 rm(KoordinaterVestland)
 ```
 
+# Koordinater, Bergen
 
+```{r}
+Bergen <- data.frame(
+  id = 1,
+  lat = 60.3925,
+  long = 5.323333
+)
+```
 
+### Ting å gjøre her:
+Finne en ID vi kan bruke til å kombinere med ENOVA_Vestland
+Finne ut vilken format (CRS/EPSG) vi skal bruke på dette
+Transponere datasettene
+
+Mutate en felles koordinat (Lengde og bredde) for ENOVA_Vestland
+Mutate en felles koordinat (Lengde og bredde) for Bergen
+Bruke st_distance for å finne avstand i luftlinje mellom punktene for å finne distanste mellom sentrum og boliger
+Sjekke og evt. konvertere til rett måleformat (km)
 
