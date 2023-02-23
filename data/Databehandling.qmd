@@ -131,6 +131,13 @@ rm(merged_data)
 rm(KoordinaterVestland)
 ```
 
+## Fjerner snr fra ENOVA_Vestland
+
+```{r}
+ENOVA_Vestland <- ENOVA_Vestland %>% 
+  select(-Snr)
+```
+
 # Koordinater, Bergen
 
 ```{r}
