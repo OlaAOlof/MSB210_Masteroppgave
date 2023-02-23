@@ -149,7 +149,8 @@ Bergen <- data.frame(
 ```
 
 ### Ting å gjøre her:
-Finne en ID vi kan bruke til å kombinere med ENOVA_Vestland
+Finne en ID vi kan bruke til å kombinere med ENOVA_Vestland/ENOVA_coords
+  Kan henda me må laga ein eigen ID i Vestland_coords & Bergen datasettet, f.eks. ein nummerisk ID som me kan utnytta te å slå sammen desse to på?
 Finne ut vilken format (CRS/EPSG) vi skal bruke på dette
 Transponere datasettene
 
