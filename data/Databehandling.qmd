@@ -80,7 +80,7 @@ ENOVA_Vestland <- ENOVA_Vestland %>%
   select(-Knr, -Gnr, -Bnr, -Andelsnummer)
 ```
 
-# Databehandling - Rådata, Eigendomsverdi AS
+# Databehandling - Rådata, Eiendomsverdi AS
 
 ```{r}
 EV <- read_excel("EV_kommaseparert.xlsx") %>% 
@@ -149,13 +149,19 @@ Bergen <- data.frame(
 ```
 
 ### Ting å gjøre her:
-Finne en ID vi kan bruke til å kombinere med ENOVA_Vestland/ENOVA_coords
-  Kan henda me må laga ein eigen ID i Vestland_coords & Bergen datasettet, f.eks. ein nummerisk ID som me kan utnytta te å slå sammen desse to på?
-Finne ut vilken format (CRS/EPSG) vi skal bruke på dette
-Transponere datasettene
 
-Mutate en felles koordinat (Lengde og bredde) for ENOVA_Vestland
-Mutate en felles koordinat (Lengde og bredde) for Bergen
-Bruke st_distance for å finne avstand i luftlinje mellom punktene for å finne distanste mellom sentrum og boliger
-Sjekke og evt. konvertere til rett måleformat (km)
+Finne en ID vi kan bruke til å kombinere med ENOVA_Vestland/ENOVA_coords Kan henda me må laga ein eigen ID i Vestland_coords & Bergen datasettet, f.eks. ein nummerisk ID som me kan utnytta te å slå sammen desse to på? Finne ut vilken format (CRS/EPSG) vi skal bruke på dette Transponere datasettene
 
+Mutate en felles koordinat (Lengde og bredde) for ENOVA_Vestland Mutate en felles koordinat (Lengde og bredde) for Bergen Bruke st_distance for å finne avstand i luftlinje mellom punktene for å finne distanste mellom sentrum og boliger Sjekke og evt. konvertere til rett måleformat (km)
+
+# Databehandling - Ambita
+
+Opprinnelig datasett inneholder 284 340 obs. of 121 variables, så før innlasting er det i Excel fjernet:
+
+-   40 variabler
+
+-   224 633 obs.
+
+```{r}
+A <- read_excel("Ambita.xlsx")
+```
