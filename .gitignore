@@ -49,3 +49,5 @@ vignettes/*.pdf
 *.html
 *.nb.html
 
+data/~$Ambita.xlsx
+.DS_Store
