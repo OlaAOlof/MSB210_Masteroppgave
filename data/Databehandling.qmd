@@ -165,7 +165,7 @@ Mutate en felles koordinat (Lengde og bredde) for ENOVA_Vestland Mutate en felle
 
 Opprinnelig datasett inneholder 284 340 obs. of 121 variables, så før innlasting er det i Excel fjernet:
 
--   40 variabler
+-   43 variabler
 
 -   224 633 obs.
 
