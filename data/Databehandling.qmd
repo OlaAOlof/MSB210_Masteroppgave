@@ -19,10 +19,12 @@ library(dplyr)
 ## Lager datasett av Excel fra ENOVA
 
 ```{r}
-Energi_2019 <- read_excel("Energikarakterer_2019.xls")
-Energi_2020 <- read_excel("Energikarakterer_2020.xlsx")
-Energi_2021 <- read_excel("Energikarakterer_2021.xlsx")
-Energi_2022 <- read_excel("Energikarakterer_2022.xls")
+# Kevin: Lagt inn suppressWarnings() for å slippe masse spam/warnings
+
+Energi_2019 <- suppressWarnings(read_excel("Energikarakterer_2019.xls"))
+Energi_2020 <- suppressWarnings(read_excel("Energikarakterer_2020.xlsx"))
+Energi_2021 <- suppressWarnings(read_excel("Energikarakterer_2021.xlsx"))
+Energi_2022 <- suppressWarnings(read_excel("Energikarakterer_2022.xls"))
 ```
 
 ## Fjerner Fnr(festenummer)
@@ -87,13 +89,13 @@ EV <- read_excel("EV_kommaseparert.xlsx") %>%
   select(-CityDistrict)
 ```
 
-# Koordinater, Boliger
+# Boligkoordinater
 
-## Leser inn filen for koordinater boliger
+## Leser inn filen for boligkoordinater
 
 ```{r}
 KoordinaterVestland <- read_delim("KoordinaterVestland.csv", 
-    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+    delim = ";", escape_double = FALSE, trim_ws = TRUE, show_col_types = FALSE)
 ```
 
 ## Filterer ut relevante kommuner
@@ -121,7 +123,12 @@ ENOVA_coords <- distinct(merged_data, GateAdresse, .keep_all = TRUE)
 ```{r}
 ENOVA_coords <- ENOVA_coords %>%
   unite(col = "Matrikkel", c("Matrikkelnummer", "Snr"), sep = "/", remove = FALSE) %>% 
-  select(-Matrikkelnummer, -Snr, -Postnummer, -Utstedelsesdato, -TypeRegistrering, -Fnr)
+  select(-Matrikkelnummer, 
+         -Snr, 
+         -Postnummer, 
+         -Utstedelsesdato, 
+         -TypeRegistrering, 
+         -Fnr)
 ```
 
 ### Rydder vekk fullstendige datasett, for kontroll og unngå å rote.
