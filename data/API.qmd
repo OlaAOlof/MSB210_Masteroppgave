@@ -17,8 +17,8 @@ library(jsonlite)
 En test av innlasting av data fra Eiendomsverdi (EV)
 
 ```{r}
-EV <- read_excel("~/Library/CloudStorage/Dropbox/Master i økonomi og administrasjon/MSB210 Masteroppgave/Data/MSB210_Masteroppgave/data/EV-kommaseparert.xlsx")
-head(EV)
+#EV <- read_excel("~/Library/CloudStorage/Dropbox/Master i økonomi og administrasjon/MSB210 Masteroppgave/Data/MSB210_Masteroppgave/data/EV-kommaseparert.xlsx")
+#head(EV)
 ```
 
 En test av API-greiene
@@ -26,8 +26,8 @@ En test av API-greiene
 # Create request object with headers
 
 ```{r}
-url <- "https://apim.p42.enova.no/ems/bank/v1/Fil/2021/01"
-year <- "2021"
+url <- "https://apim.p42.enova.no/ems/bank/v1/Fil/2009/01"
+year <- "2009"
 month <- "01"
 request <- GET(sprintf(url, year = year, month = month), 
                add_headers("x-api-key" = "d9176773bbc14dab9ce5da9a38959af8"))
