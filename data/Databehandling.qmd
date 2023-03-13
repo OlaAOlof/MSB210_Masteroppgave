@@ -21,43 +21,25 @@ library(dplyr)
 ```{r}
 # Kevin: Lagt inn suppressWarnings() for å slippe masse spam/warnings
 
-Energi_2019 <- suppressWarnings(read_excel("Energikarakterer_2019.xls"))
-Energi_2020 <- suppressWarnings(read_excel("Energikarakterer_2020.xlsx"))
-Energi_2021 <- suppressWarnings(read_excel("Energikarakterer_2021.xlsx"))
-Energi_2022 <- suppressWarnings(read_excel("Energikarakterer_2022.xls"))
-```
-
-## Fjerner Fnr(festenummer)
-
-```{r}
-Energi_2019 <- Energi_2019[,-5]
-Energi_2020 <- Energi_2020[,-5]
-Energi_2021 <- Energi_2021[,-5]
-```
-
-## Filtrerer ut kun Bergen med omegn
-
-```{r}
-Energi_2019_Vestland <- Energi_2019[Energi_2019$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
-Energi_2020_Vestland <- Energi_2020[Energi_2020$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
-Energi_2021_Vestland <- Energi_2021[Energi_2021$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
-Energi_2022_Vestland <- Energi_2022[Energi_2022$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
-```
-
-### Rydder vekk fullstendige datasett, for kontroll og unngå å rote
-
-```{r Rydder_Fullstendige_Datasett}
-rm(Energi_2019)
-rm(Energi_2020)
-rm(Energi_2021)
-rm(Energi_2022)
+Energi_2019_Vestland <- suppressWarnings(read_excel("Energikarakterer_2019.xlsx"))
+Energi_2020_Vestland <- suppressWarnings(read_excel("Energikarakterer_2020.xlsx"))
+Energi_2021_Vestland <- suppressWarnings(read_excel("Energikarakterer_2021.xlsx"))
+Energi_2022_Vestland <- suppressWarnings(read_excel("Energikarakterer_2022.xlsx"))
 ```
 
 ## Sammenslår datasett, fom. 2019 tom. 2022
 
 ```{r}
-ENOVA_Vestland <- rbind(Energi_2019_Vestland, Energi_2020_Vestland, Energi_2021_Vestland, Energi_2022_Vestland) %>% 
-  select(-EnergiVurderingDato, -BeregnetFossilandel, -Attestnummer, -HarEnergiVurdering)
+ENOVA_Vestland <- rbind(
+  Energi_2019_Vestland,
+  Energi_2020_Vestland,
+  Energi_2021_Vestland,
+  Energi_2022_Vestland) %>% 
+  select(
+    -EnergiVurderingDato,
+    -BeregnetFossilandel,
+    -Attestnummer,
+    -HarEnergiVurdering)
 ```
 
 ## Fjerner rekker observasjoner med organisasjonsnummer
@@ -78,8 +60,8 @@ ENOVA_Vestland <- ENOVA_Vestland %>%
 
 ```{r}
 ENOVA_Vestland <- ENOVA_Vestland %>%
-  unite(col = "Matrikkelnummer", c("Knr", "Gnr", "Bnr", "Andelsnummer"), sep = "/", remove = FALSE) %>% 
-  select(-Knr, -Gnr, -Bnr, -Andelsnummer)
+  unite(col = "Matrikkelnummer", c("Knr", "Gnr", "Bnr", "Snr", "Andelsnummer"), sep = "/", remove = FALSE) # %>% 
+  # select(-Knr, -Gnr, -Bnr, -Andelsnummer)
 ```
 
 # Databehandling - Rådata, Eiendomsverdi AS
@@ -141,8 +123,8 @@ rm(KoordinaterVestland)
 ## Fjerner snr fra ENOVA_Vestland
 
 ```{r}
-ENOVA_Vestland <- ENOVA_Vestland %>% 
-  select(-Snr)
+# ENOVA_Vestland <- ENOVA_Vestland %>% 
+  # select(-Snr)
 ```
 
 # Koordinater, Bergen
@@ -165,10 +147,23 @@ Mutate en felles koordinat (Lengde og bredde) for ENOVA_Vestland Mutate en felle
 
 Opprinnelig datasett inneholder 284 340 obs. of 121 variables, så før innlasting er det i Excel fjernet:
 
--   43 variabler
+-   45 variabler
 
--   224 633 obs.
+-   224 996 obs.
 
 ```{r}
-A <- read_excel("Ambita.xlsx")
+Ambita <- read_excel("Ambita.xlsx")
 ```
+
+```{r}
+# Her endrer vi alle Snr og Andelsnummer fra 0 til NA slik at det blir identisk som i ENOVA sitt datasett
+Ambita$Snr[Ambita$Snr == 0] <- NA
+Ambita$Andelsnummer[Ambita$Andelsnummer == 0] <- NA
+```
+
+```{r}
+Ambita <- Ambita %>%
+  unite(col = "Matrikkelnummer", c("Knr", "Gnr", "Bnr", "Andelsnummer"), sep = "/", remove = FALSE)
+```
+
+
