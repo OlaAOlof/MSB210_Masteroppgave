@@ -222,7 +222,7 @@ Opprinnelig datasett inneholder 284 340 obs. of 121 variables, så før innlasti
 
 ```{r}
 #Ambita <- read_excel("Ambita.xlsx")
-#Ambita <- read_excel("Ambita_Fullstendig.xlsx")
+Ambita <- read_excel("Ambita_Delvis.xlsx")
 ```
 
 ```{r}
@@ -338,11 +338,58 @@ ENOVA_Vestland <- ENOVA_Vestland %>%
   select(-Matrikkelnummer, -Snr)
 ```
 
+# HER STÅR VI FAST.
+
+Vi skal slå sammen datasettene ENOVA_Vestland med Ambita med hensyn på Matrikkel.
+
+Det vi ønsker er å slå sammen datasettene på matrikkel, og utelukke alle verdier som ikke matcher på matrikkel i disse to datasettene.
+
+Vi har prøvd mye rundt funksjonene
+- inner_join
+- merge
+- left_join
+
+Vi kommer oss ikke videre herifra. Vi har også prøvd å slå sammen på bolignummer, men får at det er to ulike kolonnetyper, hvor den ene er double og den andre er characters.
+
 ```{r}
-Sammen <- inner_join(Ambita, ENOVA_Vestland, by = "Bygningsnummer")
+Tmp <- merge(Ambita, ENOVA_Vestland, by = "Matrikkel", all.x = TRUE, all.y = TRUE)
 ```
 
 ```{r}
-#siste
+Tmp2 <- distinct(Tmp, Bygningsnummer.x)
 ```
+
+```{r}
+unique(Tmp2)
+```
+
+
+.keep_all = TRUE
+
+```{r}
+Test <- Ambita %>% 
+  left_join(ENOVA_Vestland,
+            by = c("Matrikkel" = "Matrikkel")
+            )
+```
+
+```{r}
+duplikat <- Test[duplicated(Test$Matrikkel),]
+print(duplikat)
+```
+
+
+```{r}
+distinct(Test)
+```
+
+
+```{r}
+Sammen <- merge(ENOVA_Vestland, Ambita, by = "Bygningsnummer")
+```
+
+```{r}
+Datasett <- distinct(Sammen, GateAdresse, .keep_all = TRUE)
+```
+
 
