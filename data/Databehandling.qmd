@@ -60,8 +60,8 @@ ENOVA_Vestland <- ENOVA_Vestland %>%
 
 ```{r}
 ENOVA_Vestland <- ENOVA_Vestland %>%
-  unite(col = "Matrikkelnummer", c("Knr", "Gnr", "Bnr", "Snr", "Andelsnummer"), sep = "/", remove = FALSE) # %>% 
-  # select(-Knr, -Gnr, -Bnr, -Andelsnummer)
+  unite(col = "Matrikkelnummer", c("Knr", "Gnr", "Bnr", "Andelsnummer"), sep = "/", remove = FALSE) %>% 
+   select(-Knr, -Gnr, -Bnr, -Andelsnummer)
 ```
 
 # Databehandling - Rådata, Eiendomsverdi AS
@@ -151,6 +151,8 @@ Opprinnelig datasett inneholder 284 340 obs. of 121 variables, så før innlasti
 
 -   224 996 obs.
 
+# Databehandling Ambita AS
+
 ```{r}
 Ambita <- read_excel("Ambita.xlsx")
 ```
@@ -163,7 +165,8 @@ Ambita$Andelsnummer[Ambita$Andelsnummer == 0] <- NA
 
 ```{r}
 Ambita <- Ambita %>%
-  unite(col = "Matrikkelnummer", c("Knr", "Gnr", "Bnr", "Andelsnummer"), sep = "/", remove = FALSE)
+  unite(col = "Matrikkelnummer", c("Knr", "Gnr", "Bnr", "Snr", "Andelsnummer"), sep = "/", remove = FALSE) %>% 
+  select(-Knr, -Gnr, -Bnr, -Snr, -Andelsnummer)
 ```
 
 
