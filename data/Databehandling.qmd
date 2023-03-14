@@ -5,6 +5,8 @@ author:
   "Ola Andre Olofsson"
 format: html
 editor: visual
+editor_options:
+  chunk_output_type: console
 ---
 
 ```{r setup}
@@ -12,6 +14,7 @@ library(readr)
 library(readxl)
 library(tidyverse)
 library(dplyr)
+options(paged.print = FALSE)
 ```
 
 # Databehandling - Rådata, ENOVA
@@ -65,7 +68,6 @@ Energi_2018_Vestland <- Energi_2018_Vestland[Energi_2018_Vestland$Knr %in% c(460
   select(-Fnr)
 ```
 
-
 ## Sammenslår datasett, fom. 2019 tom. 2022
 
 ```{r}
@@ -92,7 +94,8 @@ ENOVA_Vestland <- rbind(
 
 ## Fjerner rekker observasjoner med organisasjonsnummer
 
-Vi velger å fjerne rekkene med organisasjonsnummer da dette er boliger eid og kjøpt av næringer. Vi er i denne oppgaven interesert i hvordan det i hovedsak påvirker private, og boliger med organisasjonsnummer blir dermed en verdi vi ikke har behov for.
+Vi velger å fjerne rekkene med organisasjonsnummer da dette er boliger eid og kjøpt av næringer.
+Vi er i denne oppgaven interesert i hvordan det i hovedsak påvirker private, og boliger med organisasjonsnummer blir dermed en verdi vi ikke har behov for.
 
 ```{r}
 ENOVA_Vestland <- ENOVA_Vestland %>%
@@ -129,7 +132,6 @@ rm(Energi_2020_Vestland)
 rm(Energi_2021_Vestland)
 rm(Energi_2022_Vestland)
 ```
-
 
 # Databehandling - Rådata, Eiendomsverdi AS
 
@@ -206,13 +208,17 @@ Bergen <- data.frame(
 
 ### Ting å gjøre her:
 
-Finne en ID vi kan bruke til å kombinere med ENOVA_Vestland/ENOVA_coords Kan henda me må laga ein eigen ID i Vestland_coords & Bergen datasettet, f.eks. ein nummerisk ID som me kan utnytta te å slå sammen desse to på? Finne ut vilken format (CRS/EPSG) vi skal bruke på dette Transponere datasettene
+Finne en ID vi kan bruke til å kombinere med ENOVA_Vestland/ENOVA_coords Kan henda me må laga ein eigen ID i Vestland_coords & Bergen datasettet, f.eks.
+ein nummerisk ID som me kan utnytta te å slå sammen desse to på?
+Finne ut vilken format (CRS/EPSG) vi skal bruke på dette Transponere datasettene
 
-Mutate en felles koordinat (Lengde og bredde) for ENOVA_Vestland Mutate en felles koordinat (Lengde og bredde) for Bergen Bruke st_distance for å finne avstand i luftlinje mellom punktene for å finne distanste mellom sentrum og boliger Sjekke og evt. konvertere til rett måleformat (km)
+Mutate en felles koordinat (Lengde og bredde) for ENOVA_Vestland Mutate en felles koordinat (Lengde og bredde) for Bergen Bruke st_distance for å finne avstand i luftlinje mellom punktene for å finne distanste mellom sentrum og boliger Sjekke og evt.
+konvertere til rett måleformat (km)
 
 # Databehandling - Ambita
 
-Opprinnelig datasett inneholder 284 340 obs. of 121 variables, så før innlasting er det i Excel fjernet:
+Opprinnelig datasett inneholder 284 340 obs.
+of 121 variables, så før innlasting er det i Excel fjernet:
 
 -   45 variabler
 
@@ -317,7 +323,6 @@ colnames(Ambita)[colnames(Ambita) == "Andelsnr"] <- "Andelsnummer"
 colnames(Ambita)[colnames(Ambita) == "Bygningsnr"] <- "Bygningsnummer"
 ```
 
-
 ```{r}
 # Her endrer vi alle Snr og Andelsnummer fra 0 til NA slik at det blir identisk som i ENOVA sitt datasett
 Ambita$Snr[Ambita$Snr == 0] <- NA
@@ -344,12 +349,10 @@ Vi skal slå sammen datasettene ENOVA_Vestland med Ambita med hensyn på Matrikk
 
 Det vi ønsker er å slå sammen datasettene på matrikkel, og utelukke alle verdier som ikke matcher på matrikkel i disse to datasettene.
 
-Vi har prøvd mye rundt funksjonene
-- inner_join
-- merge
-- left_join
+Vi har prøvd mye rundt funksjonene - inner_join - merge - left_join
 
-Vi kommer oss ikke videre herifra. Vi har også prøvd å slå sammen på bolignummer, men får at det er to ulike kolonnetyper, hvor den ene er double og den andre er characters.
+Vi kommer oss ikke videre herifra.
+Vi har også prøvd å slå sammen på bolignummer, men får at det er to ulike kolonnetyper, hvor den ene er double og den andre er characters.
 
 ```{r}
 Tmp <- merge(Ambita, ENOVA_Vestland, by = "Matrikkel", all.x = TRUE, all.y = TRUE)
@@ -362,7 +365,6 @@ Tmp2 <- distinct(Tmp, Bygningsnummer.x)
 ```{r}
 unique(Tmp2)
 ```
-
 
 .keep_all = TRUE
 
@@ -378,11 +380,9 @@ duplikat <- Test[duplicated(Test$Matrikkel),]
 print(duplikat)
 ```
 
-
 ```{r}
 distinct(Test)
 ```
-
 
 ```{r}
 Sammen <- merge(ENOVA_Vestland, Ambita, by = "Bygningsnummer")
@@ -392,4 +392,163 @@ Sammen <- merge(ENOVA_Vestland, Ambita, by = "Bygningsnummer")
 Datasett <- distinct(Sammen, GateAdresse, .keep_all = TRUE)
 ```
 
+Jeg vil foreslå å splitte Matrikkel opp i knr (kommune nummer), gnr (gårdsnummer), bnr (bruksnummer), snr (seksjonsnummer) og fnr (festenummer).
+For de to siste er jeg usikker på rekkefølgen, men dere har kansje dokumentasjon på Matrikkelnummeret.
+Hvis jeg har gjettet feil må dere bytte om på snr og fnr.
 
+```{r}
+# starter med ENOVA_vestland
+# fikk feilmelding fra separate_wider_delim() om at det var 3 obs. med mer
+# 5 verdier. Derfor too_many = "debug"
+tmp <- ENOVA_Vestland |> 
+  # ny funksjon erstatter separate()
+  separate_wider_delim(
+    cols = Matrikkel,
+    delim = "/",
+    names = c("knr", "gnr", "bnr", "snr", "fnr"),
+    too_many = "debug"
+  )
+```
+
+Finner de 3
+
+```{r}
+tmp |> filter(Matrikkel_ok == FALSE) |> select(c(gnr:bnr), Matrikkel) 
+```
+
+Ser at diise tre har seks verdier, der den siste er NA for alle tre.
+Antar at denne NA verdien er feil.
+Kan enten droppe de tre obs.
+eller rette.
+Retter ved å legge de tre ut i tmp1.
+Redigerer så Matrikkel for de tre (fjerner /NA).
+
+```{r}
+#| eval: false
+tmp1 <- ENOVA_Vestland |> filter(Matrikkel %in% c("4601/97/93/110/12/NA", "4601/160/797/30/492/NA", "4601/24/10/039/006/NA"))
+# not 6 parts
+tmp2 <- ENOVA_Vestland |> filter(!Matrikkel %in% c("4601/97/93/110/12/NA", "4601/160/797/30/492/NA", "4601/24/10/039/006/NA"))
+```
+
+```{r}
+tmp1[,1:3]
+```
+
+```{r}
+tmp1[1, "Matrikkel"] <- "4601/97/93/110/12"
+tmp1[2, "Matrikkel"] <- "4601/160/797/30/492"
+tmp1[3, "Matrikkel"] <- "4601/24/10/039/006"
+```
+
+Oppdatert ENOVA_Vestland
+
+```{r}
+ENOVA_Vestland <- bind_rows(tmp1, tmp2)
+```
+
+```{r}
+# rydder
+rm(tmp, tmp1, tmp2)
+```
+
+```{r}
+# splitter Matrikkel
+ENOVA_Vestland <- ENOVA_Vestland |> 
+  # ny funksjon erstatter separate()
+  separate_wider_delim(
+    cols = Matrikkel,
+    delim = "/",
+    names = c("knr", "gnr", "bnr", "snr", "fnr")
+  )
+```
+
+```{r}
+# splitter Matrikkel i Ambita
+Ambita <- Ambita |> 
+  # ny funksjon erstatter separate()
+  separate_wider_delim(
+    cols = Matrikkel,
+    delim = "/",
+    names = c("knr", "gnr", "bnr", "snr", "fnr")
+  )
+```
+
+Ser at ENOVA_Vestland har en variabel Utstedelsesdato som har noe å gjøre med når et tiltak er gjennomført.
+Ser tilsvarende at Ambita har en DokumentDato variabel som jeg antar er datoen eierskifte blir tinglyst og at Kjøpesum er salgssummen relatert til dette eierskifte.
+Vil anta at en del av boligene kan være solgt på flere tidspunkt.
+D avil det være slik at når en slår sammen de to datasettene vil en kunne få flere observasjoner fordi samme bolig i ENOVA_Vestland har blitt tingslyst flere ganger.
+Dere vil antakelig kunne bruke dataovariablene der en har multiple salg til å finne verdi før og etter at ENOVA tiltak er gjennoført.
+
+```{r}
+# Endrer Ambita variabelen Bygningsnummer fra numeric til character
+# nødvendig for join nedenfor
+Ambita$Bygningsnummer <- as.character(Ambita$Bygningsnummer)
+```
+
+```{r}
+EnAmb <- ENOVA_Vestland |> 
+  left_join(
+    y = Ambita,
+    by = c("Bygningsnummer", "knr", "gnr", "bnr")
+  )
+```
+
+Ser at EnAmb har 13884 observasjoner (mot 3067 i ENOVA_Vestland).
+Noe av veksten i antall obs.
+kan skyldes multiple salg, noe kan skyldes at objektene ikke er entydig definert vha.
+Bygningsnummer, knr, gnr, bnr.
+Typisk problem med boligblokker, borettslag og seksjonerte eiendommer.
+Dere har postaddresse både i ENOVA_Vestland og Ambita.
+I Ambita er postadressen splittet i varaiablene EiendomAdressegatenavn, EiendomAdressehusnr og EiendomAdressebokstav.
+I ENOVA_Vestland er dette kombinert i variabelen GateAdresse.
+Dere kan prøve å splitte også denne opp i variablene EiendomAdressegatenavn, EiendomAdressehusnr og EiendomAdressebokstav.
+Da vil dere få anledning til også å matche på adresse.
+Dere må nok bruke regexp (se r4ds.had.co.nz cap. 14 særlig 14.3) og også andre funksjoner fra str\_ for å få alt på samme form (bruk av hhv. stor og liten bokstav).
+Dette er en kjekk liten utfordring ;-)
+
+Her er en start.
+
+```{r}
+# Fikser først GateAdresse, noen uten mellomrom mellom navn og nummer
+tmp <- ENOVA_Vestland$GateAdresse |> 
+      str_match(
+        pattern = "^([^\\d]*)(\\d+)\\s*\\w?"
+        )
+
+ENOVA_Vestland$GateAdresse <- paste(tmp[,2], tmp[,3])
+rm(tmp)
+```
+
+```{r}
+ENOVA_Vestland <- ENOVA_Vestland |> 
+  mutate(
+    EiendomAdressegatenavn =  str_extract(
+      GateAdresse,
+      pattern = "(.+)\\s+(\\d+)\\s?(\\w?)$",
+      group = 1
+    ),
+    EiendomAdressehusnr =  str_extract(
+      GateAdresse,
+      pattern = "(.+)\\s+(\\d+)\\s?(\\w?)$",
+      group = 2
+    ),
+    EiendomAdressebokstav =  str_extract(
+      GateAdresse,
+      pattern = "(.+)\\s+(\\d+)\\s?(\\w?)$",
+      group = 3
+    ),
+    .after = GateAdresse
+  )
+```
+
+Kanskje en idé å downcase EiendomAdressegatenavn i både ENOVA_Vestland og Ambita og også å bruke str_replace() for å bytte ut mellomrom med \_ for letter å se mellomrom tegn som er lagt inn.
+
+```{r}
+
+```
+
+Nå kan dere kanskje også matche på adresse.
+
+```{r}
+# siste
+```
