@@ -24,19 +24,19 @@ options(paged.print = FALSE)
 ```{r}
 # Kevin: Lagt inn suppressWarnings() for å slippe masse spam/warnings
 
-Energi_2010_Vestland <- suppressWarnings(read_csv("Energikarakterer_2010.csv"))
-Energi_2011_Vestland <- suppressWarnings(read_csv("Energikarakterer_2011.csv"))
-Energi_2012_Vestland <- suppressWarnings(read_csv("Energikarakterer_2012.csv"))
-Energi_2013_Vestland <- suppressWarnings(read_csv("Energikarakterer_2013.csv"))
-Energi_2014_Vestland <- suppressWarnings(read_csv("Energikarakterer_2014.csv"))
-Energi_2015_Vestland <- suppressWarnings(read_csv("Energikarakterer_2015.csv"))
-Energi_2016_Vestland <- suppressWarnings(read_csv("Energikarakterer_2016.csv"))
-Energi_2017_Vestland <- suppressWarnings(read_csv("Energikarakterer_2017.csv"))
-Energi_2018_Vestland <- suppressWarnings(read_csv("Energikarakterer_2018.csv"))
-Energi_2019_Vestland <- suppressWarnings(read_excel("Energikarakterer_2019.xlsx"))
-Energi_2020_Vestland <- suppressWarnings(read_excel("Energikarakterer_2020.xlsx"))
-Energi_2021_Vestland <- suppressWarnings(read_excel("Energikarakterer_2021.xlsx"))
-Energi_2022_Vestland <- suppressWarnings(read_excel("Energikarakterer_2022.xlsx"))
+Energi_2010_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2010.csv"))
+Energi_2011_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2011.csv"))
+Energi_2012_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2012.csv"))
+Energi_2013_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2013.csv"))
+Energi_2014_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2014.csv"))
+Energi_2015_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2015.csv"))
+Energi_2016_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2016.csv"))
+Energi_2017_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2017.csv"))
+Energi_2018_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2018.csv"))
+Energi_2019_Vestland <- suppressWarnings(read_excel("data/Energikarakterer_2019.xlsx"))
+Energi_2020_Vestland <- suppressWarnings(read_excel("data/Energikarakterer_2020.xlsx"))
+Energi_2021_Vestland <- suppressWarnings(read_excel("data/Energikarakterer_2021.xlsx"))
+Energi_2022_Vestland <- suppressWarnings(read_excel("data/Energikarakterer_2022.xlsx"))
 ```
 
 ```{r}
@@ -94,8 +94,7 @@ ENOVA_Vestland <- rbind(
 
 ## Fjerner rekker observasjoner med organisasjonsnummer
 
-Vi velger å fjerne rekkene med organisasjonsnummer da dette er boliger eid og kjøpt av næringer.
-Vi er i denne oppgaven interesert i hvordan det i hovedsak påvirker private, og boliger med organisasjonsnummer blir dermed en verdi vi ikke har behov for.
+Vi velger å fjerne rekkene med organisasjonsnummer da dette er boliger eid og kjøpt av næringer. Vi er i denne oppgaven interesert i hvordan det i hovedsak påvirker private, og boliger med organisasjonsnummer blir dermed en verdi vi ikke har behov for.
 
 ```{r}
 ENOVA_Vestland <- ENOVA_Vestland %>%
@@ -136,7 +135,7 @@ rm(Energi_2022_Vestland)
 # Databehandling - Rådata, Eiendomsverdi AS
 
 ```{r}
-EV <- read_excel("EV_kommaseparert.xlsx") %>% 
+EV <- read_excel("data/EV_kommaseparert.xlsx") %>% 
   select(-CityDistrict)
 ```
 
@@ -145,7 +144,7 @@ EV <- read_excel("EV_kommaseparert.xlsx") %>%
 ## Leser inn filen for boligkoordinater
 
 ```{r}
-KoordinaterVestland <- read_delim("KoordinaterVestland.csv", 
+KoordinaterVestland <- read_delim("data/KoordinaterVestland.csv", 
     delim = ";", escape_double = FALSE, trim_ws = TRUE, show_col_types = FALSE)
 ```
 
@@ -208,17 +207,13 @@ Bergen <- data.frame(
 
 ### Ting å gjøre her:
 
-Finne en ID vi kan bruke til å kombinere med ENOVA_Vestland/ENOVA_coords Kan henda me må laga ein eigen ID i Vestland_coords & Bergen datasettet, f.eks.
-ein nummerisk ID som me kan utnytta te å slå sammen desse to på?
-Finne ut vilken format (CRS/EPSG) vi skal bruke på dette Transponere datasettene
+Finne en ID vi kan bruke til å kombinere med ENOVA_Vestland/ENOVA_coords Kan henda me må laga ein eigen ID i Vestland_coords & Bergen datasettet, f.eks. ein nummerisk ID som me kan utnytta te å slå sammen desse to på? Finne ut vilken format (CRS/EPSG) vi skal bruke på dette Transponere datasettene
 
-Mutate en felles koordinat (Lengde og bredde) for ENOVA_Vestland Mutate en felles koordinat (Lengde og bredde) for Bergen Bruke st_distance for å finne avstand i luftlinje mellom punktene for å finne distanste mellom sentrum og boliger Sjekke og evt.
-konvertere til rett måleformat (km)
+Mutate en felles koordinat (Lengde og bredde) for ENOVA_Vestland Mutate en felles koordinat (Lengde og bredde) for Bergen Bruke st_distance for å finne avstand i luftlinje mellom punktene for å finne distanste mellom sentrum og boliger Sjekke og evt. konvertere til rett måleformat (km)
 
 # Databehandling - Ambita
 
-Opprinnelig datasett inneholder 284 340 obs.
-of 121 variables, så før innlasting er det i Excel fjernet:
+Opprinnelig datasett inneholder 284 340 obs. of 121 variables, så før innlasting er det i Excel fjernet:
 
 -   45 variabler
 
@@ -228,7 +223,7 @@ of 121 variables, så før innlasting er det i Excel fjernet:
 
 ```{r}
 #Ambita <- read_excel("Ambita.xlsx")
-Ambita <- read_excel("Ambita_Delvis.xlsx")
+Ambita <- read_excel("data/Ambita_Delvis.xlsx")
 ```
 
 ```{r}
@@ -351,50 +346,47 @@ Det vi ønsker er å slå sammen datasettene på matrikkel, og utelukke alle ver
 
 Vi har prøvd mye rundt funksjonene - inner_join - merge - left_join
 
-Vi kommer oss ikke videre herifra.
-Vi har også prøvd å slå sammen på bolignummer, men får at det er to ulike kolonnetyper, hvor den ene er double og den andre er characters.
+Vi kommer oss ikke videre herifra. Vi har også prøvd å slå sammen på bolignummer, men får at det er to ulike kolonnetyper, hvor den ene er double og den andre er characters.
 
 ```{r}
-Tmp <- merge(Ambita, ENOVA_Vestland, by = "Matrikkel", all.x = TRUE, all.y = TRUE)
+#Tmp <- merge(Ambita, ENOVA_Vestland, by = "Matrikkel", all.x = TRUE, all.y = TRUE)
 ```
 
 ```{r}
-Tmp2 <- distinct(Tmp, Bygningsnummer.x)
+#Tmp2 <- distinct(Tmp, Bygningsnummer.x)
 ```
 
 ```{r}
-unique(Tmp2)
+#unique(Tmp2)
 ```
 
 .keep_all = TRUE
 
 ```{r}
-Test <- Ambita %>% 
-  left_join(ENOVA_Vestland,
-            by = c("Matrikkel" = "Matrikkel")
-            )
+#Test <- Ambita %>% 
+#  left_join(ENOVA_Vestland,
+#            by = c("Matrikkel" = "Matrikkel")
+#            )
 ```
 
 ```{r}
-duplikat <- Test[duplicated(Test$Matrikkel),]
-print(duplikat)
+#duplikat <- Test[duplicated(Test$Matrikkel),]
+#print(duplikat)
 ```
 
 ```{r}
-distinct(Test)
+#distinct(Test)
 ```
 
 ```{r}
-Sammen <- merge(ENOVA_Vestland, Ambita, by = "Bygningsnummer")
+#Sammen <- merge(ENOVA_Vestland, Ambita, by = "Bygningsnummer")
 ```
 
 ```{r}
-Datasett <- distinct(Sammen, GateAdresse, .keep_all = TRUE)
+#Datasett <- distinct(Sammen, GateAdresse, .keep_all = TRUE)
 ```
 
-Jeg vil foreslå å splitte Matrikkel opp i knr (kommune nummer), gnr (gårdsnummer), bnr (bruksnummer), snr (seksjonsnummer) og fnr (festenummer).
-For de to siste er jeg usikker på rekkefølgen, men dere har kansje dokumentasjon på Matrikkelnummeret.
-Hvis jeg har gjettet feil må dere bytte om på snr og fnr.
+Jeg vil foreslå å splitte Matrikkel opp i knr (kommune nummer), gnr (gårdsnummer), bnr (bruksnummer), snr (seksjonsnummer) og fnr (festenummer). For de to siste er jeg usikker på rekkefølgen, men dere har kansje dokumentasjon på Matrikkelnummeret. Hvis jeg har gjettet feil må dere bytte om på snr og fnr.
 
 ```{r}
 # starter med ENOVA_vestland
@@ -416,12 +408,7 @@ Finner de 3
 tmp |> filter(Matrikkel_ok == FALSE) |> select(c(gnr:bnr), Matrikkel) 
 ```
 
-Ser at diise tre har seks verdier, der den siste er NA for alle tre.
-Antar at denne NA verdien er feil.
-Kan enten droppe de tre obs.
-eller rette.
-Retter ved å legge de tre ut i tmp1.
-Redigerer så Matrikkel for de tre (fjerner /NA).
+Ser at diise tre har seks verdier, der den siste er NA for alle tre. Antar at denne NA verdien er feil. Kan enten droppe de tre obs. eller rette. Retter ved å legge de tre ut i tmp1. Redigerer så Matrikkel for de tre (fjerner /NA).
 
 ```{r}
 #| eval: false
@@ -473,11 +460,7 @@ Ambita <- Ambita |>
   )
 ```
 
-Ser at ENOVA_Vestland har en variabel Utstedelsesdato som har noe å gjøre med når et tiltak er gjennomført.
-Ser tilsvarende at Ambita har en DokumentDato variabel som jeg antar er datoen eierskifte blir tinglyst og at Kjøpesum er salgssummen relatert til dette eierskifte.
-Vil anta at en del av boligene kan være solgt på flere tidspunkt.
-D avil det være slik at når en slår sammen de to datasettene vil en kunne få flere observasjoner fordi samme bolig i ENOVA_Vestland har blitt tingslyst flere ganger.
-Dere vil antakelig kunne bruke dataovariablene der en har multiple salg til å finne verdi før og etter at ENOVA tiltak er gjennoført.
+Ser at ENOVA_Vestland har en variabel Utstedelsesdato som har noe å gjøre med når et tiltak er gjennomført. Ser tilsvarende at Ambita har en DokumentDato variabel som jeg antar er datoen eierskifte blir tinglyst og at Kjøpesum er salgssummen relatert til dette eierskifte. Vil anta at en del av boligene kan være solgt på flere tidspunkt. D avil det være slik at når en slår sammen de to datasettene vil en kunne få flere observasjoner fordi samme bolig i ENOVA_Vestland har blitt tingslyst flere ganger. Dere vil antakelig kunne bruke dataovariablene der en har multiple salg til å finne verdi før og etter at ENOVA tiltak er gjennoført.
 
 ```{r}
 # Endrer Ambita variabelen Bygningsnummer fra numeric til character
@@ -493,18 +476,7 @@ EnAmb <- ENOVA_Vestland |>
   )
 ```
 
-Ser at EnAmb har 13884 observasjoner (mot 3067 i ENOVA_Vestland).
-Noe av veksten i antall obs.
-kan skyldes multiple salg, noe kan skyldes at objektene ikke er entydig definert vha.
-Bygningsnummer, knr, gnr, bnr.
-Typisk problem med boligblokker, borettslag og seksjonerte eiendommer.
-Dere har postaddresse både i ENOVA_Vestland og Ambita.
-I Ambita er postadressen splittet i varaiablene EiendomAdressegatenavn, EiendomAdressehusnr og EiendomAdressebokstav.
-I ENOVA_Vestland er dette kombinert i variabelen GateAdresse.
-Dere kan prøve å splitte også denne opp i variablene EiendomAdressegatenavn, EiendomAdressehusnr og EiendomAdressebokstav.
-Da vil dere få anledning til også å matche på adresse.
-Dere må nok bruke regexp (se r4ds.had.co.nz cap. 14 særlig 14.3) og også andre funksjoner fra str\_ for å få alt på samme form (bruk av hhv. stor og liten bokstav).
-Dette er en kjekk liten utfordring ;-)
+Ser at EnAmb har 13884 observasjoner (mot 3067 i ENOVA_Vestland). Noe av veksten i antall obs. kan skyldes multiple salg, noe kan skyldes at objektene ikke er entydig definert vha. Bygningsnummer, knr, gnr, bnr. Typisk problem med boligblokker, borettslag og seksjonerte eiendommer. Dere har postaddresse både i ENOVA_Vestland og Ambita. I Ambita er postadressen splittet i varaiablene EiendomAdressegatenavn, EiendomAdressehusnr og EiendomAdressebokstav. I ENOVA_Vestland er dette kombinert i variabelen GateAdresse. Dere kan prøve å splitte også denne opp i variablene EiendomAdressegatenavn, EiendomAdressehusnr og EiendomAdressebokstav. Da vil dere få anledning til også å matche på adresse. Dere må nok bruke regexp (se r4ds.had.co.nz cap. 14 særlig 14.3) og også andre funksjoner fra str\_ for å få alt på samme form (bruk av hhv. stor og liten bokstav). Dette er en kjekk liten utfordring ;-)
 
 Her er en start.
 
