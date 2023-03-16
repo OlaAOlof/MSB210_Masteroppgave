@@ -598,6 +598,49 @@ Datasett_Rensket <- Datasett_Rensket %>%
          -Bolignr)
 ```
 
+###
+
+```{r}
+Datasett_Rensket <- Datasett_Rensket %>%
+  mutate(Energikar_num = recode(Energikarakter,
+                                         'G' = 1,
+                                         'F' = 2,
+                                         'E' = 3,
+                                         'D' = 4,
+                                         'C' = 5,
+                                         'B' = 6,
+                                         'A' = 7))
+```
+
+
+### Prøver å legge til DokumentAr fra Ambita inn i Datasett_Rensket
+
+```{r}
+Dato <- Ambita %>% 
+  select(DokumentAr, Dokumentnr, DokumentDato)
+```
+
+```{r}
+Midlertidig <- inner_join(Datasett_Rensket, Dato, by = c ("DokumentDato", "Dokumentnr"))
+```
+
+#### Lager et nytt datasett for sikkerhetsskyld for når vi går videre
+
+```{r}
+Analyse <- unique(Midlertidig)
+```
+
+# Rydder
+
+```{r}
+rm(Data_Analyse_1,
+   Data_Analyse_2,
+   Datasett_Rensket,
+   Dato,
+   EnAmb,
+   Midlertidig)
+```
+
 
 ```{r}
 # siste
