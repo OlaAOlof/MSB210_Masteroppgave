@@ -532,16 +532,20 @@ EnAmb <- EnAmb %>%
 ```
 
 ```{r}
-Data_Analyse <- distinct(EnAmb, Dokumentnr, .keep_all = TRUE) %>% 
+Data_Analyse_1 <- distinct(EnAmb, Dokumentnr, .keep_all = TRUE) %>% 
   select(-Dokumentnr)
 ```
 
 ```{r}
-Data_Analyse_2 <- distinct(EnAmb, InternIdBruksenhet, .keep_all = TRUE) %>% 
+Data_Analyse_2 <- distinct(Data_Analyse_1, InternIdBruksenhet, .keep_all = TRUE) %>% 
   select(-InternIdBruksenhet)
 ```
 
-InternIdBruksenhet
+```{r}
+Data_Analyse_3 <- distinct(EnAmb, InternIdBruksenhet, .keep_all = TRUE) %>% 
+  select(-InternIdBruksenhet)
+```
+
 
 Nå kan dere kanskje også matche på adresse.
 
