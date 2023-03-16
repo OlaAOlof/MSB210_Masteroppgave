@@ -238,7 +238,6 @@ Ambita <- Ambita[Ambita$DokumentAr %in% c(2019, 2020, 2021, 2022), ]
 Ambita <- Ambita %>% 
   select(-InternidDokument,
          -Embetenr,
-        # -Dokumentnr,
          -InternidRettsstiftelse,
          -Rettsstiftelsesnr,
          -Rettsstiftelsestypekode,
@@ -289,7 +288,7 @@ Ambita <- Ambita %>%
          -Grunnkrets,
          -AdresseHoyde,
          -InternidBygning,
-         -InternIdBruksenhet,
+         #-InternIdBruksenhet,
          -Etasjekode,
          -Kjokkentypekode)
 ```
@@ -477,7 +476,7 @@ EnAmb <- ENOVA_Vestland |>
   )
 ```
 
-Ser at EnAmb har 13884 observasjoner (mot 3067 i ENOVA_Vestland). Noe av veksten i antall obs. kan skyldes multiple salg, noe kan skyldes at objektene ikke er entydig definert vha. Bygningsnummer, knr, gnr, bnr. Typisk problem med boligblokker, borettslag og seksjonerte eiendommer. 
+Ser at EnAmb har 13884 observasjoner (mot 3067 i ENOVA_Vestland). Noe av veksten i antall obs. kan skyldes multiple salg, noe kan skyldes at objektene ikke er entydig definert vha. Bygningsnummer, knr, gnr, bnr. Typisk problem med boligblokker, borettslag og seksjonerte eiendommer.
 
 Dere har postaddresse både i ENOVA_Vestland og Ambita. I Ambita er postadressen splittet i varaiablene EiendomAdressegatenavn, EiendomAdressehusnr og EiendomAdressebokstav. I ENOVA_Vestland er dette kombinert i variabelen GateAdresse. Dere kan prøve å splitte også denne opp i variablene EiendomAdressegatenavn, EiendomAdressehusnr og EiendomAdressebokstav. Da vil dere få anledning til også å matche på adresse.
 
@@ -533,10 +532,16 @@ EnAmb <- EnAmb %>%
 ```
 
 ```{r}
-test <- distinct(EnAmb, Dokumentnr, .keep_all = TRUE)
+Data_Analyse <- distinct(EnAmb, Dokumentnr, .keep_all = TRUE) %>% 
+  select(-Dokumentnr)
 ```
 
-distinct(merged_data, GateAdresse, .keep_all = TRUE)
+```{r}
+Data_Analyse_2 <- distinct(EnAmb, InternIdBruksenhet, .keep_all = TRUE) %>% 
+  select(-InternIdBruksenhet)
+```
+
+InternIdBruksenhet
 
 Nå kan dere kanskje også matche på adresse.
 
