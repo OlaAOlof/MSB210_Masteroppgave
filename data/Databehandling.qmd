@@ -435,7 +435,9 @@ ENOVA_Vestland <- bind_rows(tmp1, tmp2)
 
 ```{r}
 # rydder
-rm(tmp, tmp1, tmp2)
+rm(tmp,
+   tmp1,
+   tmp2)
 ```
 
 ```{r}
