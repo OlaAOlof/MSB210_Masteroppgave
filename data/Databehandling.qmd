@@ -598,7 +598,7 @@ Datasett_Rensket <- Datasett_Rensket %>%
          -Bolignr)
 ```
 
-###
+### Endrer Energikarakterer, og TRUE/FALSE verdier til tall
 
 ```{r}
 Datasett_Rensket <- Datasett_Rensket %>%
