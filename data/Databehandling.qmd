@@ -517,6 +517,8 @@ ENOVA_Vestland <- ENOVA_Vestland |>
 
 Kanskje en idé å downcase EiendomAdressegatenavn i både ENOVA_Vestland og Ambita og også å bruke str_replace() for å bytte ut mellomrom med \_ for letter å se mellomrom tegn som er lagt inn.
 
+Nå kan dere kanskje også matche på adresse.
+
 # HER STÅR VI FAST.
 
 ## Fikser Gatenavn til små bokstaver
@@ -545,11 +547,57 @@ Data_Analyse_2 <- distinct(Data_Analyse_1, InternIdBruksenhet, .keep_all = TRUE)
 
 ```{r}
 #Data_Analyse_3 <- distinct(EnAmb, InternIdBruksenhet, .keep_all = TRUE) %>% 
-  select(-InternIdBruksenhet)
+  #select(-InternIdBruksenhet)
 ```
 
+# Leser inn modifisert datasett fra Excell
 
-Nå kan dere kanskje også matche på adresse.
+```{r}
+Datasett_Rensket <- suppressWarnings(read_excel("data/Datasett_Rensket.xlsx"))
+```
+
+## Filtrerer ut salgsverdier under 1 million kroner
+
+```{r}
+Datasett_Rensket <- Datasett_Rensket %>% 
+  filter(Kjopesum >= 1000000)
+```
+
+## Rydder i kolonner
+
+### Nytt navn på matrikkel
+
+```{r}
+colnames(Datasett_Rensket)[colnames(Datasett_Rensket) == "knr, gnr, bnr, snr.y"] <- "Knr - Gnr - Bnr - Snr"
+```
+
+### Fjerner Kolonner vi ikke trenger
+
+```{r}
+Datasett_Rensket <- Datasett_Rensket %>% 
+  select(-knr,
+         -gnr,
+         -bnr,
+         -snr.x,
+         -fnr.x,
+         -snr.y,
+         -fnr.y,
+         -Utstedelsesdato,
+         -TypeRegistrering,
+         -...27)
+```
+
+```{r}
+Datasett_Rensket <- Datasett_Rensket %>% 
+  select(-KjopereOgSelgere,
+         -PersonidEier,
+         -PostnrEier,
+         -PoststedEier,
+         -Bruksenhettypekode,
+         -Bruksenhettype,
+         -Bolignr)
+```
+
 
 ```{r}
 # siste
