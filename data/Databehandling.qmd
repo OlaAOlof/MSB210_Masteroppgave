@@ -24,19 +24,19 @@ options(paged.print = FALSE)
 ```{r}
 # Kevin: Lagt inn suppressWarnings() for å slippe masse spam/warnings
 
-Energi_2010_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2010.csv"))
-Energi_2011_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2011.csv"))
-Energi_2012_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2012.csv"))
-Energi_2013_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2013.csv"))
-Energi_2014_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2014.csv"))
-Energi_2015_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2015.csv"))
-Energi_2016_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2016.csv"))
-Energi_2017_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2017.csv"))
-Energi_2018_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2018.csv"))
-Energi_2019_Vestland <- suppressWarnings(read_excel("data/Energikarakterer_2019.xlsx"))
-Energi_2020_Vestland <- suppressWarnings(read_excel("data/Energikarakterer_2020.xlsx"))
-Energi_2021_Vestland <- suppressWarnings(read_excel("data/Energikarakterer_2021.xlsx"))
-Energi_2022_Vestland <- suppressWarnings(read_excel("data/Energikarakterer_2022.xlsx"))
+Energi_2010_Vestland <- suppressWarnings(read_csv("Energikarakterer_2010.csv"))
+Energi_2011_Vestland <- suppressWarnings(read_csv("Energikarakterer_2011.csv"))
+Energi_2012_Vestland <- suppressWarnings(read_csv("Energikarakterer_2012.csv"))
+Energi_2013_Vestland <- suppressWarnings(read_csv("Energikarakterer_2013.csv"))
+Energi_2014_Vestland <- suppressWarnings(read_csv("Energikarakterer_2014.csv"))
+Energi_2015_Vestland <- suppressWarnings(read_csv("Energikarakterer_2015.csv"))
+Energi_2016_Vestland <- suppressWarnings(read_csv("Energikarakterer_2016.csv"))
+Energi_2017_Vestland <- suppressWarnings(read_csv("Energikarakterer_2017.csv"))
+Energi_2018_Vestland <- suppressWarnings(read_csv("Energikarakterer_2018.csv"))
+Energi_2019_Vestland <- suppressWarnings(read_excel("Energikarakterer_2019.xlsx"))
+Energi_2020_Vestland <- suppressWarnings(read_excel("Energikarakterer_2020.xlsx"))
+Energi_2021_Vestland <- suppressWarnings(read_excel("Energikarakterer_2021.xlsx"))
+Energi_2022_Vestland <- suppressWarnings(read_excel("Energikarakterer_2022.xlsx"))
 ```
 
 ```{r}
@@ -135,7 +135,7 @@ rm(Energi_2022_Vestland)
 # Databehandling - Rådata, Eiendomsverdi AS
 
 ```{r}
-EV <- read_excel("data/EV_kommaseparert.xlsx") %>% 
+EV <- read_excel("EV_kommaseparert.xlsx") %>% 
   select(-CityDistrict)
 ```
 
@@ -144,7 +144,7 @@ EV <- read_excel("data/EV_kommaseparert.xlsx") %>%
 ## Leser inn filen for boligkoordinater
 
 ```{r}
-KoordinaterVestland <- read_delim("data/KoordinaterVestland.csv", 
+KoordinaterVestland <- read_delim("KoordinaterVestland.csv", 
     delim = ";", escape_double = FALSE, trim_ws = TRUE, show_col_types = FALSE)
 ```
 
@@ -223,7 +223,7 @@ Opprinnelig datasett inneholder 284 340 obs. of 121 variables, så før innlasti
 
 ```{r}
 #Ambita <- read_excel("Ambita.xlsx")
-Ambita <- read_excel("data/Ambita_Delvis.xlsx")
+Ambita <- read_excel("Ambita_Delvis.xlsx")
 ```
 
 ```{r}
@@ -349,11 +349,11 @@ Vi har prøvd mye rundt funksjonene - inner_join - merge - left_join
 Vi kommer oss ikke videre herifra. Vi har også prøvd å slå sammen på bolignummer, men får at det er to ulike kolonnetyper, hvor den ene er double og den andre er characters.
 
 ```{r}
-#Tmp <- merge(Ambita, ENOVA_Vestland, by = "Matrikkel", all.x = TRUE, all.y = TRUE)
+#tmp <- merge(Ambita, ENOVA_Vestland, by = "Matrikkel", all.x = TRUE, all.y = TRUE)
 ```
 
 ```{r}
-#Tmp2 <- distinct(Tmp, Bygningsnummer.x)
+#Tmp2 <- distinct(tmp, Bygningsnummer.x)
 ```
 
 ```{r}
