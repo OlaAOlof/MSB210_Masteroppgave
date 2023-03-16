@@ -336,8 +336,6 @@ ENOVA_Vestland <- ENOVA_Vestland %>%
   select(-Matrikkelnummer, -Snr)
 ```
 
-# HER STÅR VI FAST.
-
 Vi skal slå sammen datasettene ENOVA_Vestland med Ambita med hensyn på Matrikkel.
 
 Det vi ønsker er å slå sammen datasettene på matrikkel, og utelukke alle verdier som ikke matcher på matrikkel i disse to datasettene.
@@ -519,16 +517,20 @@ ENOVA_Vestland <- ENOVA_Vestland |>
 
 Kanskje en idé å downcase EiendomAdressegatenavn i både ENOVA_Vestland og Ambita og også å bruke str_replace() for å bytte ut mellomrom med \_ for letter å se mellomrom tegn som er lagt inn.
 
+# HER STÅR VI FAST.
+
+## Fikser Gatenavn til små bokstaver
+
+```{r}
+EnAmb <- EnAmb %>%
+  mutate(EiendomAdressegatenavn = tolower(EiendomAdressegatenavn))
+```
+
 ## Filterer ut NA-verdier fra DokumentAr
 
 ```{r}
 EnAmb <- drop_na(EnAmb, DokumentAr) %>% 
   select(-DokumentAr)
-```
-
-```{r}
-EnAmb <- EnAmb %>%
-  mutate(EiendomAdressegatenavn = tolower(EiendomAdressegatenavn))
 ```
 
 ```{r}
@@ -542,7 +544,7 @@ Data_Analyse_2 <- distinct(Data_Analyse_1, InternIdBruksenhet, .keep_all = TRUE)
 ```
 
 ```{r}
-Data_Analyse_3 <- distinct(EnAmb, InternIdBruksenhet, .keep_all = TRUE) %>% 
+#Data_Analyse_3 <- distinct(EnAmb, InternIdBruksenhet, .keep_all = TRUE) %>% 
   select(-InternIdBruksenhet)
 ```
 
