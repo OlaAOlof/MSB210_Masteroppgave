@@ -598,22 +598,7 @@ Datasett_Rensket <- Datasett_Rensket %>%
          -Bolignr)
 ```
 
-### Endrer Energikarakterer, og TRUE/FALSE verdier til tall
-
-```{r}
-Datasett_Rensket <- Datasett_Rensket %>%
-  mutate(Energikar_num = recode(Energikarakter,
-                                         'G' = 1,
-                                         'F' = 2,
-                                         'E' = 3,
-                                         'D' = 4,
-                                         'C' = 5,
-                                         'B' = 6,
-                                         'A' = 7))
-```
-
-
-### Prøver å legge til DokumentAr fra Ambita inn i Datasett_Rensket
+### Legger til DokumentAr fra Ambita inn i Datasett_Rensket
 
 ```{r}
 Dato <- Ambita %>% 
@@ -621,13 +606,93 @@ Dato <- Ambita %>%
 ```
 
 ```{r}
-Midlertidig <- inner_join(Datasett_Rensket, Dato, by = c ("DokumentDato", "Dokumentnr"))
+Midlertidig <- inner_join(Datasett_Rensket, Dato, by = c("DokumentDato", "Dokumentnr"))
 ```
 
 #### Lager et nytt datasett for sikkerhetsskyld for når vi går videre
 
 ```{r}
 Analyse <- unique(Midlertidig)
+```
+
+## Filtrer ut kun boliger
+
+```{r}
+Analyse <- Analyse %>% 
+  filter(Naeringsgruppe == "Bolig")
+```
+
+
+## Endrer Energikarakterer, og TRUE/FALSE verdier til tall
+
+```{r}
+Analyse <- Analyse %>%
+  mutate(Energikar_num = recode(Energikarakter,
+                                         'G' = 1,
+                                         'F' = 2,
+                                         'E' = 3,
+                                         'D' = 4,
+                                         'C' = 5,
+                                         'B' = 6,
+                                         'A' = 7)) %>% 
+  select(-Energikarakter)
+```
+
+```{r}
+Analyse <- Analyse %>%
+  mutate(PrivatEid_num = recode(PrivatpersonSomEier,
+                                         "True" = "1",
+                                         "False" = "0")) %>% 
+  select(-PrivatpersonSomEier)
+```
+
+```{r}
+Analyse <- transform(Analyse, PrivatEid_num = as.numeric(PrivatEid_num))
+```
+
+```{r}
+Analyse <- Analyse %>%
+  mutate(HarHeis_num = recode(Harheis,
+                                         "J" = "1",
+                                         "N" = "0")) %>% 
+  select(-Harheis)
+```
+
+```{r}
+Analyse <- transform(Analyse, HarHeis_num = as.numeric(HarHeis_num))
+```
+
+```{r}
+Analyse$GrenselinjeVannkant <- ifelse(Analyse$GrenselinjeVannkant, 1, 0)
+Analyse$GrenselinjeVegkant <- ifelse(Analyse$GrenselinjeVegkant, 1, 0)
+Analyse$RegistrertLandbruksregisteret <- ifelse(Analyse$RegistrertLandbruksregisteret, 1, 0)
+Analyse$RegistrertGrunnforurensning <- ifelse(Analyse$RegistrertGrunnforurensning, 1, 0)
+Analyse$RegistrertKulturminneEiendom <- ifelse(Analyse$RegistrertKulturminneEiendom, 1, 0)
+Analyse$RegistrertGrunnerverv <- ifelse(Analyse$RegistrertGrunnerverv, 1, 0)
+Analyse$RegistrertBoDriveplikt <- ifelse(Analyse$RegistrertBoDriveplikt, 1, 0)
+Analyse$RegistrertKulturminneBygning <- ifelse(Analyse$RegistrertKulturminneBygning, 1, 0)
+```
+
+### Prøver å fikse koordinater (Dette var visst ikkje nødvendig)
+
+Dette viste seg å ikke være nødvendig. Lar det stå inntil videre om det skulle bli nødvendig, men krysser ut koden, så den ikke blir kjørt fremover, så lenge vi ikke ønsker og/eller trenger det.
+
+```{r}
+#Analyse <- Analyse %>% 
+#  select(-EiendomNordSor, -EiendomOstVest)
+```
+
+```{r}
+#temp <- Ambita %>% 
+#  select(EiendomNordSor, EiendomOstVest, DokumentDato, Dokumentnr)
+```
+
+```{r}
+#test <- inner_join(Analyse, temp, by = c("Dokumentnr", "DokumentDato"))
+```
+
+```{r}
+#test_2 <- unique(test)
 ```
 
 # Rydder
@@ -640,7 +705,6 @@ rm(Data_Analyse_1,
    EnAmb,
    Midlertidig)
 ```
-
 
 ```{r}
 # siste
