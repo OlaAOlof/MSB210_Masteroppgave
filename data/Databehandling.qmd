@@ -714,6 +714,16 @@ rm(Data_Analyse_1,
 Analyse <- suppressWarnings(read_excel("data/Analyse_Finpuss.xlsx"))
 ```
 
+## Fikser latterlig mange NA-Verdier for Kjøkken, Vannforsyning & Avlop
+
+```{r}
+Analyse["Kjokken"][is.na(Analyse["Kjokken"])] <- "Ikke Oppgitt"
+Analyse["VannKode"][is.na(Analyse["VannKode"])] <- 0
+Analyse["Vannforsyning"][is.na(Analyse["Vannforsyning"])] <- "Ikke Oppgitt"
+Analyse["AvlopsKode"][is.na(Analyse["AvlopsKode"])] <- 0
+Analyse["Avlop"][is.na(Analyse["Avlop"])] <- "Ikke Oppgitt"
+```
+
 ```{r}
 # siste
 ```
