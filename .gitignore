@@ -1,8 +1,9 @@
 # History files
+.gitignore
 .Rhistory
 .Rapp.history
-.Rproj
-.DS_Store
+*.Rproj
+*.DS_Store
 .html
 .nb.html
 .pdf
@@ -49,6 +50,4 @@ vignettes/*.pdf
 *.html
 *.nb.html
 
-data/~$Ambita.xlsx
-.DS_Store
-.DS_Store
+
