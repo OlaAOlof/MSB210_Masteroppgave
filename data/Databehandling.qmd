@@ -20,8 +20,9 @@ library(openxlsx)
 library(lubridate)
 library(zoo)
 library(sf)
-#library(sp)
-#library()
+library(sp)
+library(magrittr)
+library(measurements)
 options(paged.print = FALSE)
 ```
 
@@ -761,6 +762,22 @@ Latitude -> Nord/Sør
 Longitude -> Vest/Øst
 
 ```{r}
+#Analyse <- transform(Analyse, EiendomNordSor = as.numeric(EiendomNordSor))
+```
+
+```{r}
+#Analyse$NordSor <- conv_unit(Analyse$EiendomNordSor, from = "deg_min_sec", to = "dec_deg")
+```
+
+```{r}
+Test_NordSor <- conv_unit("67 39 596.3", from = "deg_min_sec", to = "dec_deg")
+```
+
+```{r}
+Test_OstVest <- conv_unit("3 9 036.06", from = "deg_min_sec", to = "dec_deg")
+```
+
+```{r}
 Analyse_sf <- Analyse
 ```
 
@@ -797,18 +814,6 @@ Analyse_sf <- mutate(
   dist_cbd_km = units::set_units(dist_cbd, km)
   )
 ```
-
-
-kc_house_data <- mutate(
-  kc_house_data, 
-  dist_cbd = st_distance(kc_house_data, Seattle),
-  dist_cbd_km = units::set_units(dist_cbd, km)
-
--
-
--
-
--
 
 # Skriver ut datasettet vårt i CSV
 
