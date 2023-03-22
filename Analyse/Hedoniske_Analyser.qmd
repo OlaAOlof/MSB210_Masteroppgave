@@ -20,4 +20,3 @@ library(dplyr)
 ```{r}
 Analyse <- read_csv("MSB210_Masteroppgave/data/Datasett_Analyse.csv")
 ```
-
