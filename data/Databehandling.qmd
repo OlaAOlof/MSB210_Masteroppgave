@@ -410,7 +410,6 @@ tmp |> filter(Matrikkel_ok == FALSE) |> select(c(gnr:bnr), Matrikkel)
 Ser at diise tre har seks verdier, der den siste er NA for alle tre. Antar at denne NA verdien er feil. Kan enten droppe de tre obs. eller rette. Retter ved å legge de tre ut i tmp1. Redigerer så Matrikkel for de tre (fjerner /NA).
 
 ```{r}
-#| eval: false
 tmp1 <- ENOVA_Vestland |> filter(Matrikkel %in% c("4601/97/93/110/12/NA", "4601/160/797/30/492/NA", "4601/24/10/039/006/NA"))
 # not 6 parts
 tmp2 <- ENOVA_Vestland |> filter(!Matrikkel %in% c("4601/97/93/110/12/NA", "4601/160/797/30/492/NA", "4601/24/10/039/006/NA"))
@@ -735,6 +734,21 @@ Analyse <- Analyse %>%
          YearQuarter = paste(Year, "Q", Quarter, sep = "")) %>%
   relocate(YearQuarter, .before = DokumentDato)
 ```
+
+```{r}
+Analyse$Boligalder <- Analyse$DokumentAr - Analyse$"B-Ar"
+```
+
+```{r}
+Analyse <- Analyse %>%
+  select(P, Boligalder, everything())
+```
+
+```{r}
+Analyse <- Analyse %>% 
+  select(-Year, -Month, -Quarter)
+```
+
 
 ```{r}
 # siste
