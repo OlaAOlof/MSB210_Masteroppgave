@@ -1,0 +1,23 @@
+---
+title: "Hedoniske Analyser"
+author: 
+  "Kevin Ha"
+  "Ola Andre Olofsson"
+format: pdf
+editor: visual
+---
+
+# Setup
+
+```{r setup}
+library(readr)
+library(tidyverse)
+library(dplyr)
+```
+
+# Leser inn analyse datasettet vårt
+
+```{r}
+Analyse <- read_csv("MSB210_Masteroppgave/data/Datasett_Analyse.csv")
+```
+

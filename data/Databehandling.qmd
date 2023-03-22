@@ -757,3 +757,9 @@ Analyse <- Analyse %>%
 # siste
 ```
 
+# Skriver ut datasettet vårt i CSV
+
+```{r}
+#write.csv(Analyse, "data/Datasett_Analyse.csv")
+```
+
