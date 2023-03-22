@@ -726,6 +726,10 @@ Analyse["Avlop"][is.na(Analyse["Avlop"])] <- "Ikke Oppgitt"
 ```
 
 ```{r}
+Analyse <- transform(Analyse, BLEnergikWh = as.numeric(BLEnergikWh))
+```
+
+```{r}
 # Lager en kolonne som tar utgangspunkt i DokumentDato og henter ut måned/år i egen kolonne
 Analyse <- Analyse %>%
   mutate(Year = year(DokumentDato),
@@ -736,12 +740,12 @@ Analyse <- Analyse %>%
 ```
 
 ```{r}
-Analyse$Boligalder <- Analyse$DokumentAr - Analyse$"B-Ar"
+Analyse$Alder <- Analyse$DokumentAr - Analyse$B.Ar
 ```
 
 ```{r}
 Analyse <- Analyse %>%
-  select(P, Boligalder, everything())
+  select(P, Alder, everything())
 ```
 
 ```{r}
@@ -749,10 +753,7 @@ Analyse <- Analyse %>%
   select(-Year, -Month, -Quarter)
 ```
 
-
 ```{r}
 # siste
 ```
-
-
 

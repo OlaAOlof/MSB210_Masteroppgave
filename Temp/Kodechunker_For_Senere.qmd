@@ -1,0 +1,17 @@
+---
+title: "Kodechunk"
+format: html
+editor: visual
+---
+
+```{r}
+Analyse %>%
+   group_by(BolType) %>%
+   summarise(
+     mean_P = mean(P, na.rm = TRUE),
+     median_P = median(P, na.rm = TRUE),
+     min_P = min(P, na.rm = TRUE),
+     max_P = max(P, na.rm = TRUE)
+   )
+```
+
