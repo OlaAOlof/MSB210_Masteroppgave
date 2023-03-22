@@ -18,5 +18,5 @@ library(dplyr)
 # Leser inn analyse datasettet vårt
 
 ```{r}
-Analyse <- read_csv("MSB210_Masteroppgave/data/Datasett_Analyse.csv")
+Analyse <- suppressWarnings(read_csv("Datasett_Analyse.csv"))
 ```
