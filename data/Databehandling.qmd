@@ -1,14 +1,10 @@
 ---
 title: "Masteroppgave"
-author: 
-  - "Kevin Ha"
-  - "Ola Andre Olofsson"
+author: "Kevin Ha, Ola Andre Olofsson"
 format: html
 editor: visual
 project:
   execute-dir: file
-editor_options:
-  chunk_output_type: console
 ---
 
 ```{r}
@@ -19,15 +15,22 @@ getwd()
 ```{r}
 #| output: false
 #| label: setup
-library(readr)
 library(readxl)
 library(tidyverse)
-library(dplyr)
+library(lubridate)
 library(sf)
-options(paged.print = FALSE)
+library(here)
+# options(paged.print = FALSE)
 ```
 
+Har noe tull med at RStudio ikke vil sette working directory til mappen hvor dokumentet ligger for evaluate chunk, men gjør det for render.
+Må derfor ty til here::here
+
 # Databehandling - Rådata, ENOVA
+
+::: callout-note
+Merk at jeg lengre ned i dokumentet har lagt inn eval: false i flere chunck-er
+:::
 
 ## Lager datasett av Excel fra ENOVA
 
@@ -35,8 +38,8 @@ options(paged.print = FALSE)
 # Kevin: Lagt inn suppressWarnings() for å slippe masse spam/warnings
 # Hvorfor ikke heller gjøre som står i message.
 # set `show_col_types = FALSE` to quiet this message
-ev_10_18 <- paste("Energikarakterer_", 2010:2018, sep = "")
-ev_19_22 <- paste("Energikarakterer_", 2019:2022, sep = "")
+ev_10_18 <- paste("data/Energikarakterer_", 2010:2018, sep = "")
+ev_19_22 <- paste("data/Energikarakterer_", 2019:2022, sep = "")
 
 Energi_Vestland <- NULL
 trobbel <- NULL
@@ -45,7 +48,7 @@ trobbel <- NULL
 for (i in ev_10_18) {
   fn = paste0(i, ".csv")
   data =  read_csv(
-    file = fn,
+    file = here::here(fn),
     show_col_types = FALSE
     ) 
 # parse problemer legges i trobbel
@@ -60,7 +63,7 @@ Energi_Vestland = rbind(Energi_Vestland, data)
 for (i in ev_19_22) {
   p = paste0(i, ".xlsx")
   data =  read_excel(
-    path = p,
+    path = here::here(p),
   ) |> 
     mutate(
       Fnr = NA,
@@ -74,6 +77,11 @@ Energi_Vestland = rbind(Energi_Vestland, data)
 # tibbel som inneholder alle problemene fra *.csv filene. Disse feilene bør 
 # dere rydde opp i
 trobbel
+```
+
+```{r}
+# Filnavnene
+trobbel[,c(5)]
 ```
 
 ```{r}
@@ -111,7 +119,10 @@ ENOVA_Vestland <- ENOVA_Vestland %>%
 ```{r}
 # Dropper variablene Organisasjonsnummer og Poststed
 ENOVA_Vestland <- ENOVA_Vestland %>% 
-  select(-Organisasjonsnummer, -Poststed)
+  select(-Organisasjonsnummer, -Poststed) |> 
+  mutate(
+    Utstedelsesdato = as_date(Utstedelsesdato)
+  )
 ```
 
 ```{r}
@@ -129,7 +140,7 @@ ENOVA_Vestland <- ENOVA_Vestland %>%
 
 ```{r}
 # Hvorfor _kommaseparert på en .xlsx fil?????
-EV <- read_excel("EV_kommaseparert.xlsx") %>% 
+EV <- read_excel(here::here("data/EV_kommaseparert.xlsx")) %>% 
   select(-CityDistrict)
 ```
 
@@ -139,7 +150,7 @@ EV <- read_excel("EV_kommaseparert.xlsx") %>%
 
 ```{r}
 KoordinaterVestland <- read_delim(
-  file = "KoordinaterVestland.csv", 
+  file = here::here("data/KoordinaterVestland.csv"), 
   delim = ";", 
   escape_double = FALSE, 
   col_types = cols(
@@ -269,7 +280,7 @@ Finne en ID vi kan bruke til å kombinere med ENOVA_Vestland/ENOVA_coords
 
 **Se ovenfor for hvordan dette kan gjøres, merged_data og merged_data_sf**
 
-**Det største problemet blir å kombinere info. fra EV og Enova. Her har dere for lite info. i EV**
+**Det største problemet blir å kombinere info. fra EV og Enova. Her har dere for lite info. i EV. Hva skal egentlig dataene i EV brukes til?**
 
 Kan henda me må laga ein eigen ID i Vestland_coords & Bergen datasettet, f.eks.
 ein nummerisk ID som me kan utnytta te å slå sammen desse to på?
@@ -292,14 +303,18 @@ of 121 variables, så før innlasting er det i Excel fjernet:
 # Databehandling Ambita AS
 
 ```{r}
-#| eval: false
-#Ambita <- read_excel("Ambita.xlsx")
-Ambita <- read_excel("Ambita_Delvis.xlsx")
+# Ambita <- read_excel("Ambita.xlsx")
+Ambita <- read_excel(here::here("data/Ambita_Delvis.xlsx"))
 ```
 
 ```{r}
-#| eval: false
-Ambita <- Ambita[Ambita$DokumentAr %in% c(2019, 2020, 2021, 2022), ]
+# Ambita <- Ambita[Ambita$DokumentAr %in% c(2019, 2020, 2021, 2022), ]
+# Ambita <- Ambita |> 
+#   # gjør om fra date-time til date. Trenger ikke vite hvilket sekund det
+#   # blir Utstedt
+#   mutate(
+#     Utstedelsesdato = as_date(Utstedelsesdato)
+#   )
 ```
 
 ## Tar vekk kolonner som ikke er relevante for oss
@@ -452,6 +467,9 @@ Match først eneboliger identifisert med knr/gnr/bnr.
 Ta så eneboliger på festetomt, identifisert med knr/gnr/bnr/fnr og så seksjonerte boliger på tomt identifisert ved knr/gnr/bnr/snr.
 For andeler i boligbyggerlag burde knr/gnr/bnr/Andelsnummer gi match.
 
+Får dere riktige koordinater fra Ambita kan det også være en mulighet å matche observasjonene på koordinater.
+Har aldri gjort det selv og tror det er langt lettere å gå via knt/gnr/bnr..., hvis ikke koordiatene kommer fra samme kilde slik at en har perfekt match.
+
 ## Slår Sammen Ambita og ENOVA_coords
 
 ```{r}
@@ -464,7 +482,8 @@ ENOVA_Vestland <- ENOVA_Vestland %>%
 ## Matcher merged_data_sf med Ambita
 
 ```{r}
-Ambita <- read_xlsx('Ambita.xlsx')
+# Lille Ambita
+# Ambita <- read_xlsx(here::here('Ambita.xlsx'))
 ```
 
 Dere bør sjekke om det er variabler i Ambita dere kan klare dere uten (f.eks, bruk select() til å velge de variablene dere trenger).
@@ -523,7 +542,13 @@ De mer innfløkte får dere slite med ;-)
 
 ```{r}
 # Jeg tar de enkle ;-)
+# Dette skal være EN bolig på ETT jordstykke
 merged_data_sf_enebolig <- merged_data_sf |> 
+  # Antar at NA for Fnr, Snr og Andelsnummer betyr at
+  # obs. IKKE er festetomt, seksjonert eller andel i borettslag
+  # Hvis NA for disse også betyr at de er festetomt, seksjonert 
+  # eller andel i borettslag, men at opplysning om dette magler så 
+  # har dere et problem. Kan eventuelt da benytte postadresse.
   filter(is.na(Fnr)) |> 
   filter(is.na(Snr)) |>
   filter(is.na(Andelsnummer)) |>
