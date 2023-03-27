@@ -526,8 +526,6 @@ Kanskje en idé å downcase EiendomAdressegatenavn i både ENOVA_Vestland og Amb
 
 Nå kan dere kanskje også matche på adresse.
 
-# HER STÅR VI FAST.
-
 ## Fikser Gatenavn til små bokstaver
 
 ```{r}
@@ -679,42 +677,6 @@ Analyse$RegistrertBoDriveplikt <- ifelse(Analyse$RegistrertBoDriveplikt, 1, 0)
 Analyse$RegistrertKulturminneBygning <- ifelse(Analyse$RegistrertKulturminneBygning, 1, 0)
 ```
 
-### Prøver å fikse koordinater (Dette var visst ikkje nødvendig)
-
-Dette viste seg å ikke være nødvendig. Lar det stå inntil videre om det skulle bli nødvendig, men krysser ut koden, så den ikke blir kjørt fremover, så lenge vi ikke ønsker og/eller trenger det.
-
-```{r}
-#Analyse <- Analyse %>% 
-#  select(-EiendomNordSor, -EiendomOstVest)
-```
-
-```{r}
-#temp <- Ambita %>% 
-#  select(EiendomNordSor, EiendomOstVest, DokumentDato, Dokumentnr)
-```
-
-```{r}
-#test <- inner_join(Analyse, temp, by = c("Dokumentnr", "DokumentDato"))
-```
-
-```{r}
-#test_2 <- unique(test)
-```
-
-# Slår sammen nye koordinater?
-
-```{r}
-# Finner match
-
-#matching_indices <- match(Ambita_Gammel$Dokumentnr, Ambita$Dokumentnr)
-
-# Erstattet EiendomNordSor og EiendomOstVest i Ambita basert på match
-#Ambita_Gammel$EiendomNordSor[!is.na(matching_indices)] <- Ambita$EiendomNordSor[matching_indices[!is.na(matching_indices)]]
-#Ambita_Gammel$EiendomOstVest[!is.na(matching_indices)] <- Ambita$EiendomOstVest[matching_indices[!is.na(matching_indices)]]
-```
-
-
-
 # Rydder
 
 ```{r}
@@ -818,19 +780,23 @@ Latitude -> Nord/Sør
 Longitude -> Vest/Øst
 
 ```{r}
-#Analyse <- transform(Analyse, EiendomNordSor = as.numeric(EiendomNordSor))
+#Analyse_sf <- transform(Analyse_sf, EiendomNordSor = as.numeric(EiendomNordSor))
 ```
 
 ```{r}
-#Analyse$NordSor <- conv_unit(Analyse$EiendomNordSor, from = "deg_min_sec", to = "dec_deg")
+#Analyse_sf$NordSor <- conv_unit(Analyse_sf$EiendomNordSor, from = "deg_min_sec", to = "dec_deg")
 ```
 
 ```{r}
-Test_NordSor <- conv_unit("67 39 596.3", from = "deg_min_sec", to = "dec_deg")
+#Analyse_sf$OstVest <- conv_unit(Analyse_sf$EiendomOstVest, from = "deg_min_sec", to = "dec_deg")
 ```
 
 ```{r}
-Test_OstVest <- conv_unit("3 9 036.06", from = "deg_min_sec", to = "dec_deg")
+#Test_NordSor <- conv_unit("67 03 281.14", from = "deg_min_sec", to = "dec_deg")
+```
+
+```{r}
+#Test_OstVest <- conv_unit("-129 33.33", from = "deg_min_sec", to = "dec_deg")
 ```
 
 ```{r}
