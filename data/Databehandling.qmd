@@ -207,8 +207,8 @@ rm(KoordinaterVestland)
 ```{r}
 Bergen <- data.frame(
   id = 1,
-  lat = 60.3925,
-  long = 5.323333
+  lat = 6734324.253425,
+  long = -32030.264488
 )
 ```
 
@@ -780,26 +780,6 @@ Latitude -> Nord/Sør
 Longitude -> Vest/Øst
 
 ```{r}
-#Analyse_sf <- transform(Analyse_sf, EiendomNordSor = as.numeric(EiendomNordSor))
-```
-
-```{r}
-#Analyse_sf$NordSor <- conv_unit(Analyse_sf$EiendomNordSor, from = "deg_min_sec", to = "dec_deg")
-```
-
-```{r}
-#Analyse_sf$OstVest <- conv_unit(Analyse_sf$EiendomOstVest, from = "deg_min_sec", to = "dec_deg")
-```
-
-```{r}
-#Test_NordSor <- conv_unit("67 03 281.14", from = "deg_min_sec", to = "dec_deg")
-```
-
-```{r}
-#Test_OstVest <- conv_unit("-129 33.33", from = "deg_min_sec", to = "dec_deg")
-```
-
-```{r}
 Analyse_sf <- Analyse
 ```
 
@@ -811,7 +791,7 @@ Analyse_sf <- Analyse_sf %>%
 
 ```{r}
 Analyse_sf <- Analyse_sf %>% 
-  st_transform(5972)
+  st_transform(5973)
 ```
 
 ```{r}
@@ -826,7 +806,7 @@ Bergen_sf <- Bergen_sf %>%
 
 ```{r}
 Bergen_sf <- Bergen_sf %>% 
-  st_transform(5972)
+  st_transform(5973)
 ```
 
 ```{r}
@@ -835,6 +815,10 @@ Analyse_sf <- mutate(
   dist_cbd = st_distance(Analyse_sf, Bergen_sf),
   dist_cbd_km = units::set_units(dist_cbd, km)
   )
+```
+
+```{r}
+Analyse_sf$dist_cbd_km <- round(Analyse_sf$dist_cbd_km, 2)
 ```
 
 # Skriver ut datasettet vårt i CSV
