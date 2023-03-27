@@ -608,7 +608,7 @@ Datasett_Rensket <- Datasett_Rensket %>%
 
 ```{r}
 Dato <- Ambita %>% 
-  select(DokumentAr, Dokumentnr, DokumentDato)
+  select(DokumentAr, Dokumentnr, DokumentDato, knr)
 ```
 
 ```{r}
@@ -777,7 +777,8 @@ rm(Ambita_Oppdatert,
 
 # Lager kartfil ut av Analyse datasettet vårt
 
-Latitude -\> Nord/Sør Longitude -\> Vest/Øst
+Latitude -\> Nord/Sør
+Longitude -\> Vest/Øst
 
 ```{r}
 Analyse_sf <- Analyse
@@ -829,6 +830,16 @@ Analyse_sf$dist_cbd_km <- round(Analyse_sf$dist_cbd_km, 2)
 # Lager analyse-datasett for hvert individuelle år i tillegg til det totale felles dokumentet
 
 ```{r}
+Analyse <- Analyse %>% 
+  separate(Knr...Gnr...Bnr...Snr, c("Knr", "Gnr", "Bnr", "Snr"))
+```
+
+```{r}
+Analyse <- Analyse %>%
+  unite(col = "Matrikkel", c("Knr", "Gnr", "Bnr", "Snr"), sep = "/", remove = FALSE)
+```
+
+```{r}
 Analyse_2019 <- Analyse[Analyse$DokumentAr == 2019,]
 Analyse_2020 <- Analyse[Analyse$DokumentAr == 2020,]
 Analyse_2021 <- Analyse[Analyse$DokumentAr == 2021,]
@@ -840,7 +851,76 @@ Analyse_2021_sf <- Analyse[Analyse_sf$DokumentAr == 2021,]
 Analyse_2022_sf <- Analyse[Analyse_sf$DokumentAr == 2022,]
 ```
 
-KoordinaterVestland <- KoordinaterVestland[KoordinaterVestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
+```{r}
+Analyse_2019_sf <- Analyse_2019_sf %>% 
+  st_as_sf(coords = c("EiendomOstVest", "EiendomNordSor"),
+           crs = st_crs(25833)) %>% 
+  st_transform(5973)
+```
+
+```{r}
+Analyse_2019_sf <- mutate(
+  Analyse_2019_sf,
+  dist_cbd = st_distance(Analyse_2019_sf, Bergen_sf),
+  dist_cbd_km = units::set_units(dist_cbd, km)
+  ) %>% 
+  select(-dist_cbd)
+```
+
+```{r}
+Analyse_2020_sf <- Analyse_2020_sf %>% 
+  st_as_sf(coords = c("EiendomOstVest", "EiendomNordSor"),
+           crs = st_crs(25833)) %>% 
+  st_transform(5973)
+```
+
+```{r}
+Analyse_2020_sf <- mutate(
+  Analyse_2020_sf,
+  dist_cbd = st_distance(Analyse_2020_sf, Bergen_sf),
+  dist_cbd_km = units::set_units(dist_cbd, km)
+  ) %>% 
+  select(-dist_cbd)
+```
+
+```{r}
+Analyse_2021_sf <- Analyse_2021_sf %>% 
+  st_as_sf(coords = c("EiendomOstVest", "EiendomNordSor"),
+           crs = st_crs(25833)) %>% 
+  st_transform(5973)
+```
+
+```{r}
+Analyse_2021_sf <- mutate(
+  Analyse_2021_sf,
+  dist_cbd = st_distance(Analyse_2021_sf, Bergen_sf),
+  dist_cbd_km = units::set_units(dist_cbd, km)
+  ) %>% 
+  select(-dist_cbd)
+```
+
+```{r}
+Analyse_2022_sf <- Analyse_2022_sf %>% 
+  st_as_sf(coords = c("EiendomOstVest", "EiendomNordSor"),
+           crs = st_crs(25833)) %>% 
+  st_transform(5973)
+```
+
+```{r}
+Analyse_2022_sf <- mutate(
+  Analyse_2022_sf,
+  dist_cbd = st_distance(Analyse_2022_sf, Bergen_sf),
+  dist_cbd_km = units::set_units(dist_cbd, km)
+  ) %>% 
+  select(-dist_cbd)
+```
+
+```{r}
+Analyse_2019_sf$dist_cbd_km <- round(Analyse_2019_sf$dist_cbd_km, 2)
+Analyse_2020_sf$dist_cbd_km <- round(Analyse_2020_sf$dist_cbd_km, 2)
+Analyse_2021_sf$dist_cbd_km <- round(Analyse_2021_sf$dist_cbd_km, 2)
+Analyse_2022_sf$dist_cbd_km <- round(Analyse_2022_sf$dist_cbd_km, 2)
+```
 
 # Skriver ut datasettet vårt i CSV
 

@@ -24,7 +24,7 @@ Analyse <- suppressWarnings(read_csv("Datasett_Analyse.csv"))
 Analyse_2019 <- suppressWarnings(read_csv("Datasett_Analyse_2019.csv"))
 Analyse_2020 <- suppressWarnings(read_csv("Datasett_Analyse_2020.csv"))
 Analyse_2021 <- suppressWarnings(read_csv("Datasett_Analyse_2021.csv"))
-Analyse_2021 <- suppressWarnings(read_csv("Datasett_Analyse_2022.csv"))
+Analyse_2022 <- suppressWarnings(read_csv("Datasett_Analyse_2022.csv"))
 
 Analyse_sf <- suppressWarnings(st_read("Datasett_Analyse_sf.gpkg"))
 Analyse_sf_2019 <- suppressWarnings(st_read("Datasett_Analyse_sf_2019.gpkg"))
@@ -35,4 +35,79 @@ Analyse_sf_2022 <- suppressWarnings(st_read("Datasett_Analyse_sf_2022.gpkg"))
 
 ```{r}
 mean(Analyse$P)
+mean(Analyse_2019$P)
+mean(Analyse_2020$P)
+mean(Analyse_2021$P)
+mean(Analyse_2022$P)
 ```
+
+```{r}
+mean(Analyse$EL.Kar)
+mean(Analyse_2019$EL.Kar)
+mean(Analyse_2020$EL.Kar)
+mean(Analyse_2021$EL.Kar)
+mean(Analyse_2022$EL.Kar)
+```
+
+```{r}
+mean(Analyse$BLEnergikWh)
+mean(Analyse_2019$BLEnergikWh)
+mean(Analyse_2020$BLEnergikWh)
+mean(Analyse_2021$BLEnergikWh)
+mean(Analyse_2022$BLEnergikWh)
+```
+
+```{r}
+mean(Analyse$EiendomAreal)
+mean(Analyse_2019$EiendomAreal)
+mean(Analyse_2020$EiendomAreal)
+mean(Analyse_2021$EiendomAreal)
+mean(Analyse_2022$EiendomAreal)
+```
+
+```{r}
+mean(Analyse$Bruksareal.Enhet)
+mean(Analyse_2019$Bruksareal.Enhet)
+mean(Analyse_2020$Bruksareal.Enhet)
+mean(Analyse_2021$Bruksareal.Enhet)
+mean(Analyse_2022$Bruksareal.Enhet)
+```
+
+```{r}
+mean(Analyse$Alder)
+mean(Analyse_2019$Alder)
+mean(Analyse_2020$Alder)
+mean(Analyse_2021$Alder)
+mean(Analyse_2022$Alder)
+```
+
+```{r}
+mean(Analyse_sf$dist_cbd_km)
+mean(Analyse_sf_2019$dist_cbd_km)
+mean(Analyse_sf_2020$dist_cbd_km)
+mean(Analyse_sf_2021$dist_cbd_km)
+mean(Analyse_sf_2022$dist_cbd_km)
+```
+
+```{r}
+Bergen_Only <- Analyse[Analyse$Knr]
+mean(Analyse$P)
+```
+
+
+
+
+
+KoordinaterVestland \<- KoordinaterVestland\[KoordinaterVestland\$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), \]
+
+
+
+
+
+
+
+
+
+
+
+-   
