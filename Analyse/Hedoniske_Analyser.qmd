@@ -13,11 +13,13 @@ editor: visual
 library(readr)
 library(tidyverse)
 library(dplyr)
+library(sf)
+library(sp)
 ```
 
 # Leser inn analyse datasettet vårt
 
 ```{r}
 Analyse <- suppressWarnings(read_csv("Datasett_Analyse.csv"))
-Analyse_sf <- suppressWarnings(read_csv("Datasett_Analyse_sf.csv"))
+Analyse_sf <- suppressWarnings(st_read("Datasett_Analyse_sf.gpkg"))
 ```
