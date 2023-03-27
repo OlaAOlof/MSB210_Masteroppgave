@@ -230,8 +230,8 @@ Opprinnelig datasett inneholder 284 340 obs. of 121 variables, så før innlasti
 
 ```{r}
 #Ambita <- read_excel("Ambita.xlsx")
-#Ambita <- read_excel("data/Ambita_Delvis.xlsx")
-Ambita <- read_excel("data/Ambita_Delvis_Oppdatert.xlsx")
+Ambita <- read_excel("data/Ambita_Delvis.xlsx")
+Ambita_Oppdatert <- read_excel("data/Ambita_Delvis_Oppdatert.xlsx")
 ```
 
 ```{r}
@@ -701,6 +701,20 @@ Dette viste seg å ikke være nødvendig. Lar det stå inntil videre om det skul
 #test_2 <- unique(test)
 ```
 
+# Slår sammen nye koordinater?
+
+```{r}
+# Finner match
+
+#matching_indices <- match(Ambita_Gammel$Dokumentnr, Ambita$Dokumentnr)
+
+# Erstattet EiendomNordSor og EiendomOstVest i Ambita basert på match
+#Ambita_Gammel$EiendomNordSor[!is.na(matching_indices)] <- Ambita$EiendomNordSor[matching_indices[!is.na(matching_indices)]]
+#Ambita_Gammel$EiendomOstVest[!is.na(matching_indices)] <- Ambita$EiendomOstVest[matching_indices[!is.na(matching_indices)]]
+```
+
+
+
 # Rydder
 
 ```{r}
@@ -731,6 +745,7 @@ Analyse["Avlop"][is.na(Analyse["Avlop"])] <- "Ikke Oppgitt"
 
 ```{r}
 Analyse <- transform(Analyse, BLEnergikWh = as.numeric(BLEnergikWh))
+Analyse <- transform(Analyse, Bygningsnummer = as.numeric(Bygningsnummer))
 ```
 
 ```{r}
@@ -755,6 +770,46 @@ Analyse <- Analyse %>%
 ```{r}
 Analyse <- Analyse %>% 
   select(-Year, -Month, -Quarter)
+```
+
+# Flytter nye koordinater fra Ambita inn i vårt datasett
+
+```{r}
+Coords_Temp <- Ambita_Oppdatert
+```
+
+```{r}
+colnames(Coords_Temp)[colnames(Coords_Temp) == "Bygningsnr"] <- "Bygningsnummer"
+```
+
+```{r}
+Coords_Temp <- transform(Coords_Temp, Bygningsnummer = as.numeric(Bygningsnummer))
+```
+
+```{r}
+Coords_Temp <- Coords_Temp %>% 
+  select(Dokumentnr, Bygningsnummer, EiendomNordSor, EiendomOstVest)
+```
+
+```{r}
+Analyse <- Analyse %>% 
+  select(-EiendomNordSor, -EiendomOstVest)
+```
+
+```{r}
+Temp <- inner_join(Analyse, Coords_Temp, by = c("Dokumentnr", "Bygningsnummer"))
+```
+
+```{r}
+Analyse <- unique(Temp)
+```
+
+## Rydder i datasett
+
+```{r}
+rm(Ambita_Oppdatert,
+   Coords_Temp,
+   Temp)
 ```
 
 # Lager kartfil ut av Analyse datasettet vårt
