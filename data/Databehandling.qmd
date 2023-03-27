@@ -230,7 +230,8 @@ Opprinnelig datasett inneholder 284 340 obs. of 121 variables, så før innlasti
 
 ```{r}
 #Ambita <- read_excel("Ambita.xlsx")
-Ambita <- read_excel("data/Ambita_Delvis.xlsx")
+#Ambita <- read_excel("data/Ambita_Delvis.xlsx")
+Ambita <- read_excel("data/Ambita_Delvis_Oppdatert.xlsx")
 ```
 
 ```{r}
