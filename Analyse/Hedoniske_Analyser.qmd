@@ -19,4 +19,5 @@ library(dplyr)
 
 ```{r}
 Analyse <- suppressWarnings(read_csv("Datasett_Analyse.csv"))
+Analyse_sf <- suppressWarnings(read_csv("Datasett_Analyse_sf.csv"))
 ```
