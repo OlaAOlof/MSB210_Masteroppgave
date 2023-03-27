@@ -786,7 +786,7 @@ Analyse_sf <- Analyse
 ```{r}
 Analyse_sf <- Analyse_sf %>% 
   st_as_sf(coords = c("EiendomOstVest", "EiendomNordSor"),
-           crs = st_crs(25832))
+           crs = st_crs(25833))
 ```
 
 ```{r}
@@ -801,7 +801,7 @@ Bergen_sf <- Bergen
 ```{r}
 Bergen_sf <- Bergen_sf %>% 
   st_as_sf(coords = c("long", "lat"),
-           crs = st_crs(25832))
+           crs = st_crs(25833))
 ```
 
 ```{r}
@@ -824,5 +824,5 @@ Analyse_sf$dist_cbd_km <- round(Analyse_sf$dist_cbd_km, 2)
 # Skriver ut datasettet vårt i CSV
 
 ```{r}
-#write.csv(Analyse, "Analyse/Datasett_Analyse.csv")
+write.csv(Analyse, "Analyse/Datasett_Analyse.csv")
 ```
