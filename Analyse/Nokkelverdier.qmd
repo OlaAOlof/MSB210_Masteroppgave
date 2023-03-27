@@ -1,0 +1,420 @@
+---
+title: "Hedoniske Analyser"
+author: 
+  "Kevin Ha"
+  "Ola Andre Olofsson"
+format: pdf
+editor: visual
+---
+
+# Setup
+
+```{r setup}
+library(readr)
+library(tidyverse)
+library(dplyr)
+library(sf)
+library(sp)
+```
+
+# Leser inn analyse datasettet vårt
+
+```{r}
+Analyse <- suppressWarnings(read_csv("Datasett_Analyse.csv"))
+Analyse_2019 <- suppressWarnings(read_csv("Datasett_Analyse_2019.csv"))
+Analyse_2020 <- suppressWarnings(read_csv("Datasett_Analyse_2020.csv"))
+Analyse_2021 <- suppressWarnings(read_csv("Datasett_Analyse_2021.csv"))
+Analyse_2022 <- suppressWarnings(read_csv("Datasett_Analyse_2022.csv"))
+
+Analyse_sf <- suppressWarnings(st_read("Datasett_Analyse_sf.gpkg"))
+Analyse_sf_2019 <- suppressWarnings(st_read("Datasett_Analyse_sf_2019.gpkg"))
+Analyse_sf_2020 <- suppressWarnings(st_read("Datasett_Analyse_sf_2020.gpkg"))
+Analyse_sf_2021 <- suppressWarnings(st_read("Datasett_Analyse_sf_2021.gpkg"))
+Analyse_sf_2022 <- suppressWarnings(st_read("Datasett_Analyse_sf_2022.gpkg"))
+```
+
+# Gjennomsnittsverdier
+
+## Gjennomsnitt - Boligpris; hele datasettet
+
+```{r}
+mean(Analyse$P)
+mean(Analyse_2019$P)
+mean(Analyse_2020$P)
+mean(Analyse_2021$P)
+mean(Analyse_2022$P)
+```
+
+## Gjennomsnitt - Pris; Bergen
+
+```{r}
+Bergen <- Analyse %>% 
+  filter(Knr == 4601)
+```
+
+```{r}
+Bergen_2019 <- Bergen[Bergen$DokumentAr == 2019,]
+Bergen_2020 <- Bergen[Bergen$DokumentAr == 2020,]
+Bergen_2021 <- Bergen[Bergen$DokumentAr == 2021,]
+Bergen_2022 <- Bergen[Bergen$DokumentAr == 2022,]
+```
+
+```{r}
+mean(Bergen$P)
+mean(Bergen_2019$P)
+mean(Bergen_2020$P)
+mean(Bergen_2021$P)
+mean(Bergen_2022$P)
+```
+
+## Gjennomsnitt - Pris; ekskludert Bergen
+
+```{r}
+Uten_Bergen <- Analyse %>% 
+  filter(Knr > 4601)
+```
+
+```{r}
+Uten_Bergen_2019 <- Uten_Bergen[Uten_Bergen$DokumentAr == 2019,]
+Uten_Bergen_2020 <- Uten_Bergen[Uten_Bergen$DokumentAr == 2020,]
+Uten_Bergen_2021 <- Uten_Bergen[Uten_Bergen$DokumentAr == 2021,]
+Uten_Bergen_2022 <- Uten_Bergen[Uten_Bergen$DokumentAr == 2022,]
+```
+
+```{r}
+mean(Uten_Bergen$P)
+mean(Uten_Bergen_2019$P)
+mean(Uten_Bergen_2020$P)
+mean(Uten_Bergen_2021$P)
+mean(Uten_Bergen_2022$P)
+```
+
+## Gjennomsnitt - Energikarakter
+
+```{r}
+mean(Analyse$EL.Kar)
+mean(Analyse_2019$EL.Kar)
+mean(Analyse_2020$EL.Kar)
+mean(Analyse_2021$EL.Kar)
+mean(Analyse_2022$EL.Kar)
+```
+
+## Gjennomsnitt - Levert kWh:
+
+```{r}
+mean(Analyse$BLEnergikWh)
+mean(Analyse_2019$BLEnergikWh)
+mean(Analyse_2020$BLEnergikWh)
+mean(Analyse_2021$BLEnergikWh)
+mean(Analyse_2022$BLEnergikWh)
+```
+
+## Gjennomsnitt - Tomtestørrelse
+
+```{r}
+mean(Analyse$EiendomAreal)
+mean(Analyse_2019$EiendomAreal)
+mean(Analyse_2020$EiendomAreal)
+mean(Analyse_2021$EiendomAreal)
+mean(Analyse_2022$EiendomAreal)
+```
+
+## Gjennomsnitt - Boligstørrelse; Blokker
+
+```{r}
+Blokker <- Analyse %>% 
+  filter(Snr >= 1)
+```
+
+```{r}
+Blokker_2019 <- Blokker[Blokker$DokumentAr == 2019,]
+Blokker_2020 <- Blokker[Blokker$DokumentAr == 2020,]
+Blokker_2021 <- Blokker[Blokker$DokumentAr == 2021,]
+Blokker_2022 <- Blokker[Blokker$DokumentAr == 2022,]
+```
+
+```{r}
+mean(Blokker$Bruksareal.Enhet)
+mean(Blokker_2019$Bruksareal.Enhet)
+mean(Blokker_2020$Bruksareal.Enhet)
+mean(Blokker_2021$Bruksareal.Enhet)
+mean(Blokker_2022$Bruksareal.Enhet)
+```
+
+## Gjennomsnitt - Boligstørrelse; Boliger
+
+```{r}
+Bolig <- Analyse
+Bolig["Snr"][is.na(Bolig["Snr"])] <- 0
+```
+
+```{r}
+Bolig <- Bolig %>% 
+  filter(Snr == 0)
+```
+
+```{r}
+Bolig_2019 <- Bolig[Bolig$DokumentAr == 2019,]
+Bolig_2020 <- Bolig[Bolig$DokumentAr == 2020,]
+Bolig_2021 <- Bolig[Bolig$DokumentAr == 2021,]
+Bolig_2022 <- Bolig[Bolig$DokumentAr == 2022,]
+```
+
+```{r}
+mean(Bolig$BRA.Bolig)
+mean(Bolig_2019$BRA.Bolig)
+mean(Bolig_2020$BRA.Bolig)
+mean(Bolig_2021$BRA.Bolig)
+mean(Bolig_2022$BRA.Bolig)
+```
+
+## Gjennomsnitt - Bolig alder
+
+```{r}
+mean(Analyse$Alder)
+mean(Analyse_2019$Alder)
+mean(Analyse_2020$Alder)
+mean(Analyse_2021$Alder)
+mean(Analyse_2022$Alder)
+```
+
+## Gjennomsnitt - Avstand til sentrum i km
+
+```{r}
+mean(Analyse_sf$dist_cbd_km)
+mean(Analyse_sf_2019$dist_cbd_km)
+mean(Analyse_sf_2020$dist_cbd_km)
+mean(Analyse_sf_2021$dist_cbd_km)
+mean(Analyse_sf_2022$dist_cbd_km)
+```
+
+# Median verdier
+
+## Median - Boligpris; hele datasettet
+
+```{r}
+median(Analyse$P)
+median(Analyse_2019$P)
+median(Analyse_2020$P)
+median(Analyse_2021$P)
+median(Analyse_2022$P)
+```
+
+## Median - Pris; Bergen
+
+```{r}
+median(Bergen$P)
+median(Bergen_2019$P)
+median(Bergen_2020$P)
+median(Bergen_2021$P)
+median(Bergen_2022$P)
+```
+
+## Median - Pris; eksludert Bergen
+
+```{r}
+median(Uten_Bergen$P)
+median(Uten_Bergen_2019$P)
+median(Uten_Bergen_2020$P)
+median(Uten_Bergen_2021$P)
+median(Uten_Bergen_2022$P)
+```
+
+## Median - Energikarakterer
+
+```{r}
+median(Analyse$EL.Kar)
+median(Analyse_2019$EL.Kar)
+median(Analyse_2020$EL.Kar)
+median(Analyse_2021$EL.Kar)
+median(Analyse_2022$EL.Kar)
+```
+
+## Median - Levert kWh
+
+```{r}
+median(Analyse$BLEnergikWh)
+median(Analyse_2019$BLEnergikWh)
+median(Analyse_2020$BLEnergikWh)
+median(Analyse_2021$BLEnergikWh)
+median(Analyse_2022$BLEnergikWh)
+```
+
+## Median - Tomtestørrelse
+
+```{r}
+median(Analyse$EiendomAreal)
+median(Analyse_2019$EiendomAreal)
+median(Analyse_2020$EiendomAreal)
+median(Analyse_2021$EiendomAreal)
+median(Analyse_2022$EiendomAreal)
+```
+
+## Median - Boligstørrelse; Blokker
+
+```{r}
+median(Blokker$Bruksareal.Enhet)
+median(Blokker_2019$Bruksareal.Enhet)
+median(Blokker_2020$Bruksareal.Enhet)
+median(Blokker_2021$Bruksareal.Enhet)
+median(Blokker_2022$Bruksareal.Enhet)
+```
+
+## Median - Boligstørrelse; Boliger
+
+```{r}
+median(Bolig$BRA.Bolig)
+median(Bolig_2019$BRA.Bolig)
+median(Bolig_2020$BRA.Bolig)
+median(Bolig_2021$BRA.Bolig)
+median(Bolig_2022$BRA.Bolig)
+```
+
+## Median - Bolig alder
+
+```{r}
+median(Analyse$Alder)
+median(Analyse_2019$Alder)
+median(Analyse_2020$Alder)
+median(Analyse_2021$Alder)
+median(Analyse_2022$Alder)
+```
+
+## Median - Avstand til sentrum i km
+
+```{r}
+median(Analyse_sf$dist_cbd_km)
+median(Analyse_sf_2019$dist_cbd_km)
+median(Analyse_sf_2020$dist_cbd_km)
+median(Analyse_sf_2021$dist_cbd_km)
+median(Analyse_sf_2022$dist_cbd_km)
+```
+
+# Varians verdier
+
+## Varians - Boligpris; hele datasettet
+
+```{r}
+var(Analyse$P)
+var(Analyse_2019$P)
+var(Analyse_2020$P)
+var(Analyse_2021$P)
+var(Analyse_2022$P)
+```
+
+## Varians - Pris; Bergen
+
+```{r}
+var(Bergen$P)
+var(Bergen_2019$P)
+var(Bergen_2020$P)
+var(Bergen_2021$P)
+var(Bergen_2022$P)
+```
+
+## Varians - Pris; eksludert Bergen
+
+```{r}
+var(Uten_Bergen$P)
+var(Uten_Bergen_2019$P)
+var(Uten_Bergen_2020$P)
+var(Uten_Bergen_2021$P)
+var(Uten_Bergen_2022$P)
+```
+
+## Varians - Energikarakterer
+
+```{r}
+var(Analyse$EL.Kar)
+var(Analyse_2019$EL.Kar)
+var(Analyse_2020$EL.Kar)
+var(Analyse_2021$EL.Kar)
+var(Analyse_2022$EL.Kar)
+```
+
+## Varians - Levert kWh
+
+```{r}
+var(Analyse$BLEnergikWh)
+var(Analyse_2019$BLEnergikWh)
+var(Analyse_2020$BLEnergikWh)
+var(Analyse_2021$BLEnergikWh)
+var(Analyse_2022$BLEnergikWh)
+```
+
+## Varians - Tomtestørrelse
+
+```{r}
+var(Analyse$EiendomAreal)
+var(Analyse_2019$EiendomAreal)
+var(Analyse_2020$EiendomAreal)
+var(Analyse_2021$EiendomAreal)
+var(Analyse_2022$EiendomAreal)
+```
+
+## Varians - Boligstørrelse; Blokker
+
+```{r}
+var(Blokker$Bruksareal.Enhet)
+var(Blokker_2019$Bruksareal.Enhet)
+var(Blokker_2020$Bruksareal.Enhet)
+var(Blokker_2021$Bruksareal.Enhet)
+var(Blokker_2022$Bruksareal.Enhet)
+```
+
+## Varians - Boligstørrelse; Boliger
+
+```{r}
+var(Bolig$BRA.Bolig)
+var(Bolig_2019$BRA.Bolig)
+var(Bolig_2020$BRA.Bolig)
+var(Bolig_2021$BRA.Bolig)
+var(Bolig_2022$BRA.Bolig)
+```
+
+## Varians - Bolig alder
+
+```{r}
+var(Analyse$Alder)
+var(Analyse_2019$Alder)
+var(Analyse_2020$Alder)
+var(Analyse_2021$Alder)
+var(Analyse_2022$Alder)
+```
+
+## Varians - Avstand til sentrum i km
+
+```{r}
+var(Analyse_sf$dist_cbd_km)
+var(Analyse_sf_2019$dist_cbd_km)
+var(Analyse_sf_2020$dist_cbd_km)
+var(Analyse_sf_2021$dist_cbd_km)
+var(Analyse_sf_2022$dist_cbd_km)
+```
+
+# Rydder ut datasett
+
+```{r}
+rm(Bergen,
+   Bergen_2019,
+   Bergen_2020,
+   Bergen_2021,
+   Bergen_2022,
+   Uten_Bergen,
+   Uten_Bergen_2019,
+   Uten_Bergen_2020,
+   Uten_Bergen_2021,
+   Uten_Bergen_2022,
+   Blokker,
+   Blokker_2019,
+   Blokker_2020,
+   Blokker_2021,
+   Blokker_2022,
+   Bolig,
+   Bolig_2019,
+   Bolig_2020,
+   Bolig_2021,
+   Bolig_2022)
+```
+
+-   
