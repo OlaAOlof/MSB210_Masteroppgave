@@ -21,5 +21,18 @@ library(sp)
 
 ```{r}
 Analyse <- suppressWarnings(read_csv("Datasett_Analyse.csv"))
+Analyse_2019 <- suppressWarnings(read_csv("Datasett_Analyse_2019.csv"))
+Analyse_2020 <- suppressWarnings(read_csv("Datasett_Analyse_2020.csv"))
+Analyse_2021 <- suppressWarnings(read_csv("Datasett_Analyse_2021.csv"))
+Analyse_2021 <- suppressWarnings(read_csv("Datasett_Analyse_2022.csv"))
+
 Analyse_sf <- suppressWarnings(st_read("Datasett_Analyse_sf.gpkg"))
+Analyse_sf_2019 <- suppressWarnings(st_read("Datasett_Analyse_sf_2019.gpkg"))
+Analyse_sf_2020 <- suppressWarnings(st_read("Datasett_Analyse_sf_2020.gpkg"))
+Analyse_sf_2021 <- suppressWarnings(st_read("Datasett_Analyse_sf_2021.gpkg"))
+Analyse_sf_2022 <- suppressWarnings(st_read("Datasett_Analyse_sf_2022.gpkg"))
+```
+
+```{r}
+mean(Analyse$P)
 ```
