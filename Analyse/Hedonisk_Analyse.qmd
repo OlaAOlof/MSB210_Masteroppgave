@@ -39,8 +39,10 @@ Analyse_sf <- suppressWarnings(st_read("Datasett_Analyse_sf.gpkg"))
 
 # Summary av Datasettene
 
+NOTE: Summary vil av ein elle anna grunn ikkje skriva ut i dokumentet. Får bare resultatet i "console". Må finna ut koffor.
+
 ```{r}
-#Summary(Analyse)
+Summary(Analyse)
 #summary(Analyse_sf)
 ```
 
@@ -118,11 +120,11 @@ Punkt 1: Fårkje kjørt modell på avstands-variabel (dist_cbd_km). Må finne ut
 Punkt 2: Vi må finne ut kva variablar vi må ha "ln" framfor og kva variablar vi skal ha "I" framfor for å beholde formatering.
 
 ```{r}
-#OLS3 = lm(mod3, data = Analyse)
+OLS3 = lm(mod3, data = Analyse)
 ```
 
 ```{r}
-#summary(OLS3)
+summary(OLS3)
 ```
 
 ## OLS4
