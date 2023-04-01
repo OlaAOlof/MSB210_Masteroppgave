@@ -419,4 +419,9 @@ rm(Bergen,
 
 # Fremstilling og Plots av variabler
 
+## EL-Karakter; Frekvens:
+
+```{r}
+hist(Analyse$EL.Kar.Original, breaks = 5, main = "Frekvens, ulike energikarakterer", xlab = "EL.Kar.Original", col = "lightblue", border = "black")
+```
 
