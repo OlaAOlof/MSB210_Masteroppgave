@@ -9,6 +9,9 @@ editor_options:
   chunk_output_type: console
 ---
 
+# NB: FØR ME STARTE/GÅR VIDARE MED DETTA:
+Me må bli enige om ka me gjere med dei 3-5 observasjonane som shady (negativ alder og 240000 m^2 tomt observasjonane), då desse vil påvirka resultatene av analysane våras!
+
 # Setup Chunk
 
 ```{r setup_base}
