@@ -704,6 +704,7 @@ Analyse["VannKode"][is.na(Analyse["VannKode"])] <- 0
 Analyse["Vannforsyning"][is.na(Analyse["Vannforsyning"])] <- "Ikke Oppgitt"
 Analyse["AvlopsKode"][is.na(Analyse["AvlopsKode"])] <- 0
 Analyse["Avlop"][is.na(Analyse["Avlop"])] <- "Ikke Oppgitt"
+Analyse["MatValg"][is.na(Analyse["MatValg"])] <- "Ikke Oppgitt"
 ```
 
 ```{r}
@@ -722,6 +723,38 @@ Analyse <- Analyse %>%
 ```
 
 ```{r}
+Analyse <- Analyse %>%
+  mutate(O.Karak_num = recode(O.Karak,
+                                         'Red' = 1,
+                                         'Orange' = 2,
+                                         'Yellow' = 3,
+                                         'Lightgreen' = 4,
+                                         'Green' = 5)) %>% 
+  select(-O.Karak)
+```
+
+```{r}
+Analyse <- Analyse %>%
+  relocate(O.Karak_num, .before = BLEnergikWh)
+```
+
+```{r}
+Analyse <- Analyse %>%
+  mutate(MatValg_num = recode(MatValg,
+                                         'Ikke Oppgitt' = 0,
+                                         'Betong' = 1,
+                                         'Mur/tegl' = 2,
+                                         'Staal' = 3,
+                                         'Tre' = 4)) %>% 
+  select(-MatValg)
+```
+
+```{r}
+Analyse <- Analyse %>%
+  relocate(MatValg_num, .before = Oms.Typ)
+```
+
+```{r}
 Analyse$Alder <- Analyse$DokumentAr - Analyse$B.Ar
 ```
 
@@ -733,6 +766,10 @@ Analyse <- Analyse %>%
 ```{r}
 Analyse <- Analyse %>% 
   select(-Year, -Month, -Quarter)
+```
+
+```{r}
+Analyse$Alder[Analyse$Alder == -1] <- 0
 ```
 
 # Flytter nye koordinater fra Ambita inn i vårt datasett
@@ -777,8 +814,7 @@ rm(Ambita_Oppdatert,
 
 # Lager kartfil ut av Analyse datasettet vårt
 
-Latitude -\> Nord/Sør
-Longitude -\> Vest/Øst
+Latitude -\> Nord/Sør Longitude -\> Vest/Øst
 
 ```{r}
 Analyse_sf <- Analyse

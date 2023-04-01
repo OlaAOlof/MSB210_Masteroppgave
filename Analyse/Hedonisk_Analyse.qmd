@@ -10,7 +10,8 @@ editor_options:
 ---
 
 # NB: FØR ME STARTE/GÅR VIDARE MED DETTA:
-Me må bli enige om ka me gjere med dei 3-5 observasjonane som shady (negativ alder og 240000 m^2 tomt observasjonane), då desse vil påvirka resultatene av analysane våras!
+
+Me må bli enige om ka me gjere med dei 3-5 observasjonane som shady (negativ alder og 240000 m\^2 tomt observasjonane), då desse vil påvirka resultatene av analysane våras!
 
 # Setup Chunk
 
@@ -26,6 +27,7 @@ library(tmap)
 #library(magrittr)
 #library(measurements)
 library(tibble)
+library(ggcorrplot)
 options(paged.print = FALSE)
 ```
 
@@ -42,8 +44,12 @@ Analyse_sf <- suppressWarnings(st_read("Datasett_Analyse_sf.gpkg"))
 NOTE: Summary vil av ein elle anna grunn ikkje skriva ut i dokumentet. Får bare resultatet i "console". Må finna ut koffor.
 
 ```{r}
-Summary(Analyse)
+summary(Analyse)
 #summary(Analyse_sf)
+```
+
+```{r}
+#print(summary(Analyse))
 ```
 
 # Lager modeller
@@ -77,9 +83,8 @@ mod3 <- "P ~ Alder + EL.Kar + O.Karak + BLEnergikWh + MatValg + Oms.Typ + BolTyp
 ## Modell 4
 
 ```{r}
-#mod4 <- "P ~ "
+mod4 <- "P ~ EL.Kar"
 ```
-
 
 # Kjører OLS-Modellen på våres modeller
 
@@ -120,47 +125,43 @@ Punkt 1: Fårkje kjørt modell på avstands-variabel (dist_cbd_km). Må finne ut
 Punkt 2: Vi må finne ut kva variablar vi må ha "ln" framfor og kva variablar vi skal ha "I" framfor for å beholde formatering.
 
 ```{r}
-OLS3 = lm(mod3, data = Analyse)
+#OLS3 = lm(mod3, data = Analyse_sf)
 ```
 
 ```{r}
-summary(OLS3)
+#summary(OLS3)
 ```
 
 ## OLS4
 
 ```{r}
-#OLS4 = lm(mod4, data = Analyse)
+OLS4 = lm(mod4, data = Analyse)
 ```
 
 ```{r}
-#summary(OLS4)
+summary(OLS4)
+```
+
+```{r}
+cor_matrix <- cor(Analyse[c("P", "EL.Kar", "Alder", "B.Ar", "Etasje", "AntallRom")])
+
+ggcorrplot(cor_matrix)
+```
+
+```{r}
+correlation <- cor(Analyse$B.Ar, Analyse$AntallRom, method = "pearson")
+
+print(correlation)
+```
+
+```{r}
+cor_matrix <- cor(Analyse[c("P", "EL.Kar", "Alder", "Etasje", "AntallRom")])
+
+ggcorrplot(cor_matrix, type = "lower", hc.order = TRUE, lab = TRUE)
 ```
 
 
+```{r}
+#Siste
+```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--
