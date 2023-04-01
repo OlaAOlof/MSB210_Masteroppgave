@@ -59,13 +59,17 @@ Punkt 1: Fårkje kjørt modell på avstands-variabel (dist_cbd_km). Må finne ut
 Punkt 2: Vi må finne ut kva variablar vi må ha "ln" framfor og kva variablar vi skal ha "I" framfor for å beholde formatering.
 
 ```{r}
-mod2 <- "P ~ Alder + Oms.Typ + BolType + AntEiendom + EiendomAreal + VannkantGL + VegkantGL + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegBoDrivePlikt + TotBoliger + BRA.Bolig + BRA.Annet + BRA.Tot + BebygdAreal + RegKulturByg + Etasje + Lopenr + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + EtasjeSeksjon + Kjokken + VannKode + AvlopsKode + YearQuarter"
+mod2 <- "P ~ Alder + BLEnergikWh + Oms.Typ + BolType + AntEiendom + EiendomAreal + VannkantGL + VegkantGL + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegBoDrivePlikt + TotBoliger + BRA.Bolig + BRA.Annet + BRA.Tot + BebygdAreal + RegKulturByg + Etasje + Lopenr + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + EtasjeSeksjon + Kjokken + VannKode + AvlopsKode + YearQuarter"
 ```
 
 ## Modell 3
 
+Punkt 1: Fårkje kjørt modell på avstands-variabel (dist_cbd_km). Må finne ut av denne!
+
+Punkt 2: Vi må finne ut kva variablar vi må ha "ln" framfor og kva variablar vi skal ha "I" framfor for å beholde formatering.
+
 ```{r}
-#mod3 <- "P ~ "
+mod3 <- "P ~ Alder + EL.Kar + O.Karak + BLEnergikWh + MatValg + Oms.Typ + BolType + AntEiendom + EiendomAreal + VannkantGL + VegkantGL + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegBoDrivePlikt + TotBoliger + BRA.Bolig + BRA.Annet + BRA.Tot + BebygdAreal + RegKulturByg + Etasje + Lopenr + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + EtasjeSeksjon + Kjokken + VannKode + AvlopsKode + YearQuarter"
 ```
 
 ## Modell 4
@@ -108,6 +112,10 @@ summary(OLS2)
 ```
 
 ## OLS3
+
+Punkt 1: Fårkje kjørt modell på avstands-variabel (dist_cbd_km). Må finne ut av denne!
+
+Punkt 2: Vi må finne ut kva variablar vi må ha "ln" framfor og kva variablar vi skal ha "I" framfor for å beholde formatering.
 
 ```{r}
 #OLS3 = lm(mod3, data = Analyse)
