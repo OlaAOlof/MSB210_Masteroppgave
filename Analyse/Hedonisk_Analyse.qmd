@@ -34,10 +34,11 @@ Analyse <- suppressWarnings(read_csv("Datasett_Analyse.csv")) %>%
 Analyse_sf <- suppressWarnings(st_read("Datasett_Analyse_sf.gpkg"))
 ```
 
-# Summary av Datasettet
+# Summary av Datasettene
 
 ```{r}
-summary(Analyse)
+#Summary(Analyse)
+#summary(Analyse_sf)
 ```
 
 # Lager modeller
@@ -50,20 +51,24 @@ mod1 <- "P ~ EL.Kar + O.Karak + MatValg"
 
 ## Modell 2
 
+Punkt 1: Fårkje kjørt modell på avstands-variabel (dist_cbd_km). Må finne ut av denne!
+
+Punkt 2: Vi må finne ut kva variablar vi må ha "ln" framfor og kva variablar vi skal ha "I" framfor for å beholde formatering.
+
 ```{r}
-#mod2 <- ""
+mod2 <- "P ~ Alder + Oms.Typ + BolType + AntEiendom + EiendomAreal + VannkantGL + VegkantGL + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegBoDrivePlikt + TotBoliger + BRA.Bolig + BRA.Annet + BRA.Tot + BebygdAreal + RegKulturByg + Etasje + Lopenr + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + EtasjeSeksjon + Kjokken + VannKode + AvlopsKode + YearQuarter"
 ```
 
 ## Modell 3
 
 ```{r}
-#mod3 <- ""
+#mod3 <- "P ~ "
 ```
 
 ## Modell 4
 
 ```{r}
-mod4 <- "P ~ Alder + Oms.Typ + EiendomAreal"
+#mod4 <- "P ~ "
 ```
 
 
@@ -76,7 +81,7 @@ Her på energi karakter: Trur vi her må gjere det Liv snakka om, med å utelukk
 Problemet: Eg er ikkje heilt sikker på korleis vi gjer dette i R.
 
 ```{r}
-OLS1 = lm(mod1, data = Analyse)
+OLS1 = lm(mod1, data = Analyse_sf)
 ```
 
 ```{r}
@@ -87,20 +92,36 @@ Dette er ein problemstilling som vil forplante seg vidare i dei andre modellane,
 
 ## OLS2
 
--
+Punkt 1: Fårkje kjørt modell på avstands-variabel (dist_cbd_km). Må finne ut av denne!
+
+Punkt 2: Vi må finne ut kva variablar vi må ha "ln" framfor og kva variablar vi skal ha "I" framfor for å beholde formatering.
+
+```{r}
+OLS2 = lm(mod2, data = Analyse)
+```
+
+```{r}
+summary(OLS2)
+```
 
 ## OLS3
 
--
+```{r}
+#OLS3 = lm(mod3, data = Analyse)
+```
+
+```{r}
+#summary(OLS3)
+```
 
 ## OLS4
 
 ```{r}
-OLS4 = lm(mod4, data = Analyse)
+#OLS4 = lm(mod4, data = Analyse)
 ```
 
 ```{r}
-summary(OLS4)
+#summary(OLS4)
 ```
 
 
