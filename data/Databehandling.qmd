@@ -755,6 +755,16 @@ Analyse <- Analyse %>%
 ```
 
 ```{r}
+Analyse$EL.Kar.Original[Analyse$EL.Kar.Original == 1] <- 'G'
+Analyse$EL.Kar.Original[Analyse$EL.Kar.Original == 2] <- 'F'
+Analyse$EL.Kar.Original[Analyse$EL.Kar.Original == 3] <- 'E'
+Analyse$EL.Kar.Original[Analyse$EL.Kar.Original == 4] <- 'D'
+Analyse$EL.Kar.Original[Analyse$EL.Kar.Original == 5] <- 'C'
+Analyse$EL.Kar.Original[Analyse$EL.Kar.Original == 6] <- 'B'
+Analyse$EL.Kar.Original[Analyse$EL.Kar.Original == 7] <- 'A'
+```
+
+```{r}
 Analyse$Alder <- Analyse$DokumentAr - Analyse$B.Ar
 ```
 

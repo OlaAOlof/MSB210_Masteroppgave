@@ -417,4 +417,6 @@ rm(Bergen,
    Bolig_2022)
 ```
 
--   
+# Fremstilling og Plots av variabler
+
+

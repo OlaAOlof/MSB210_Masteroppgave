@@ -1,12 +1,10 @@
 ---
 title: "Masteroppgave"
 author: 
-  "Kevin Ha"
-  "Ola Andre Olofsson"
+  Kevin Ha
+  Ola Andre Olofsson
 format: html
 editor: visual
-editor_options:
-  chunk_output_type: console
 ---
 
 # NB: FØR ME STARTE/GÅR VIDARE MED DETTA:
@@ -160,8 +158,6 @@ cor_matrix <- cor(Analyse[c("P", "EL.Kar", "Alder", "Etasje", "AntallRom")])
 ggcorrplot(cor_matrix, type = "lower", hc.order = TRUE, lab = TRUE)
 ```
 
-
 ```{r}
 #Siste
 ```
-
