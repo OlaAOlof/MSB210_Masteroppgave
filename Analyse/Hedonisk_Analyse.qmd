@@ -1,0 +1,41 @@
+---
+title: "Masteroppgave"
+author: 
+  "Kevin Ha"
+  "Ola Andre Olofsson"
+format: html
+editor: visual
+editor_options:
+  chunk_output_type: console
+---
+
+# Setup Chunk
+
+```{r setup_base}
+library(readr)
+library(tidyverse)
+library(dplyr)
+library(lubridate)
+#library(zoo)
+library(sf)
+library(sp)
+library(tmap)
+#library(magrittr)
+#library(measurements)
+options(paged.print = FALSE)
+```
+
+# Leser inn datasettene for analyse
+
+```{r}
+Analyse <- suppressWarnings(read_csv("Datasett_Analyse.csv")) %>% 
+  select(-...1)
+Analyse_sf <- suppressWarnings(st_read("Datasett_Analyse_sf.gpkg"))
+```
+
+# Test
+
+```{r}
+summary(Analyse)
+```
+
