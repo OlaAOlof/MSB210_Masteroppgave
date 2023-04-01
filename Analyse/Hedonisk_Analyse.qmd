@@ -22,6 +22,7 @@ library(sp)
 library(tmap)
 #library(magrittr)
 #library(measurements)
+library(tibble)
 options(paged.print = FALSE)
 ```
 
@@ -33,9 +34,99 @@ Analyse <- suppressWarnings(read_csv("Datasett_Analyse.csv")) %>%
 Analyse_sf <- suppressWarnings(st_read("Datasett_Analyse_sf.gpkg"))
 ```
 
-# Test
+# Summary av Datasettet
 
 ```{r}
 summary(Analyse)
 ```
 
+# Lager modeller
+
+## Modell 1
+
+```{r}
+mod1 <- "P ~ EL.Kar + O.Karak + MatValg"
+```
+
+## Modell 2
+
+```{r}
+#mod2 <- ""
+```
+
+## Modell 3
+
+```{r}
+#mod3 <- ""
+```
+
+## Modell 4
+
+```{r}
+mod4 <- "P ~ Alder + Oms.Typ + EiendomAreal"
+```
+
+
+# Kjører OLS-Modellen på våres modeller
+
+## OLS1
+
+Her på energi karakter: Trur vi her må gjere det Liv snakka om, med å utelukke ein energikarakter i modellen (forslaget var utelukke Energi karkater A), for å sjekke korleis den andre energi karakterer slår ut, opp mot denne.
+
+Problemet: Eg er ikkje heilt sikker på korleis vi gjer dette i R.
+
+```{r}
+OLS1 = lm(mod1, data = Analyse)
+```
+
+```{r}
+summary(OLS1)
+```
+
+Dette er ein problemstilling som vil forplante seg vidare i dei andre modellane, som inkluderer energikarakterer og lignande. Dette må vi løyse.
+
+## OLS2
+
+-
+
+## OLS3
+
+-
+
+## OLS4
+
+```{r}
+OLS4 = lm(mod4, data = Analyse)
+```
+
+```{r}
+summary(OLS4)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-
