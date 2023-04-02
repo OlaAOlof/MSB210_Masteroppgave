@@ -422,6 +422,5 @@ rm(Bergen,
 ## EL-Karakter; Frekvens:
 
 ```{r}
-hist(Analyse$EL.Kar.Original, breaks = 5, main = "Frekvens, ulike energikarakterer", xlab = "EL.Kar.Original", col = "lightblue", border = "black")
+hist(Analyse$EL.Kar, breaks = 5, main = "Frekvens, ulike energikarakterer", xlab = "EL.Kar.Original", col = "lightblue", border = "black")
 ```
-
