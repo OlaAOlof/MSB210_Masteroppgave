@@ -873,8 +873,6 @@ Analyse_sf <- Analyse_sf %>%
 Analyse_sf$dist_cbd_km <- round(Analyse_sf$dist_cbd_km, 2)
 ```
 
-# Lager analyse-datasett for hvert individuelle år i tillegg til det totale felles dokumentet
-
 ```{r}
 Analyse <- Analyse %>% 
   separate(Knr...Gnr...Bnr...Snr, c("Knr", "Gnr", "Bnr", "Snr"))
@@ -884,6 +882,36 @@ Analyse <- Analyse %>%
 Analyse <- Analyse %>%
   unite(col = "Matrikkel", c("Knr", "Gnr", "Bnr", "Snr"), sep = "/", remove = FALSE)
 ```
+
+```{r}
+Analyse_sf <- Analyse_sf %>% 
+  separate(Knr...Gnr...Bnr...Snr, c("Knr", "Gnr", "Bnr", "Snr"))
+```
+
+```{r}
+Analyse_sf <- Analyse_sf %>%
+  unite(col = "Matrikkel", c("Knr", "Gnr", "Bnr", "Snr"), sep = "/", remove = FALSE)
+```
+
+```{r}
+Analyse_sf["EtasjeSeksjon"][is.na(Analyse_sf["EtasjeSeksjon"])] <- "Ikke Oppgitt"
+```
+
+
+```{r}
+Analyse_sf <- Analyse_sf %>%
+  mutate(Etasje_num = recode(EtasjeSeksjon,
+                                         'Ikke Oppgitt' = 0,            
+                                         'Underetasje' = 1,
+                                         'Hovedetasje' = 2,
+                                         'Loft' = 3,
+                                         'Kjelleretasje' = 4)
+                                                        ) %>% 
+  relocate(Etasje_num, .before = EtasjeSeksjon)
+```
+
+
+# Lager analyse-datasett for hvert individuelle år i tillegg til det totale felles dokumentet
 
 ```{r}
 Analyse_2019 <- Analyse[Analyse$DokumentAr == 2019,]
@@ -983,6 +1011,13 @@ Analyse_2022_sf$dist_cbd_km <- round(Analyse_2022_sf$dist_cbd_km, 2)
 #st_write(Analyse_2021_sf, "Analyse/Datasett_Analyse_sf_2021.gpkg")
 #st_write(Analyse_2022_sf, "Analyse/Datasett_Analyse_sf_2022.gpkg")
 ```
+
+## Skriver ut Shape fil (TEST)
+
+```{r}
+#write_sf(Analyse_sf, "Analyse/Analyse_Shape.shp")
+```
+
 
 ```{r}
 #siste

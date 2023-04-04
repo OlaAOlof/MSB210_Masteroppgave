@@ -38,7 +38,13 @@ options(paged.print = FALSE)
 Analyse <- suppressWarnings(read_csv("Datasett_Analyse.csv")) %>% 
   select(-...1)
 Analyse_sf <- suppressWarnings(st_read("Datasett_Analyse_sf.gpkg"))
+Analyse_Shape <- suppressWarnings(read_sf("Analyse_Shape.shp"))
 ```
+
+```{r}
+class(st_geometry(st_read(shp, quiet = TRUE, type = 3)))
+```
+
 
 # Summary av Datasettene
 
@@ -58,6 +64,31 @@ summary(Analyse_sf)
 ```
 
 ## Vektmatrise for Analyse_sf
+
+### Tester Queen Kode
+
+```{r}
+queen.nb = poly2nb(Analyse_Shape)
+```
+
+```{r}
+queen.listw = nb2listw(queen.nb)
+```
+
+### Tester Rook Kode
+
+```{r}
+rook.nb = poly2nb(Analyse_Shape, queen = FALSE)
+```
+
+```{r}
+rook.listw = nb2listw(rook.nb)
+```
+
+```{r}
+listw1 = queen.listw
+```
+
 
 ### Vektmatrise, K = 3
 
@@ -217,19 +248,19 @@ lm.morantest(OLS3, Analyse_sf_W10)
 ## Moran's OLS4
 
 ```{r}
-cor_matrix <- cor(Analyse[c("P", "EL.Kar", "Alder", "B.Ar", "Etasje", "AntallRom")])
+cor_matrix <- cor(Analyse_sf[c("P", "EL.Kar", "Alder", "B.Ar", "Etasje", "AntallRom")])
 
 ggcorrplot(cor_matrix)
 ```
 
 ```{r}
-correlation <- cor(Analyse$B.Ar, Analyse$AntallRom, method = "pearson")
+correlation <- cor(Analyse_sf$B.Ar, Analyse$AntallRom, method = "pearson")
 
-print(correlation)
+#print(correlation)
 ```
 
 ```{r}
-cor_matrix <- cor(Analyse[c("P", "EL.Kar", "Alder", "Etasje", "AntallRom")])
+cor_matrix <- cor(Analyse_sf[c("P", "EL.Kar", "Alder", "Etasje", "AntallRom")])
 
 ggcorrplot(cor_matrix, type = "lower", hc.order = TRUE, lab = TRUE)
 ```
