@@ -42,16 +42,16 @@ Analyse_sf <- suppressWarnings(st_read("Datasett_Analyse_sf.gpkg"))
 
 # Summary av Datasettene
 
-NOTE: Summary vil av ein elle anna grunn ikkje skriva ut i dokumentet. Får bare resultatet i "console". Må finna ut koffor.
-
 ```{r}
 #summary(Analyse)
-#summary(Analyse_sf)
+summary(Analyse_sf)
 ```
 
 # Lager vektmatriser
 
 ```{r}
+#Kankje laga vektmatrisa på Analyse-datasettet. Må bli gjort på kart-datasettet "Analyse_sf"
+
 #Analyse_mat_nb3 <- knearneigh(Analyse, k = 3)
 #Analyse_nb3 <- knn2nb(Analyse_mat_nb3)
 #Analyse_W3 <- nb2listw(Analyse_nb3, style = "W")
@@ -93,8 +93,6 @@ mod1 <- "P ~ EL.Kar + O.Karak + MatValg"
 
 ## Modell 2
 
-Punkt 1: Fårkje kjørt modell på avstands-variabel (dist_cbd_km). Må finne ut av denne!
-
 Punkt 2: Vi må finne ut kva variablar vi må ha "ln" framfor og kva variablar vi skal ha "I" framfor for å beholde formatering.
 
 ```{r}
@@ -103,8 +101,6 @@ mod2 <- "P ~ Alder + BLEnergikWh + Oms.Typ + BolType + AntEiendom + EiendomAreal
 ```
 
 ## Modell 3
-
-Punkt 1: Fårkje kjørt modell på avstands-variabel (dist_cbd_km). Må finne ut av denne!
 
 Punkt 2: Vi må finne ut kva variablar vi må ha "ln" framfor og kva variablar vi skal ha "I" framfor for å beholde formatering.
 
@@ -122,10 +118,6 @@ mod4 <- "P ~ EL.Kar"
 
 ## OLS1
 
-Her på energi karakter: Trur vi her må gjere det Liv snakka om, med å utelukke ein energikarakter i modellen (forslaget var utelukke Energi karkater A), for å sjekke korleis den andre energi karakterer slår ut, opp mot denne.
-
-Problemet: Eg er ikkje heilt sikker på korleis vi gjer dette i R.
-
 ```{r}
 OLS1 = lm(mod1, data = Analyse_sf)
 ```
@@ -134,11 +126,7 @@ OLS1 = lm(mod1, data = Analyse_sf)
 summary(OLS1)
 ```
 
-Dette er ein problemstilling som vil forplante seg vidare i dei andre modellane, som inkluderer energikarakterer og lignande. Dette må vi løyse.
-
 ## OLS2
-
-Punkt 1: Fårkje kjørt modell på avstands-variabel (dist_cbd_km). Må finne ut av denne!
 
 Punkt 2: Vi må finne ut kva variablar vi må ha "ln" framfor og kva variablar vi skal ha "I" framfor for å beholde formatering.
 
@@ -151,8 +139,6 @@ summary(OLS2)
 ```
 
 ## OLS3
-
-Punkt 1: Fårkje kjørt modell på avstands-variabel (dist_cbd_km). Må finne ut av denne!
 
 Punkt 2: Vi må finne ut kva variablar vi må ha "ln" framfor og kva variablar vi skal ha "I" framfor for å beholde formatering.
 
