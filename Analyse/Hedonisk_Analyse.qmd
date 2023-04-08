@@ -7,10 +7,6 @@ format: html
 editor: visual
 ---
 
-# NB: FØR ME STARTE/GÅR VIDARE MED DETTA:
-
-Me må bli enige om ka me gjere med dei 3-5 observasjonane som shady (negativ alder og 240000 m\^2 tomt observasjonane), då desse vil påvirka resultatene av analysane våras!
-
 # Setup Chunk
 
 ```{r setup_base}
@@ -29,6 +25,7 @@ library(spatialreg)
 library(tibble)
 library(ggcorrplot)
 library(huxtable)
+library(plm)
 options(paged.print = FALSE)
 ```
 
@@ -42,9 +39,9 @@ Analyse_Shape <- suppressWarnings(read_sf("Analyse_Shape.shp"))
 ```
 
 ```{r}
+shp <- "Analyse_Shape.shp"
 class(st_geometry(st_read(shp, quiet = TRUE, type = 3)))
 ```
-
 
 # Summary av Datasettene
 
@@ -56,6 +53,7 @@ summary(Analyse_sf)
 # Lager vektmatriser
 
 ```{r}
+
 #Kankje laga vektmatrisa på Analyse-datasettet. Må bli gjort på kart-datasettet "Analyse_sf"
 
 #Analyse_mat_nb3 <- knearneigh(Analyse, k = 3)
@@ -89,9 +87,8 @@ rook.listw = nb2listw(rook.nb)
 listw1 = queen.listw
 ```
 
-
 ### Vektmatrise, K = 3
-
+Rppretter romlige vektmatriser for k-nærmeste naboer med k = 3
 ```{r}
 Analyse_sf_mat_nb3 <- knearneigh(Analyse_sf, k = 3)
 Analyse_sf_nb3 <- knn2nb(Analyse_sf_mat_nb3)
@@ -99,7 +96,7 @@ Analyse_sf_W3 <- nb2listw(Analyse_sf_nb3, style = "W")
 ```
 
 ### Vektmatrise, K = 5
-
+Rppretter romlige vektmatriser for k-nærmeste naboer med k = 5
 ```{r}
 Analyse_sf_mat_nb5 <- knearneigh(Analyse_sf, k = 5)
 Analyse_sf_nb5 <- knn2nb(Analyse_sf_mat_nb5)
@@ -107,14 +104,67 @@ Analyse_sf_W5 <- nb2listw(Analyse_sf_nb5, style = "W")
 ```
 
 ### Vektmatrise, K = 10
-
+Rppretter romlige vektmatriser for k-nærmeste naboer med k = 10
 ```{r}
 Analyse_sf_mat_nb10 <- knearneigh(Analyse_sf, k = 10)
 Analyse_sf_nb10 <- knn2nb(Analyse_sf_mat_nb10)
 Analyse_sf_W10 <- nb2listw(Analyse_sf_nb10, style = "W")
 ```
 
+# Kevin test
+```{r Kevins Moran}
+# Definer en variabel for romlig analyse
+Pris <- Analyse_sf$P
+
+# Beregn Global Moran's I for k = 3, k = 5 og k = 10
+moran_3 <- moran.test(Pris, Analyse_sf_W3)
+moran_5 <- moran.test(Pris, Analyse_sf_W5)
+moran_10 <- moran.test(Pris, Analyse_sf_W10)
+
+# Vis resultater
+cat("Global Moran's I (k = 3):", moran_3$estimate, "\n")
+cat("Global Moran's I (k = 5):", moran_5$estimate, "\n")
+cat("Global Moran's I (k = 10):", moran_10$estimate, "\n")
+```
+Disse resultatene viser Global Moran's I-verdier for k = 3, k = 5 og k = 10. Global Moran's I er et mål på romlig autokorrelasjon som gir en indikasjon på hvordan en variabel (i dette tilfellet "Pris") er korrelert med seg selv i rommet. I dette tilfellet er variabelen "Pris" korrelert med sine nærmeste naboer.
+
+Resultatene viser følgende:
+Global Moran's I (k = 3): 0.3930968
+Global Moran's I (k = 5): 0.3361125
+Global Moran's I (k = 10): 0.2473997
+Global Moran's I-verdier varierer mellom -1 og 1:
+
+Verdier nær 1 indikerer positiv romlig autokorrelasjon, der lignende verdier er gruppert sammen i rommet.
+Verdier nær -1 indikerer negativ romlig autokorrelasjon, der ulike verdier er gruppert sammen i rommet.
+Verdier nær 0 indikerer ingen romlig autokorrelasjon, der verdier er jevnt fordelt i rommet.
+I dette tilfellet er alle Global Moran's I-verdier positive, noe som tyder på positiv romlig autokorrelasjon. Det betyr at høyere priser har en tendens til å være nærmere hverandre, og lavere priser har en tendens til å være nærmere hverandre i rommet.
+
+Det er viktig å merke seg at Moran's I-verdien avtar når antall naboer (k) øker. Dette kan skyldes at når flere naboer inkluderes i analysen, blir det mindre sannsynlig at hver enhet har naboer med lignende verdier.
+
+Tallene etter Moran's I-verdiene i resultatene (-0.0003374958 og 0.0001646533 for k = 3, osv.) er konstantleddet og koeffisienten for x i Moran's I-beregningen. Disse tallene brukes for å beregne Moran's I-verdien og er ikke av stor interesse for tolkningen av resultatene.
+
+```{r Kevins modell}
+# Konverter Analyse_sf til en pdata.frame for romlig regresjon
+analyse_sf_pdata <- pdata.frame(Analyse_sf)
+
+# Definer modellformel
+Kev_model <- P ~ Alder + B.Ar + EL.Kar + Bruksareal.Enhet 
+
+# Utfør romlig regresjon (lagmodell) for k = 3, k = 5 og k = 10
+lag_model_3 <- lagsarlm(Kev_model, data = Analyse_sf, listw = Analyse_sf_W3)
+lag_model_5 <- lagsarlm(Kev_model, data = Analyse_sf, listw = Analyse_sf_W5)
+lag_model_10 <- lagsarlm(Kev_model, data = Analyse_sf, listw = Analyse_sf_W10)
+
+# Vis resultater
+summary(lag_model_3)
+summary(lag_model_5)
+summary(lag_model_10)
+
+```
+
+
 # Lager modeller
+
 
 ## Modell 1
 
