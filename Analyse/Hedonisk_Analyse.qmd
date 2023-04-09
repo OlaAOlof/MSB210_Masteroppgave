@@ -119,6 +119,18 @@ Analyse_sf_W10 <- nb2listw(Analyse_sf_nb10, style = "W")
 # Kevin nabolagsmatrise
 
 ```{r}
+# Funksjonen returnerer en matrise med indeksene til punktene som tilhører settet av de k nærmeste naboene til hverandre.
+
+bergen <- st_read(("Analyse_Shape.shp"), quiet=TRUE)
+coords <- st_centroid(st_geometry(bergen), of_largest_polygon=TRUE)
+col.knn <- knearneigh(coords, k=3)
+plot(st_geometry(bergen), border="grey")
+plot(knn2nb(col.knn), coords, add=TRUE)
+title(main="K nærmeste naboer, k = 3")
+```
+Funksjonen returnerer en matrise med indeksene til punktene som tilhører settet av de k nærmeste naboene til hverandre.
+
+```{r}
 # Nå plotter vi punktene og naboene for et utvalg av punkter for å se om det ser ut som om de har riktig antall naboer (k = 10).
 plot(st_geometry(Analyse_sf), pch = 19, cex = 0.5, col = "blue")
 
@@ -133,6 +145,7 @@ plot(Analyse_sf[names(Analyse_sf_nb10[[point_index]]), ], col = "green", pch = 1
 legend("bottomright", legend = c("Points", "Selected point", "Naboer (k = 10)"),
        col = c("blue", "red", "green"), pch = 19, cex = 0.8)
 ```
+
 
 # Kevin Morans I
 ```{r Kevins Moran}
