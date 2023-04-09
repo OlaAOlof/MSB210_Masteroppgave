@@ -308,7 +308,7 @@ OLS4 = lm(mod4, data = Analyse_sf)
 #summary(OLS4)
 ```
 
-## Kevins regresjon
+## OLS5 Kevins regresjon
 ```{r}
 OLS5 = lm(P ~ Alder + B.Ar + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + TotBoliger + BRA.Bolig + Etasje_num + dist_cbd_km, data = Analyse_sf)
 summary(OLS5)
@@ -420,4 +420,24 @@ ggcorrplot(cor_matrix, type = "lower", hc.order = TRUE, lab = TRUE)
 
 ```{r}
 #Siste
+```
+
+# Kevins romlige modeller
+
+```{r}
+# SAR model
+sar_model <- lagsarlm(P ~ Alder + B.Ar + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + TotBoliger + BRA.Bolig + Etasje_num + dist_cbd_km, data = Analyse_sf, listw = Analyse_sf_W3, zero.policy = TRUE)
+
+# SEM model
+sem_model <- errorsarlm(sale_price ~ energy_certificates + other_covariates, data = Analyse_spdf, listw = w, zero.policy = TRUE)
+
+# SDM model
+sdm_model <- sacsarlm(sale_price ~ energy_certificates + other_covariates, data = Analyse_spdf, listw = w, zero.policy = TRUE)
+
+# Tester goodness-of-fit
+summary(sar_model)
+summary(sem_model)
+summary(sdm_model)
+lrtest(sar_model, sem_model)
+lrtest(sem_model, sdm_model)
 ```
