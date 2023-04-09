@@ -92,7 +92,7 @@ Queen- og Rook-kriteriene brukes for å definere naboer i polygondata. Queen-kri
 K-nærmeste naboer-metoden som brukes fremvoer fungerer for punktdata og definerer naboer basert på avstanden mellom punktene. For hver observasjon finner den k nærmeste naboene, der k er en forhåndsbestemt verdi (k = 3, k = 5 og k = 10).
 
 #### Vektmatrise, K = 3
-Rppretter romlige vektmatriser for k-nærmeste naboer med k = 3
+Oppretter romlige vektmatriser for k-nærmeste naboer med k = 3
 ```{r}
 Analyse_sf_mat_nb3 <- knearneigh(Analyse_sf, k = 3)
 Analyse_sf_nb3 <- knn2nb(Analyse_sf_mat_nb3)
@@ -100,7 +100,7 @@ Analyse_sf_W3 <- nb2listw(Analyse_sf_nb3, style = "W")
 ```
 
 #### Vektmatrise, K = 5
-Rppretter romlige vektmatriser for k-nærmeste naboer med k = 5
+Oppretter romlige vektmatriser for k-nærmeste naboer med k = 5
 ```{r}
 Analyse_sf_mat_nb5 <- knearneigh(Analyse_sf, k = 5)
 Analyse_sf_nb5 <- knn2nb(Analyse_sf_mat_nb5)
@@ -108,7 +108,7 @@ Analyse_sf_W5 <- nb2listw(Analyse_sf_nb5, style = "W")
 ```
 
 #### Vektmatrise, K = 10
-Rppretter romlige vektmatriser for k-nærmeste naboer med k = 10
+Oppretter romlige vektmatriser for k-nærmeste naboer med k = 10
 ```{r}
 Analyse_sf_mat_nb10 <- knearneigh(Analyse_sf, k = 10)
 Analyse_sf_nb10 <- knn2nb(Analyse_sf_mat_nb10)
@@ -116,6 +116,23 @@ Analyse_sf_W10 <- nb2listw(Analyse_sf_nb10, style = "W")
 ```
 
 # Kevin test
+
+```{r}
+# Nå plotter vi punktene og naboene for et utvalg av punkter for å se om det ser ut som om de har riktig antall naboer (k = 10).
+plot(st_geometry(Analyse_sf), pch = 19, cex = 0.5, col = "blue")
+
+# Velg et punkt for å se naboene
+point_index <- 1
+
+# Plot de valgte pointsene og naboene
+plot(Analyse_sf[point_index, ], col = "red", pch = 19, cex = 1.2, add = TRUE)
+plot(Analyse_sf[names(Analyse_sf_nb10[[point_index]]), ], col = "green", pch = 19, cex = 10, add = TRUE)
+
+# Legger til beskrivelse
+legend("bottomright", legend = c("Points", "Selected point", "Naboer (k = 10)"),
+       col = c("blue", "red", "green"), pch = 19, cex = 0.8)
+```
+
 ```{r Kevins Moran}
 # Definer en variabel for romlig analyse
 Pris <- Analyse_sf$P
@@ -152,7 +169,7 @@ Tallene etter Moran's I-verdiene i resultatene (-0.0003374958 og 0.0001646533 fo
 analyse_sf_pdata <- pdata.frame(Analyse_sf)
 
 # Definer modellformel
-Kev_model <- "P ~ Alder + B.Ar + EL.Kar + Bruksareal.Enhet"
+Kev_model <- "P ~ Alder + EL.Kar + Bruksareal.Enhet + dist_cbd_km"
 
 # Utfør romlig regresjon (lagmodell) for k = 3, k = 5 og k = 10
 lag_model_3 <- lagsarlm(Kev_model, data = Analyse_sf, listw = Analyse_sf_W3)
