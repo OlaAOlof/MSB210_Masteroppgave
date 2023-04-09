@@ -146,6 +146,27 @@ legend("bottomright", legend = c("Points", "Selected point", "Naboer (k = 10)"),
        col = c("blue", "red", "green"), pch = 19, cex = 0.8)
 ```
 
+```{r}
+analyse_shape <- st_read("Analyse_Shape.shp")
+norge <- st_read("norge.shp")
+
+# Transformerer kartene til samme CRS
+analyse_shape <- st_transform(analyse_shape, crs = st_crs(norge))
+
+# Plotter  MultiPolygon-data
+ggplot() + 
+  geom_sf(data = norge) +
+  coord_sf(crs = st_crs(norge)) +
+  theme_bw()
+
+# Legger til point-data på toppen av MultiPolygon data
+ggplot() + 
+  geom_sf(data = norge) +
+  geom_sf(data = analyse_shape, color = "red") +
+  coord_sf(crs = st_crs(norge)) +
+  theme_bw()
+```
+
 
 # Kevin Morans I
 ```{r Kevins Moran}
