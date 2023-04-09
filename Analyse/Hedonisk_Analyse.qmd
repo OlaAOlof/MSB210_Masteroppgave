@@ -27,6 +27,7 @@ library(ggcorrplot)
 library(huxtable)
 library(plm)
 library(car)
+library(lmtest)
 options(paged.print = FALSE)
 ```
 
@@ -48,7 +49,7 @@ class(st_geometry(st_read(shp, quiet = TRUE, type = 3)))
 
 ```{r}
 #summary(Analyse)
-summary(Analyse_sf)
+# summary(Analyse_sf)
 ```
 
 # Lager vektmatriser
@@ -67,33 +68,35 @@ summary(Analyse_sf)
 ### Tester Queen- og Rook
 
 ```{r}
-queen.nb = poly2nb(Analyse_Shape)
+# queen.nb = poly2nb(Analyse_Shape)
 ```
 
 ```{r}
-queen.listw = nb2listw(queen.nb)
+# queen.listw = nb2listw(queen.nb)
 ```
 
 ```{r}
-rook.nb = poly2nb(Analyse_Shape, queen = FALSE)
+# rook.nb = poly2nb(Analyse_Shape, queen = FALSE)
 ```
 
 ```{r}
-rook.listw = nb2listw(rook.nb)
+# rook.listw = nb2listw(rook.nb)
 ```
 
 ```{r}
-listw1 = queen.listw
+# listw1 = queen.listw
 ```
 
 ### Tester K-nærmeste-naboer-metoden
-Her bruker vi den k-nærmeste naboer-metoden, som baserer seg på avstanden mellom punktene.
-Queen- og Rook-kriteriene brukes for å definere naboer i polygondata. Queen-kriteriet sier at polygoner er naboer hvis de deler minst ett punkt (hjørne eller kant), mens Rook-kriteriet sier at polygoner er naboer hvis de deler minst en kant.
+
+Her bruker vi den k-nærmeste naboer-metoden, som baserer seg på avstanden mellom punktene. Queen- og Rook-kriteriene brukes for å definere naboer i polygondata. Queen-kriteriet sier at polygoner er naboer hvis de deler minst ett punkt (hjørne eller kant), mens Rook-kriteriet sier at polygoner er naboer hvis de deler minst en kant.
 
 K-nærmeste naboer-metoden som brukes fremvoer fungerer for punktdata og definerer naboer basert på avstanden mellom punktene. For hver observasjon finner den k nærmeste naboene, der k er en forhåndsbestemt verdi (k = 3, k = 5 og k = 10).
 
 #### Vektmatrise, K = 3
+
 Oppretter romlige vektmatriser for k-nærmeste naboer med k = 3
+
 ```{r}
 Analyse_sf_mat_nb3 <- knearneigh(Analyse_sf, k = 3)
 Analyse_sf_nb3 <- knn2nb(Analyse_sf_mat_nb3)
@@ -101,7 +104,9 @@ Analyse_sf_W3 <- nb2listw(Analyse_sf_nb3, style = "W")
 ```
 
 #### Vektmatrise, K = 5
+
 Oppretter romlige vektmatriser for k-nærmeste naboer med k = 5
+
 ```{r}
 Analyse_sf_mat_nb5 <- knearneigh(Analyse_sf, k = 5)
 Analyse_sf_nb5 <- knn2nb(Analyse_sf_mat_nb5)
@@ -109,15 +114,16 @@ Analyse_sf_W5 <- nb2listw(Analyse_sf_nb5, style = "W")
 ```
 
 #### Vektmatrise, K = 10
+
 Oppretter romlige vektmatriser for k-nærmeste naboer med k = 10
+
 ```{r}
 Analyse_sf_mat_nb10 <- knearneigh(Analyse_sf, k = 10)
 Analyse_sf_nb10 <- knn2nb(Analyse_sf_mat_nb10)
 Analyse_sf_W10 <- nb2listw(Analyse_sf_nb10, style = "W")
 ```
 
-# Kevin nabolagsmatrise
-
+# Kontroll av nabolagsmatrise - Kevin
 ```{r}
 # Funksjonen returnerer en matrise med indeksene til punktene som tilhører settet av de k nærmeste naboene til hverandre.
 
@@ -128,6 +134,7 @@ plot(st_geometry(bergen), border="grey")
 plot(knn2nb(col.knn), coords, add=TRUE)
 title(main="K nærmeste naboer, k = 3")
 ```
+
 Funksjonen returnerer en matrise med indeksene til punktene som tilhører settet av de k nærmeste naboene til hverandre.
 
 ```{r}
@@ -146,29 +153,28 @@ legend("bottomright", legend = c("Points", "Selected point", "Naboer (k = 10)"),
        col = c("blue", "red", "green"), pch = 19, cex = 0.8)
 ```
 
+## Norgeskart med våre salg - Kevin
 ```{r}
 analyse_shape <- st_read("Analyse_Shape.shp")
 norge <- st_read("norge.shp")
 
 # Transformerer kartene til samme CRS
-analyse_shape <- st_transform(analyse_shape, crs = st_crs(norge))
+norge <- st_transform(norge, crs = st_crs(analyse_shape))
 
 # Plotter  MultiPolygon-data
 ggplot() + 
   geom_sf(data = norge) +
-  coord_sf(crs = st_crs(norge)) +
   theme_bw()
 
 # Legger til point-data på toppen av MultiPolygon data
 ggplot() + 
   geom_sf(data = norge) +
   geom_sf(data = analyse_shape, color = "red") +
-  coord_sf(crs = st_crs(norge)) +
   theme_bw()
 ```
 
+# Morans I - Kevin
 
-# Kevin Morans I
 ```{r Kevins Moran}
 # Definer en variabel for romlig analyse
 Pris <- Analyse_sf$P
@@ -183,44 +189,18 @@ cat("Global Moran's I (k = 3):", moran_3$estimate, "\n")
 cat("Global Moran's I (k = 5):", moran_5$estimate, "\n")
 cat("Global Moran's I (k = 10):", moran_10$estimate, "\n")
 ```
+
 Disse resultatene viser Global Moran's I-verdier for k = 3, k = 5 og k = 10. Global Moran's I er et mål på romlig autokorrelasjon som gir en indikasjon på hvordan en variabel (i dette tilfellet "Pris") er korrelert med seg selv i rommet. I dette tilfellet er variabelen "Pris" korrelert med sine nærmeste naboer.
 
-Resultatene viser følgende:
-Global Moran's I (k = 3): 0.3930968
-Global Moran's I (k = 5): 0.3361125
-Global Moran's I (k = 10): 0.2473997
-Global Moran's I-verdier varierer mellom -1 og 1:
+Resultatene viser følgende: Global Moran's I (k = 3): 0.3930968 Global Moran's I (k = 5): 0.3361125 Global Moran's I (k = 10): 0.2473997 Global Moran's I-verdier varierer mellom -1 og 1:
 
-Verdier nær 1 indikerer positiv romlig autokorrelasjon, der lignende verdier er gruppert sammen i rommet.
-Verdier nær -1 indikerer negativ romlig autokorrelasjon, der ulike verdier er gruppert sammen i rommet.
-Verdier nær 0 indikerer ingen romlig autokorrelasjon, der verdier er jevnt fordelt i rommet.
-I dette tilfellet er alle Global Moran's I-verdier positive, noe som tyder på positiv romlig autokorrelasjon. Det betyr at høyere priser har en tendens til å være nærmere hverandre, og lavere priser har en tendens til å være nærmere hverandre i rommet.
+Verdier nær 1 indikerer positiv romlig autokorrelasjon, der lignende verdier er gruppert sammen i rommet. Verdier nær -1 indikerer negativ romlig autokorrelasjon, der ulike verdier er gruppert sammen i rommet. Verdier nær 0 indikerer ingen romlig autokorrelasjon, der verdier er jevnt fordelt i rommet. I dette tilfellet er alle Global Moran's I-verdier positive, noe som tyder på positiv romlig autokorrelasjon. Det betyr at høyere priser har en tendens til å være nærmere hverandre, og lavere priser har en tendens til å være nærmere hverandre i rommet.
 
 Det er viktig å merke seg at Moran's I-verdien avtar når antall naboer (k) øker. Dette kan skyldes at når flere naboer inkluderes i analysen, blir det mindre sannsynlig at hver enhet har naboer med lignende verdier.
 
 Tallene etter Moran's I-verdiene i resultatene (-0.0003374958 og 0.0001646533 for k = 3, osv.) er konstantleddet og koeffisienten for x i Moran's I-beregningen. Disse tallene brukes for å beregne Moran's I-verdien og er ikke av stor interesse for tolkningen av resultatene.
 
-```{r Kevins modell}
-# Konverter Analyse_sf til en pdata.frame for romlig regresjon
-analyse_sf_pdata <- pdata.frame(Analyse_sf)
-
-# Definer modellformel
-Kev_model <- "P ~ Alder + EL.Kar + Bruksareal.Enhet + dist_cbd_km"
-
-# Utfør romlig regresjon (lagmodell) for k = 3, k = 5 og k = 10
-# lag_model_3 <- lagsarlm(Kev_model, data = Analyse_sf, listw = Analyse_sf_W3)
-# lag_model_5 <- lagsarlm(Kev_model, data = Analyse_sf, listw = Analyse_sf_W5)
-# lag_model_10 <- lagsarlm(Kev_model, data = Analyse_sf, listw = Analyse_sf_W10)
-
-# Vis resultater fra modellene
-# summary(lag_model_3)
-# summary(lag_model_5)
-# summary(lag_model_10)
-```
-
-
 # Lager modeller
-
 
 ## Modell 1
 
@@ -252,10 +232,10 @@ mod4 <- "P ~ EL.Kar"
 ```
 
 ## Modell 5 - Kevin
+
 ```{r}
 mod5 <- "P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + BRA.Bolig + Etasje_num + dist_cbd_km"
 ```
-
 
 # Kjører OLS-Modellen på våres modeller
 
@@ -264,18 +244,19 @@ mod5 <- "P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiend
 ```{r}
 OLS1 = lm(mod1, data = Analyse_sf)
 ```
-I OLS1 kan vi tolke;
-- *(Intercept)*: 2,872,115 er den estimerte gjennomsnittlige boligprisen når alle de uavhengige variablene er 0. 
 
-- *EL.Kar*: For hver enhet økning i energikarakteren, øker den estimerte boligprisen med 34,119, gitt at de andre variablene holdes konstante.
+I OLS1 kan vi tolke; - *(Intercept)*: 2,872,115 er den estimerte gjennomsnittlige boligprisen når alle de uavhengige variablene er 0.
 
-- *O.Karak_num*: For hver enhet økning i oppvarmingskarakteren, øker den estimerte boligprisen med 161,665, gitt at de andre variablene holdes konstante.
+-   *EL.Kar*: For hver enhet økning i energikarakteren, øker den estimerte boligprisen med 34,119, gitt at de andre variablene holdes konstante.
 
-- *MatValg_num*: For hver enhet økning i materialevalg for boligens konstruksjon, øker den estimerte boligprisen med 89,045, gitt at de andre variablene holdes konstante. Dette blir ikke helt riktig fordi en økning i materialevalg ikke gjenspeiler virkeligheten.
+-   *O.Karak_num*: For hver enhet økning i oppvarmingskarakteren, øker den estimerte boligprisen med 161,665, gitt at de andre variablene holdes konstante.
+
+-   *MatValg_num*: For hver enhet økning i materialevalg for boligens konstruksjon, øker den estimerte boligprisen med 89,045, gitt at de andre variablene holdes konstante. Dette blir ikke helt riktig fordi en økning i materialevalg ikke gjenspeiler virkeligheten.
 
 I dette tilfellet er p-verdiene for alle variablene statistisk signifikante på 0,05-nivå, noe som betyr at det er bevis for at disse variablene har en effekt på boligprisen. Den minst signifikante variabelen er EL.Kar (p-verdi = 0,0457), mens de andre variablene har p-verdier som er mye lavere enn 0,05.
 
 Imidlertid er forklaringskraften i modellen ganske lav, noe som tyder på at det kan være andre faktorer som også påvirker boligprisene som ikke er inkludert i modellen.
+
 ```{r}
 summary(OLS1)
 ```
@@ -314,7 +295,8 @@ OLS4 = lm(mod4, data = Analyse_sf)
 #summary(OLS4)
 ```
 
-## OLS5 Kevins regresjon
+## OLS5 - Kevin
+
 ```{r}
 OLS5 = lm(mod5, data = Analyse_sf)
 # summary(OLS5)
@@ -330,24 +312,20 @@ huxreg("OLS1" = OLS1, "OLS2" = OLS2, "OLS3" = OLS3,
        error_format = "[{statistic}]",
        note = "{stars}. T statistic in brackets.")
 ```
-I huxreg ser vi følgende;
-Resultatene for *OLS2* og *OLS3* viser svært høye R-kvadrat-verdier på 0,92, noe som tyder på at modellene forklarer 92% av variasjonen i boligprisene. Imidlertid er det verdt å merke seg at koeffisientene for de uavhengige variablene i disse modellene ikke er statistisk signifikante (p-verdiene > 0,05). Dette betyr at vi ikke kan konkludere med at de uavhengige variablene har en signifikant effekt på boligprisene i disse modellene.
-- OLS2 og OLS3 har høyere *logLik*-verdier enn OLS1, noe som indikerer at de passer bedre til dataene.
--OLS2 og OLS3 har lavere *AIC*-verdier enn OLS1, noe som tyder på at de gir en bedre balanse mellom tilpasning og kompleksitet.
+
+I huxreg ser vi følgende; Resultatene for *OLS2* og *OLS3* viser svært høye R-kvadrat-verdier på 0,92, noe som tyder på at modellene forklarer 92% av variasjonen i boligprisene. Imidlertid er det verdt å merke seg at koeffisientene for de uavhengige variablene i disse modellene ikke er statistisk signifikante (p-verdiene \> 0,05). Dette betyr at vi ikke kan konkludere med at de uavhengige variablene har en signifikant effekt på boligprisene i disse modellene. - OLS2 og OLS3 har høyere *logLik*-verdier enn OLS1, noe som indikerer at de passer bedre til dataene. -OLS2 og OLS3 har lavere *AIC*-verdier enn OLS1, noe som tyder på at de gir en bedre balanse mellom tilpasning og kompleksitet.
 
 # Moran's Test
 
 ## Moran's - OLS1
+
 ```{r}
 lm.morantest(OLS1, Analyse_sf_W3)
 lm.morantest(OLS1, Analyse_sf_W5)
 lm.morantest(OLS1, Analyse_sf_W10)
 ```
-For alle tre romlige vektmatrisene (k = 3, 5, 10) viser Moran's I-test betydelig romlig autokorrelasjon i residualene til OLS-modellen:
-*k = 3: Observed Moran I = 0.376, p-verdi < 2.2e-16*
-*k = 5: Observed Moran I = 0.325, p-verdi < 2.2e-16*
-*k = 10: Observed Moran I = 0.242, p-verdi < 2.2e-16*
-Dette indikerer at det er romlige mønstre i modellens feil som ikke er fanget av de uavhengige variablene, og en romlig regresjonsmodell bør vurderes.
+
+For alle tre romlige vektmatrisene (k = 3, 5, 10) viser Moran's I-test betydelig romlig autokorrelasjon i residualene til OLS-modellen: *k = 3: Observed Moran I = 0.376, p-verdi \< 2.2e-16* *k = 5: Observed Moran I = 0.325, p-verdi \< 2.2e-16* *k = 10: Observed Moran I = 0.242, p-verdi \< 2.2e-16* Dette indikerer at det er romlige mønstre i modellens feil som ikke er fanget av de uavhengige variablene, og en romlig regresjonsmodell bør vurderes.
 
 ## Moran's - OLS2
 
@@ -356,11 +334,8 @@ lm.morantest(OLS2, Analyse_sf_W3)
 lm.morantest(OLS2, Analyse_sf_W5)
 lm.morantest(OLS2, Analyse_sf_W10)
 ```
-For alle tre romlige vektmatrisene (k = 3, 5, 10) viser Moran's I-test for OLS2-modellen:
-*k = 3: Observed Moran I = -0.165, p-verdi = 0.9947*
-*k = 5: Observed Moran I = -0.122, p-verdi = 0.9898*
-*k = 10: Observed Moran I = -0.080, p-verdi = 1.0*
-I motsetning til OLS1, viser disse resultatene at det ikke er betydelig romlig autokorrelasjon i residualene til OLS2-modellen for de valgte romlige vektmatrisene. Dette indikerer at modellen fanger romlige mønstre i dataene bedre enn OLS1, og at en romlig regresjonsmodell kanskje ikke er nødvendig i dette tilfellet.
+
+For alle tre romlige vektmatrisene (k = 3, 5, 10) viser Moran's I-test for OLS2-modellen: *k = 3: Observed Moran I = -0.165, p-verdi = 0.9947* *k = 5: Observed Moran I = -0.122, p-verdi = 0.9898* *k = 10: Observed Moran I = -0.080, p-verdi = 1.0* I motsetning til OLS1, viser disse resultatene at det ikke er betydelig romlig autokorrelasjon i residualene til OLS2-modellen for de valgte romlige vektmatrisene. Dette indikerer at modellen fanger romlige mønstre i dataene bedre enn OLS1, og at en romlig regresjonsmodell kanskje ikke er nødvendig i dette tilfellet.
 
 ## Moran's - OLS3
 
@@ -369,58 +344,58 @@ lm.morantest(OLS3, Analyse_sf_W3)
 lm.morantest(OLS3, Analyse_sf_W5)
 lm.morantest(OLS3, Analyse_sf_W10)
 ```
-*k = 3: Observed Moran I = -0.1653628, p-verdi = 0.9947*
-*k = 5: Observed Moran I = -0.1223350, p-verdi = 0.9947*
-*k = 10: Observed Moran I = -0.08005172, p-verdi = 0.9947*
-Alle p-verdiene er større enn 0.05, som indikerer at det ikke er statistisk signifikant romlig autokorrelasjon i modellen. De negative verdiene for Observed Moran I indikerer imidlertid en viss grad av romlig heterogenitet i modellen. Modellen har lavere romlig autokorrelasjon når vi øker antallet naboer fra 3 til 10.
+
+*k = 3: Observed Moran I = -0.1653628, p-verdi = 0.9947* *k = 5: Observed Moran I = -0.1223350, p-verdi = 0.9947* *k = 10: Observed Moran I = -0.08005172, p-verdi = 0.9947* Alle p-verdiene er større enn 0.05, som indikerer at det ikke er statistisk signifikant romlig autokorrelasjon i modellen. De negative verdiene for Observed Moran I indikerer imidlertid en viss grad av romlig heterogenitet i modellen. Modellen har lavere romlig autokorrelasjon når vi øker antallet naboer fra 3 til 10. \## Moran's - OLS4
+
 ## Moran's - OLS4
 ```{r}
 lm.morantest(OLS4, Analyse_sf_W3)
 lm.morantest(OLS4, Analyse_sf_W5)
 lm.morantest(OLS4, Analyse_sf_W10)
 ```
+
 Her får vi 0.3864, 0.3309, og 0.2435 for k=3, k=5, og k=10, med p-verdier som er mindre enn 0,05-nivået. Dette indikerer at det er en romlig avhengighet mellom residualene, og at det er romlig autokorrelasjon i dataene. Dette betyr at det er en tendens til at boliger som ligger nær hverandre, har lignende residualer, og at det kan være en romlig struktur i dataene som ikke tas hensyn til i modellen.
+
+## Moran's - OLS5
+```{r}
+lm.morantest(OLS5, Analyse_sf_W3)
+lm.morantest(OLS5, Analyse_sf_W5)
+lm.morantest(OLS5, Analyse_sf_W10)
+```
 
 # Korrelasjonsmatriser
 
 ## Sjekket for korrelasjon og multikollinearitet
 
-Sjekk korrelasjon mellom
-- EiendomAreal
-- BRA.Bolig
-- BRA.Annet
-- BRA.Tot
-- BebygdAreal
-- Bruksareal.Enhet
+Sjekk korrelasjon mellom - EiendomAreal - BRA.Bolig - BRA.Annet - BRA.Tot - BebygdAreal - Bruksareal.Enhet
+
 ```{r}
 cor_matrix <- cor(Analyse[c("EiendomAreal", "BRA.Bolig", "BRA.Annet", "BRA.Tot", "BebygdAreal", "Bruksareal.Enhet")])
 print(cor_matrix)
 ```
 
 Sjekker multikollinearitet
+
 ```{r}
-library(car)
-vif_values <- vif(lm(EiendomAreal ~ BRA.Bolig + BebygdAreal + Bruksareal.Enhet, data = Analyse_sf))
-print(vif_values)
+#vif_values <- vif(lm(P ~ EiendomAreal + BRA.Bolig + BRA.Annet + BebygdAreal + Bruksareal.Enhet, data = Analyse_sf))
+# print(vif_values)
 ```
+
 En GVIF-verdi på mindre enn 5 regnes som akseptabelt for å unngå signifikant multikollinearitet. Her har BRA.Bolig og BebygdAreal en GVIF-verdi på henholdsvis 2.03 og 1.87, som indikerer at det ikke er noen signifikant multikollinearitet mellom dem. Bruksareal.Enhet har også en lav GVIF-verdi på 1.75, selv om antallet koeffisienter i modellen er høyt (220), som kan tyde på at det ikke er noen signifikant multikollinearitet mellom denne variabelen og de andre variablene i modellen. Dermed er det sannsynlig at disse variablene kan brukes sammen i en regresjonsmodell uten å påvirke modellens prediktive kraft eller nøyaktighet negativt på grunn av multikollinearitet.
 
 ```{r}
-cor_matrix <- cor(Analyse_sf[c("P", "EL.Kar", "Alder", "B.Ar", "Etasje", "AntallRom")])
-
+# cor_matrix <- cor(Analyse_sf[c("P", "EL.Kar", "Alder", "B.Ar", "Etasje", "AntallRom")])
 ggcorrplot(cor_matrix)
 ```
 
 ```{r}
-correlation <- cor(Analyse_sf$dist_cbd_km, Analyse$P, method = "pearson")
-
+#correlation <- cor(Analyse_sf$dist_cbd_km, Analyse$P, method = "pearson")
 #print(correlation)
 ```
 
 ```{r}
-cor_matrix <- cor(Analyse_sf[c("P", "EL.Kar", "Alder", "Etasje", "AntallRom")])
-
-ggcorrplot(cor_matrix, type = "lower", hc.order = TRUE, lab = TRUE)
+#cor_matrix <- cor(Analyse_sf[c("P", "EL.Kar", "Alder", "Etasje", "AntallRom")])
+#ggcorrplot(cor_matrix, type = "lower", hc.order = TRUE, lab = TRUE)
 ```
 
 ```{r}
@@ -428,27 +403,117 @@ ggcorrplot(cor_matrix, type = "lower", hc.order = TRUE, lab = TRUE)
 ```
 
 # Kevins romlige modeller
+Denne første chunken feiler, men vil beholde den i dokumentet for eventuell inspirasjon. Kanskje vi klarer å fikse den
+```{r Kevins modell}
+# Konverter Analyse_sf til en pdata.frame for romlig regresjon
+# analyse_sf_pdata <- pdata.frame(Analyse_sf)
+
+# Definer modellformel
+# Kev_model <- "P ~ Alder + EL.Kar + Bruksareal.Enhet + dist_cbd_km"
+
+# Utfør romlig regresjon (lagmodell) for k = 3, k = 5 og k = 10
+# lag_model_3 <- lagsarlm(Kev_model, data = Analyse_sf, listw = Analyse_sf_W3)
+# lag_model_5 <- lagsarlm(Kev_model, data = Analyse_sf, listw = Analyse_sf_W5)
+# lag_model_10 <- lagsarlm(Kev_model, data = Analyse_sf, listw = Analyse_sf_W10)
+
+# Vis resultater fra modellene
+# summary(lag_model_3)
+# summary(lag_model_5)
+# summary(lag_model_10)
+```
+
+Før vi kan kjøre de romlige modellene, må vi sjekke for multikollinearitet.
+```{r}
+linear_model <- lm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + Etasje + dist_cbd_km,
+                   data = Analyse_sf)
+```
 
 ```{r}
-# SAR model
-sar_model <- lagsarlm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + Etasje_num + dist_cbd_km, data = Analyse_sf, listw = Analyse_sf_W3, zero.policy = TRUE)
+vif_values <- vif(linear_model)
+print(vif_values)
+```
 
-# SAR model med høyere tol.solve-verdi
-sar_model <- lagsarlm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num,
-                      data = Analyse_sf_subset_num,
+
+## SAR (Spatial Autoregressiv)
+```{r}
+# sar_model <- lagsarlm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + Etasje_num + dist_cbd_km, data = Analyse_sf, listw = Analyse_sf_W3, zero.policy = TRUE)
+
+# SAR model med høyere tol.solve-verdi og færre variabler
+sar_model <- lagsarlm(P ~ O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + Etasje + dist_cbd_km,
+                      data = Analyse_sf,
                       listw = Analyse_sf_W3,
                       tol.solve = 1e-10)
-
-# SEM model
-sem_model <- errorsarlm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + BRA.Bolig + Etasje_num + dist_cbd_km, data = Analyse_sf, listw = Analyse_sf_W3, zero.policy = TRUE)
-
-# SDM model
-sdm_model <- sacsarlm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + BRA.Bolig + Etasje_num + dist_cbd_km, data = Analyse_sf, listw = Analyse_sf_W3, zero.policy = TRUE)
-
-# Tester goodness-of-fit
-summary(sar_model)
-summary(sem_model)
-summary(sdm_model)
-lrtest(sar_model, sem_model)
-lrtest(sem_model, sdm_model)
 ```
+
+## SEM (Spatial Error Model)
+```{r}
+sem_model <- errorsarlm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + Etasje + dist_cbd_km, data = Analyse_sf, listw = Analyse_sf_W3, zero.policy = TRUE)
+```
+
+## SAC (Spatial Simultaneous Autoregressiv) 
+```{r}
+sac_model <- sacsarlm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + Etasje + dist_cbd_km, data = Analyse_sf, listw = Analyse_sf_W3, zero.policy = TRUE)
+```
+
+## SDM (Spatial Dubin Model)
+```{r}
+# Lager romlige laggede uavhengige variabler
+X_lag <- lag.listw(Analyse_sf_W3, as.matrix(Analyse_sf[, c("Alder", "EL.Kar", "O.Karak_num", "BLEnergikWh", "MatValg_num", "AntEiendom", "EiendomAreal", "BRA.Bolig", "Etasje", "dist_cbd_km")]))
+
+# Legger til romlige laggede uavhengige variabler i mitt datasett
+Analyse_sf <- cbind(Analyse_sf, X_lag)
+names(Analyse_sf)[(ncol(Analyse_sf) - ncol(X_lag) + 1):ncol(Analyse_sf)] <- paste0("W_", names(X_lag))
+
+# Formulerer Spatial Durbin model med lagsarlm() med type = "mixed"
+durbin_model <- lagsarlm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + BRA.Bolig + Etasje + dist_cbd_km + Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + BRA.Bolig + Etasje + dist_cbd_km, data = Analyse_sf, listw = Analyse_sf_W3, type = "mixed")
+summary(durbin_model)
+
+```
+
+# Resultater (SAR/SEM/SAC/SDM)
+```{r}
+cat("Summary for SAR model:\n")
+print(summary(sar_model))
+
+cat("\nSummary for SEM model:\n")
+print(summary(sem_model))
+
+cat("\nSummary for SAC model:\n")
+print(summary(sac_model))
+
+cat("\nSummary for Spatial Durbin model:\n")
+print(summary(durbin_model))
+```
+
+```{r}
+# Sammenligner SAR model med SEM model
+lrtest_sar_vs_sem <- lrtest(sar_model, sem_model)
+cat("\nLR test for SAR vs. SEM:\n")
+print(lrtest_sar_vs_sem)
+
+# Sammenligner SAR model med SAC model
+lrtest_sar_vs_sac <- lrtest(sar_model, sac_model)
+cat("\nLR test for SAR vs. SAC:\n")
+print(lrtest_sar_vs_sac)
+
+# Sammenligner SAR model med Spatial Durbin model
+lrtest_sar_vs_durbin <- lrtest(sar_model, durbin_model)
+cat("\nLR test for SAR vs. Spatial Durbin:\n")
+print(lrtest_sar_vs_durbin)
+
+# Sammenligner SEM model med SAC model
+lrtest_sem_vs_sac <- lrtest(sem_model, sac_model)
+cat("\nLR test for SEM vs. SAC:\n")
+print(lrtest_sem_vs_sac)
+
+# Sammenligner SEM model med Spatial Durbin model
+lrtest_sem_vs_durbin <- lrtest(sem_model, durbin_model)
+cat("\nLR test for SEM vs. Spatial Durbin:\n")
+print(lrtest_sem_vs_durbin)
+
+# Sammenligner SAC model med Spatial Durbin model
+lrtest_sac_vs_durbin <- lrtest(sac_model, durbin_model)
+cat("\nLR test for SAC vs. Spatial Durbin:\n")
+print(lrtest_sac_vs_durbin)
+```
+
