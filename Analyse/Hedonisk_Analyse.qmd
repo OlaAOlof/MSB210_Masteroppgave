@@ -26,6 +26,7 @@ library(tibble)
 library(ggcorrplot)
 library(huxtable)
 library(plm)
+library(car)
 options(paged.print = FALSE)
 ```
 
@@ -173,14 +174,14 @@ analyse_sf_pdata <- pdata.frame(Analyse_sf)
 Kev_model <- "P ~ Alder + EL.Kar + Bruksareal.Enhet + dist_cbd_km"
 
 # Utfør romlig regresjon (lagmodell) for k = 3, k = 5 og k = 10
-lag_model_3 <- lagsarlm(Kev_model, data = Analyse_sf, listw = Analyse_sf_W3)
-lag_model_5 <- lagsarlm(Kev_model, data = Analyse_sf, listw = Analyse_sf_W5)
-lag_model_10 <- lagsarlm(Kev_model, data = Analyse_sf, listw = Analyse_sf_W10)
+# lag_model_3 <- lagsarlm(Kev_model, data = Analyse_sf, listw = Analyse_sf_W3)
+# lag_model_5 <- lagsarlm(Kev_model, data = Analyse_sf, listw = Analyse_sf_W5)
+# lag_model_10 <- lagsarlm(Kev_model, data = Analyse_sf, listw = Analyse_sf_W10)
 
 # Vis resultater fra modellene
-summary(lag_model_3)
-summary(lag_model_5)
-summary(lag_model_10)
+# summary(lag_model_3)
+# summary(lag_model_5)
+# summary(lag_model_10)
 ```
 
 
@@ -335,6 +336,26 @@ lm.morantest(OLS4, Analyse_sf_W10)
 Her får vi 0.3864, 0.3309, og 0.2435 for k=3, k=5, og k=10, med p-verdier som er mindre enn 0,05-nivået. Dette indikerer at det er en romlig avhengighet mellom residualene, og at det er romlig autokorrelasjon i dataene. Dette betyr at det er en tendens til at boliger som ligger nær hverandre, har lignende residualer, og at det kan være en romlig struktur i dataene som ikke tas hensyn til i modellen.
 
 # Korrelasjonsmatriser
+Sjekk korrelasjon mellom
+- EiendomAreal
+- BRA.Bolig
+- BRA.Annet
+- BRA.Tot
+- BebygdAreal
+- Bruksareal.Enhet
+```{r}
+cor_matrix <- cor(Analyse[c("EiendomAreal", "BRA.Bolig", "BRA.Annet", "BRA.Tot", "BebygdAreal", "Bruksareal.Enhet")])
+print(cor_matrix)
+```
+
+Sjekker multikollinearitet
+```{r}
+library(car)
+vif_values <- vif(lm(EiendomAreal ~ BRA.Bolig + BebygdAreal + Bruksareal.Enhet, data = Analyse_sf))
+print(vif_values)
+```
+En GVIF-verdi på mindre enn 5 regnes som akseptabelt for å unngå signifikant multikollinearitet. Her har BRA.Bolig og BebygdAreal en GVIF-verdi på henholdsvis 2.03 og 1.87, som indikerer at det ikke er noen signifikant multikollinearitet mellom dem. Bruksareal.Enhet har også en lav GVIF-verdi på 1.75, selv om antallet koeffisienter i modellen er høyt (220), som kan tyde på at det ikke er noen signifikant multikollinearitet mellom denne variabelen og de andre variablene i modellen. Dermed er det sannsynlig at disse variablene kan brukes sammen i en regresjonsmodell uten å påvirke modellens prediktive kraft eller nøyaktighet negativt på grunn av multikollinearitet.
+
 ```{r}
 cor_matrix <- cor(Analyse_sf[c("P", "EL.Kar", "Alder", "B.Ar", "Etasje", "AntallRom")])
 
@@ -342,7 +363,7 @@ ggcorrplot(cor_matrix)
 ```
 
 ```{r}
-correlation <- cor(Analyse_sf$B.Ar, Analyse$AntallRom, method = "pearson")
+correlation <- cor(Analyse_sf$dist_cbd_km, Analyse$P, method = "pearson")
 
 #print(correlation)
 ```
@@ -352,6 +373,7 @@ cor_matrix <- cor(Analyse_sf[c("P", "EL.Kar", "Alder", "Etasje", "AntallRom")])
 
 ggcorrplot(cor_matrix, type = "lower", hc.order = TRUE, lab = TRUE)
 ```
+## Sjekket for korrelasjon og multikollinearitet
 
 ```{r}
 #Siste
