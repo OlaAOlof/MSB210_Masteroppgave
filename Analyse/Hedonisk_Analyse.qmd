@@ -115,7 +115,7 @@ Analyse_sf_nb10 <- knn2nb(Analyse_sf_mat_nb10)
 Analyse_sf_W10 <- nb2listw(Analyse_sf_nb10, style = "W")
 ```
 
-# Kevin test
+# Kevin nabolagsmatrise
 
 ```{r}
 # Nå plotter vi punktene og naboene for et utvalg av punkter for å se om det ser ut som om de har riktig antall naboer (k = 10).
@@ -133,6 +133,7 @@ legend("bottomright", legend = c("Points", "Selected point", "Naboer (k = 10)"),
        col = c("blue", "red", "green"), pch = 19, cex = 0.8)
 ```
 
+# Kevin Morans I
 ```{r Kevins Moran}
 # Definer en variabel for romlig analyse
 Pris <- Analyse_sf$P
@@ -189,7 +190,7 @@ summary(lag_model_10)
 ## Modell 1
 
 ```{r}
-mod1 <- "P ~ EL.Kar + O.Karak + MatValg"
+mod1 <- "P ~ EL.Kar + O.Karak_num + MatValg_num"
 ```
 
 ## Modell 2
@@ -206,7 +207,7 @@ mod2 <- "P ~ Alder + BLEnergikWh + Oms.Typ + BolType + AntEiendom + EiendomAreal
 Punkt 2: Vi må finne ut kva variablar vi må ha "ln" framfor og kva variablar vi skal ha "I" framfor for å beholde formatering.
 
 ```{r}
-mod3 <- "P ~ Alder + EL.Kar + O.Karak + BLEnergikWh + MatValg + Oms.Typ + BolType + AntEiendom + EiendomAreal + VannkantGL + VegkantGL + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegBoDrivePlikt + TotBoliger + BRA.Bolig + BRA.Tot + BebygdAreal + RegKulturByg + Etasje + Lopenr + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + EtasjeSeksjon + Kjokken + VannKode + AvlopsKode + YearQuarter + dist_cbd_km"
+mod3 <- "P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + Oms.Typ + BolType + AntEiendom + EiendomAreal + VannkantGL + VegkantGL + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegBoDrivePlikt + TotBoliger + BRA.Bolig + BRA.Tot + BebygdAreal + RegKulturByg + Etasje + Lopenr + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + EtasjeSeksjon + Kjokken + VannKode + AvlopsKode + YearQuarter + dist_cbd_km"
 ```
 
 ## Modell 4
@@ -222,7 +223,18 @@ mod4 <- "P ~ EL.Kar"
 ```{r}
 OLS1 = lm(mod1, data = Analyse_sf)
 ```
+I OLS1 kan vi tolke;
+- *(Intercept)*: 2,872,115 er den estimerte gjennomsnittlige boligprisen når alle de uavhengige variablene er 0. 
 
+- *EL.Kar*: For hver enhet økning i energikarakteren, øker den estimerte boligprisen med 34,119, gitt at de andre variablene holdes konstante.
+
+- *O.Karak_num*: For hver enhet økning i oppvarmingskarakteren, øker den estimerte boligprisen med 161,665, gitt at de andre variablene holdes konstante.
+
+- *MatValg_num*: For hver enhet økning i materialevalg for boligens konstruksjon, øker den estimerte boligprisen med 89,045, gitt at de andre variablene holdes konstante. Dette blir ikke helt riktig fordi en økning i materialevalg ikke gjenspeiler virkeligheten.
+
+I dette tilfellet er p-verdiene for alle variablene statistisk signifikante på 0,05-nivå, noe som betyr at det er bevis for at disse variablene har en effekt på boligprisen. Den minst signifikante variabelen er EL.Kar (p-verdi = 0,0457), mens de andre variablene har p-verdier som er mye lavere enn 0,05.
+
+Imidlertid er forklaringskraften i modellen ganske lav, noe som tyder på at det kan være andre faktorer som også påvirker boligprisene som ikke er inkludert i modellen.
 ```{r}
 summary(OLS1)
 ```
@@ -254,7 +266,7 @@ summary(OLS3)
 ## OLS4
 
 ```{r}
-#OLS4 = lm(mod4, data = Analyse_sf)
+OLS4 = lm(mod4, data = Analyse_sf)
 ```
 
 ```{r}
@@ -266,57 +278,63 @@ summary(OLS3)
 ```{r}
 #Ekje heilt oppe å går endo. Jobbe med da.
 
-#huxreg("OLS1" = OLS1, "OLS2" = OLS2, "OLS3" = OLS3,
-#       error_format = "[{statistic}]",
-#       note = "{stars}. T statistic in brackets.")
+huxreg("OLS1" = OLS1, "OLS2" = OLS2, "OLS3" = OLS3,
+       coefs = c("(Intercept)", "EL.Kar", "O.Karak_num", "MatValg_num"), #Lagt til filter på enkelte variabler
+       error_format = "[{statistic}]",
+       note = "{stars}. T statistic in brackets.")
 ```
+I huxreg ser vi følgende;
+Resultatene for *OLS2* og *OLS3* viser svært høye R-kvadrat-verdier på 0,92, noe som tyder på at modellene forklarer 92% av variasjonen i boligprisene. Imidlertid er det verdt å merke seg at koeffisientene for de uavhengige variablene i disse modellene ikke er statistisk signifikante (p-verdiene > 0,05). Dette betyr at vi ikke kan konkludere med at de uavhengige variablene har en signifikant effekt på boligprisene i disse modellene.
+- OLS2 og OLS3 har høyere *logLik*-verdier enn OLS1, noe som indikerer at de passer bedre til dataene.
+-OLS2 og OLS3 har lavere *AIC*-verdier enn OLS1, noe som tyder på at de gir en bedre balanse mellom tilpasning og kompleksitet.
 
 # Moran's Test
 
 ## Moran's - OLS1
-
 ```{r}
 lm.morantest(OLS1, Analyse_sf_W3)
-```
-
-```{r}
 lm.morantest(OLS1, Analyse_sf_W5)
-```
-
-```{r}
 lm.morantest(OLS1, Analyse_sf_W10)
 ```
+For alle tre romlige vektmatrisene (k = 3, 5, 10) viser Moran's I-test betydelig romlig autokorrelasjon i residualene til OLS-modellen:
+*k = 3: Observed Moran I = 0.376, p-verdi < 2.2e-16*
+*k = 5: Observed Moran I = 0.325, p-verdi < 2.2e-16*
+*k = 10: Observed Moran I = 0.242, p-verdi < 2.2e-16*
+Dette indikerer at det er romlige mønstre i modellens feil som ikke er fanget av de uavhengige variablene, og en romlig regresjonsmodell bør vurderes.
 
 ## Moran's - OLS2
 
 ```{r}
 lm.morantest(OLS2, Analyse_sf_W3)
-```
-
-```{r}
 lm.morantest(OLS2, Analyse_sf_W5)
-```
-
-```{r}
 lm.morantest(OLS2, Analyse_sf_W10)
 ```
+For alle tre romlige vektmatrisene (k = 3, 5, 10) viser Moran's I-test for OLS2-modellen:
+*k = 3: Observed Moran I = -0.165, p-verdi = 0.9947*
+*k = 5: Observed Moran I = -0.122, p-verdi = 0.9898*
+*k = 10: Observed Moran I = -0.080, p-verdi = 1.0*
+I motsetning til OLS1, viser disse resultatene at det ikke er betydelig romlig autokorrelasjon i residualene til OLS2-modellen for de valgte romlige vektmatrisene. Dette indikerer at modellen fanger romlige mønstre i dataene bedre enn OLS1, og at en romlig regresjonsmodell kanskje ikke er nødvendig i dette tilfellet.
 
 ## Moran's - OLS3
 
 ```{r}
 lm.morantest(OLS3, Analyse_sf_W3)
-```
-
-```{r}
 lm.morantest(OLS3, Analyse_sf_W5)
-```
-
-```{r}
 lm.morantest(OLS3, Analyse_sf_W10)
 ```
+*k = 3: Observed Moran I = -0.1653628, p-verdi = 0.9947*
+*k = 5: Observed Moran I = -0.1223350, p-verdi = 0.9947*
+*k = 10: Observed Moran I = -0.08005172, p-verdi = 0.9947*
+Alle p-verdiene er større enn 0.05, som indikerer at det ikke er statistisk signifikant romlig autokorrelasjon i modellen. De negative verdiene for Observed Moran I indikerer imidlertid en viss grad av romlig heterogenitet i modellen. Modellen har lavere romlig autokorrelasjon når vi øker antallet naboer fra 3 til 10.
+## Moran's - OLS4
+```{r}
+lm.morantest(OLS4, Analyse_sf_W3)
+lm.morantest(OLS4, Analyse_sf_W5)
+lm.morantest(OLS4, Analyse_sf_W10)
+```
+Her får vi 0.3864, 0.3309, og 0.2435 for k=3, k=5, og k=10, med p-verdier som er mindre enn 0,05-nivået. Dette indikerer at det er en romlig avhengighet mellom residualene, og at det er romlig autokorrelasjon i dataene. Dette betyr at det er en tendens til at boliger som ligger nær hverandre, har lignende residualer, og at det kan være en romlig struktur i dataene som ikke tas hensyn til i modellen.
 
-## Moran's OLS4
-
+# Korrelasjonsmatriser
 ```{r}
 cor_matrix <- cor(Analyse_sf[c("P", "EL.Kar", "Alder", "B.Ar", "Etasje", "AntallRom")])
 
