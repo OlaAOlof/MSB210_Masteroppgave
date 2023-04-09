@@ -251,6 +251,12 @@ mod3 <- "P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + Oms.Typ 
 mod4 <- "P ~ EL.Kar"
 ```
 
+## Modell 5 - Kevin
+```{r}
+mod5 <- "P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + BRA.Bolig + Etasje_num + dist_cbd_km"
+```
+
+
 # Kjører OLS-Modellen på våres modeller
 
 ## OLS1
@@ -310,10 +316,9 @@ OLS4 = lm(mod4, data = Analyse_sf)
 
 ## OLS5 Kevins regresjon
 ```{r}
-OLS5 = lm(P ~ Alder + B.Ar + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + TotBoliger + BRA.Bolig + Etasje_num + dist_cbd_km, data = Analyse_sf)
-summary(OLS5)
+OLS5 = lm(mod5, data = Analyse_sf)
+# summary(OLS5)
 ```
-
 
 # HuxReg av OLS-modeller
 
@@ -426,13 +431,19 @@ ggcorrplot(cor_matrix, type = "lower", hc.order = TRUE, lab = TRUE)
 
 ```{r}
 # SAR model
-sar_model <- lagsarlm(P ~ Alder + B.Ar + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + TotBoliger + BRA.Bolig + Etasje_num + dist_cbd_km, data = Analyse_sf, listw = Analyse_sf_W3, zero.policy = TRUE)
+sar_model <- lagsarlm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + Etasje_num + dist_cbd_km, data = Analyse_sf, listw = Analyse_sf_W3, zero.policy = TRUE)
+
+# SAR model med høyere tol.solve-verdi
+sar_model <- lagsarlm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num,
+                      data = Analyse_sf_subset_num,
+                      listw = Analyse_sf_W3,
+                      tol.solve = 1e-10)
 
 # SEM model
-sem_model <- errorsarlm(sale_price ~ energy_certificates + other_covariates, data = Analyse_spdf, listw = w, zero.policy = TRUE)
+sem_model <- errorsarlm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + BRA.Bolig + Etasje_num + dist_cbd_km, data = Analyse_sf, listw = Analyse_sf_W3, zero.policy = TRUE)
 
 # SDM model
-sdm_model <- sacsarlm(sale_price ~ energy_certificates + other_covariates, data = Analyse_spdf, listw = w, zero.policy = TRUE)
+sdm_model <- sacsarlm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + BRA.Bolig + Etasje_num + dist_cbd_km, data = Analyse_sf, listw = Analyse_sf_W3, zero.policy = TRUE)
 
 # Tester goodness-of-fit
 summary(sar_model)
