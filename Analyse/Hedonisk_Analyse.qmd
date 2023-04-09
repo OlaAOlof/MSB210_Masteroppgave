@@ -274,6 +274,13 @@ OLS4 = lm(mod4, data = Analyse_sf)
 #summary(OLS4)
 ```
 
+## Kevins regresjon
+```{r}
+OLS5 = lm(P ~ Alder + B.Ar + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + TotBoliger + BRA.Bolig + Etasje_num + dist_cbd_km, data = Analyse_sf)
+summary(OLS5)
+```
+
+
 # HuxReg av OLS-modeller
 
 ```{r}
@@ -336,6 +343,9 @@ lm.morantest(OLS4, Analyse_sf_W10)
 Her får vi 0.3864, 0.3309, og 0.2435 for k=3, k=5, og k=10, med p-verdier som er mindre enn 0,05-nivået. Dette indikerer at det er en romlig avhengighet mellom residualene, og at det er romlig autokorrelasjon i dataene. Dette betyr at det er en tendens til at boliger som ligger nær hverandre, har lignende residualer, og at det kan være en romlig struktur i dataene som ikke tas hensyn til i modellen.
 
 # Korrelasjonsmatriser
+
+## Sjekket for korrelasjon og multikollinearitet
+
 Sjekk korrelasjon mellom
 - EiendomAreal
 - BRA.Bolig
@@ -373,7 +383,6 @@ cor_matrix <- cor(Analyse_sf[c("P", "EL.Kar", "Alder", "Etasje", "AntallRom")])
 
 ggcorrplot(cor_matrix, type = "lower", hc.order = TRUE, lab = TRUE)
 ```
-## Sjekket for korrelasjon og multikollinearitet
 
 ```{r}
 #Siste
