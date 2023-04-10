@@ -729,8 +729,7 @@ Analyse <- Analyse %>%
                                          'Orange' = 2,
                                          'Yellow' = 3,
                                          'Lightgreen' = 4,
-                                         'Green' = 5)) %>% 
-  select(-O.Karak)
+                                         'Green' = 5))
 ```
 
 ```{r}

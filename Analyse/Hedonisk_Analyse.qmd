@@ -273,8 +273,6 @@ print(vif_values_4)
 
 En GVIF-verdi på mindre enn 5 regnes som akseptabelt for å unngå signifikant multikollinearitet. Her har BRA.Bolig og BebygdAreal en GVIF-verdi på henholdsvis 2.03 og 1.87, som indikerer at det ikke er noen signifikant multikollinearitet mellom dem. Bruksareal.Enhet har også en lav GVIF-verdi på 1.75, selv om antallet koeffisienter i modellen er høyt (220), som kan tyde på at det ikke er noen signifikant multikollinearitet mellom denne variabelen og de andre variablene i modellen. Dermed er det sannsynlig at disse variablene kan brukes sammen i en regresjonsmodell uten å påvirke modellens prediktive kraft eller nøyaktighet negativt på grunn av multikollinearitet.
 
-Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + Etasje + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + TotBoliger + RegKulturByg + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + VannKode + AvlopsKode + BolType + Kjokken + YearQuarter, data = Analyse)
-
 ```{r}
 cor_matrix_1 <- cor(Analyse[c("P", "Alder", "EL.Kar", "O.Karak_num", "BLEnergikWh", "MatValg_num", "AntEiendom", "EiendomAreal", "BRA.Bolig", "Bruksareal.Enhet", "Etasje", "VannkantGL", "VegkantGL", "BebygdAreal", "RegLBE", "RegGrunnforur", "RegKulturEiendom", "RegGrunnerverv", "TotBoliger", "RegKulturByg", "AntallRom", "AntallBad", "AntallWC", "PrivatEid", "HarHeis", "VannKode", "AvlopsKode")])
 ggcorrplot(cor_matrix_1) +
@@ -283,40 +281,45 @@ ggcorrplot(cor_matrix_1) +
 ```
 
 ```{r}
-zoomi<- ggcorrplot(cor_matrix_1)
+#zoomi <- ggcorrplot(cor_matrix_1) +
+#  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8.5)) +
+#  theme(axis.text.y = element_text(angle = 0, hjust = 1, size = 8.5))
 
 # Save the ggcorrplot as a high-resolution image
-ggsave("zoomi.jpeg", zoomi, dpi = 500)
+#ggsave("zoomi.jpeg", zoomi, dpi = 500)
 ```
 
 ```{r}
-image(imageScale(zoomi.jpeg, "[200]"), "x[200]")
-```
-image_scale(image_scale(img,"[Value]"),"x[value]")
-
-```{r}
-cor_matrix_1 <- round(cor_matrix_1, 2)
-print(cor_matrix_1)
+#cor_matrix_1 <- round(cor_matrix_1, 2)
+#print(cor_matrix_1)
 ```
 
 ```{r}
-cor_matrix_1 <- sort(cor_matrix_1, decreasing = TRUE, arr.ind = TRUE)
+#cor_matrix_1 <- sort(cor_matrix_1, decreasing = TRUE, arr.ind = TRUE)
 
-top_corr <- data.frame(vars = paste(rownames(cor_matrix_1), colnames(cor_matrix_1), sep = "-"),
-                                cor = cor_matrix_1)[1:10,]
-print(top_corr)
+#top_corr <- data.frame(vars = paste(rownames(cor_matrix_1), colnames(cor_matrix_1), sep = "-"),
+#                                cor = cor_matrix_1)[1:10,]
+#print(top_corr)
 ```
-
 
 ```{r}
 cor_matrix_2 <- cor(Analyse[c("P", "AntallRom", "AntallBad", "AntallWC")])
 ggcorrplot(cor_matrix_2)
 ```
 
+```{r}
+cor_matrix_3 <- cor(Analyse[c("P", "Alder", "BLEnergikWh", "EL.Kar", "O.Karak_num", "MatValg_num")])
+ggcorrplot(cor_matrix_3)
+```
 
 ```{r}
-#correlation <- cor(Analyse_sf$dist_cbd_km, Analyse$P, method = "pearson")
-#print(correlation)
+cor_matrix_4 <- cor(Analyse[c("P", "BRA.Bolig", "Bruksareal.Enhet", "AntallRom", "AntallBad", "AntallWC")])
+ggcorrplot(cor_matrix_4)
+```
+
+```{r}
+correlation <- cor(Analyse_sf$dist_cbd_km, Analyse$P, method = "pearson")
+print(correlation)
 ```
 
 ```{r}
@@ -326,42 +329,372 @@ ggcorrplot(cor_matrix_2)
 
 # Lager modeller
 
+### LISTE AV VARIABLER;
+Alder                   - Y
+EL.Kar                  - Y
+O.Karak_num             - Y
+BLEnergikWh             - Y
+MatValg_num             - Y
+AntEiendom              - N
+EiendomAreal            - Y
+BRA.Bolig               - Y
+Bruksareal.Enhet        - Y
+Etasje_num              - Y
+VannkantGL              - Y
+VegkantGL               - Y
+BebygdAreal             - Y
+RegLBE                  - Y
+RegGrunnforur           - Y
+RegKulturEiendom        - Y
+RegGrunnerverv          - Y
+RegKulturByg            - Y
+AntallRom               - 
+AntallBad               - 
+AntallWC                - 
+PrivatEid               - 
+HarHeis                 - 
+VannKode                - 
+AvlopsKode              - 
+BolType                 - 
+Kjokken                 - 
+YearQuarter             - 
+dist_cbd_km             - 
+
+-
+
 ## Modell 1
 
 ```{r}
-mod1 <- "P ~ EL.Kar + O.Karak_num + MatValg_num"
+options(scipen = 999)
+
+mod1 <- "P ~ EL.Kar.Original"
+OLS1 <- lm(mod1, data = Analyse_sf)
+summary(OLS1)
+AIC(OLS1)
+BIC(OLS1)
 ```
 
 ## Modell 2
 
-Punkt 2: Vi må finne ut kva variablar vi må ha "ln" framfor og kva variablar vi skal ha "I" framfor for å beholde formatering.
-
-
-
 ```{r}
-#Fant problemet: Kan ikkje ta variabel BRA.Annet i SF_datasett, grunna alle verdiane e 0
-mod2 <- "P ~ Alder + BLEnergikWh + BolType + AntEiendom + EiendomAreal + VannkantGL + VegkantGL + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + TotBoliger + BRA.Bolig + BRA.Tot + BebygdAreal + RegKulturByg + Etasje + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + EtasjeSeksjon + Kjokken + VannKode + AvlopsKode + YearQuarter"
+options(scipen = 999)
+
+mod2 <- "P ~ EL.Kar.Original + Alder"
+OLS2 <- lm(mod2, data = Analyse_sf)
+summary(OLS2)
+AIC(OLS2)
+BIC(OLS2)
 ```
 
 ## Modell 3
 
-Punkt 2: Vi må finne ut kva variablar vi må ha "ln" framfor og kva variablar vi skal ha "I" framfor for å beholde formatering.
-
 ```{r}
-mod3 <- "P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + BolType + AntEiendom + EiendomAreal + VannkantGL + VegkantGL + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + TotBoliger + BRA.Bolig + BRA.Tot + BebygdAreal + RegKulturByg + Etasje + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + EtasjeSeksjon + Kjokken + VannKode + AvlopsKode + YearQuarter + dist_cbd_km"
+options(scipen = 999)
+
+mod3 <- "P ~ EL.Kar.Original + Alder + O.Karak"
+OLS3 <- lm(mod3, data = Analyse_sf)
+summary(OLS3)
+AIC(OLS3)
+BIC(OLS3)
 ```
 
 ## Modell 4
 
 ```{r}
-mod4 <- "P ~ EL.Kar"
+options(scipen = 999)
+
+mod4 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh"
+OLS4 <- lm(mod4, data = Analyse_sf)
+summary(OLS4)
+AIC(OLS4)
+BIC(OLS4)
 ```
 
-## Modell 5 - Kevin
+## Modell 5
 
 ```{r}
-mod5 <- "P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + BRA.Bolig + Etasje_num + dist_cbd_km"
+options(scipen = 999)
+
+mod5 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg"
+OLS5 <- lm(mod5, data = Analyse_sf)
+summary(OLS5)
+AIC(OLS5)
+BIC(OLS5)
 ```
+
+## Modell 6
+
+```{r}
+options(scipen = 999)
+
+mod6 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal"
+OLS6 <- lm(mod6, data = Analyse_sf)
+summary(OLS6)
+AIC(OLS6)
+BIC(OLS6)
+```
+
+## Modell 7
+
+```{r}
+options(scipen = 999)
+
+mod7 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig"
+OLS7 <- lm(mod7, data = Analyse_sf)
+summary(OLS7)
+AIC(OLS7)
+BIC(OLS7)
+```
+
+## Modell 8
+
+```{r}
+options(scipen = 999)
+
+mod8 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet"
+OLS8 <- lm(mod8, data = Analyse_sf)
+summary(OLS8)
+AIC(OLS8)
+BIC(OLS8)
+```
+
+## Modell 9
+
+```{r}
+options(scipen = 999)
+
+mod9 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon"
+OLS9 <- lm(mod9, data = Analyse_sf)
+summary(OLS9)
+AIC(OLS9)
+BIC(OLS9)
+```
+
+## Modell 10
+
+```{r}
+options(scipen = 999)
+
+mod10 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL"
+OLS10 <- lm(mod10, data = Analyse_sf)
+summary(OLS10)
+AIC(OLS10)
+BIC(OLS10)
+```
+
+## Modell 11
+
+```{r}
+options(scipen = 999)
+
+mod11 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL"
+OLS11 <- lm(mod11, data = Analyse_sf)
+summary(OLS11)
+AIC(OLS11)
+BIC(OLS11)
+```
+
+## Modell 12
+
+```{r}
+options(scipen = 999)
+
+mod12 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal"
+OLS12 <- lm(mod12, data = Analyse_sf)
+summary(OLS12)
+AIC(OLS12)
+BIC(OLS12)
+```
+
+## Modell 13
+
+```{r}
+options(scipen = 999)
+
+mod13 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE"
+OLS13 <- lm(mod13, data = Analyse_sf)
+summary(OLS13)
+AIC(OLS13)
+BIC(OLS13)
+```
+
+## Modell 14
+
+```{r}
+options(scipen = 999)
+
+mod14 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur"
+OLS14 <- lm(mod14, data = Analyse_sf)
+summary(OLS14)
+AIC(OLS14)
+BIC(OLS14)
+```
+
+## Modell 15
+
+```{r}
+options(scipen = 999)
+
+mod15 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom"
+OLS15 <- lm(mod15, data = Analyse_sf)
+summary(OLS15)
+AIC(OLS15)
+BIC(OLS15)
+```
+
+## Modell 16
+
+```{r}
+options(scipen = 999)
+
+mod16 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv"
+OLS16 <- lm(mod16, data = Analyse_sf)
+summary(OLS16)
+AIC(OLS16)
+BIC(OLS16)
+```
+
+## Modell 17
+
+```{r}
+options(scipen = 999)
+
+mod17 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg"
+OLS17 <- lm(mod17, data = Analyse_sf)
+summary(OLS17)
+AIC(OLS17)
+BIC(OLS17)
+```
+
+## Modell 18
+
+```{r}
+options(scipen = 999)
+mod18 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg + AntallRom"
+OLS18 <- lm(mod18, data = Analyse_sf)
+summary(OLS18)
+AIC(OLS18)
+BIC(OLS18)
+```
+
+## Modell 19
+
+```{r}
+options(scipen = 999)
+mod19 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg + AntallRom + AntallBad"
+OLS19 <- lm(mod19, data = Analyse_sf)
+summary(OLS19)
+AIC(OLS19)
+BIC(OLS19)
+```
+
+## Modell 20
+
+```{r}
+options(scipen = 999)
+mod20 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg + AntallRom + AntallBad + AntallWC"
+OLS20 <- lm(mod20, data = Analyse_sf)
+summary(OLS20)
+AIC(OLS20)
+BIC(OLS20)
+```
+
+## Modell 21
+
+```{r}
+options(scipen = 999)
+mod21 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg + AntallRom + AntallBad + AntallWC + PrivatEid"
+OLS21 <- lm(mod21, data = Analyse_sf)
+summary(OLS21)
+AIC(OLS21)
+BIC(OLS21)
+```
+
+## Modell 22
+
+```{r}
+options(scipen = 999)
+mod22 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis"
+OLS22 <- lm(mod22, data = Analyse_sf)
+summary(OLS22)
+AIC(OLS22)
+BIC(OLS22)
+```
+
+
+## Modell 23
+
+```{r}
+options(scipen = 999)
+mod23 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + VannKode"
+OLS23 <- lm(mod23, data = Analyse_sf)
+summary(OLS23)
+AIC(OLS23)
+BIC(OLS23)
+```
+
+
+## Modell 24
+
+```{r}
+options(scipen = 999)
+mod24 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + VannKode + AvlopsKode"
+OLS24 <- lm(mod24, data = Analyse_sf)
+summary(OLS24)
+AIC(OLS24)
+BIC(OLS24)
+```
+
+
+## Modell 25
+
+```{r}
+options(scipen = 999)
+mod25 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + VannKode + AvlopsKode + BolType"
+OLS25 <- lm(mod25, data = Analyse_sf)
+summary(OLS25)
+AIC(OLS25)
+BIC(OLS25)
+```
+
+
+## Modell 26
+
+```{r}
+options(scipen = 999)
+mod26 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + VannKode + AvlopsKode + BolType + Kjokken"
+OLS26 <- lm(mod26, data = Analyse_sf)
+summary(OLS26)
+AIC(OLS26)
+BIC(OLS26)
+```
+
+## Modell 27
+
+```{r}
+options(scipen = 999)
+mod27 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + VannKode + AvlopsKode + BolType + Kjokken + YearQuarter"
+OLS27 <- lm(mod27, data = Analyse_sf)
+summary(OLS27)
+AIC(OLS27)
+BIC(OLS27)
+```
+
+## Modell 28
+
+```{r}
+options(scipen = 999)
+mod28 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + VannKode + AvlopsKode + BolType + Kjokken + YearQuarter + dist_cbd_km"
+OLS28 <- lm(mod28, data = Analyse_sf)
+summary(OLS28)
+AIC(OLS28)
+BIC(OLS28)
+```
+
+Modell som inkluderer Kommuner.
+
+
+
 
 # Kjører OLS-Modellen på våres modeller
 
@@ -387,6 +720,11 @@ Imidlertid er forklaringskraften i modellen ganske lav, noe som tyder på at det
 summary(OLS1)
 ```
 
+```{r}
+AIC(OLS1)
+```
+
+
 ## OLS2
 
 Punkt 2: Vi må finne ut kva variablar vi må ha "ln" framfor og kva variablar vi skal ha "I" framfor for å beholde formatering.
@@ -399,6 +737,11 @@ OLS2 = lm(mod2, data = Analyse_sf)
 options(scipen = 999)
 summary(OLS2)
 ```
+
+```{r}
+AIC(OLS2)
+```
+
 
 ## OLS3
 
@@ -421,12 +764,16 @@ AIC(OLS3)
 ## OLS4
 
 ```{r}
+options(scipen = 999)
 OLS4 = lm(mod4, data = Analyse_sf)
+summary(OLS4)
 ```
 
 ```{r}
-#summary(OLS4)
+AIC(OLS4)
 ```
+
+
 
 ## OLS5 - Kevin
 
