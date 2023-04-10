@@ -58,7 +58,7 @@ Analyse_sf <- transform(Analyse_sf, Bruksareal.Enhet = as.numeric(Bruksareal.Enh
 
 ```{r}
 #summary(Analyse)
-# summary(Analyse_sf)
+#summary(Analyse_sf)
 ```
 
 # Lager vektmatriser
@@ -227,15 +227,15 @@ ggcorrplot(cor_matrix)
 ```
 
 
-Sjekker multikollinearitet
+## Sjekker multikollinearitet
 
 ```{r}
-#linear_model_1 <- lm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + BebygdAreal + Etasje + VannkantGL + VegkantGL + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegBoDrivePlikt + TotBoliger, data = Analyse)
+linear_model_1 <- lm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + Etasje + VannkantGL + VegkantGL+ BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + TotBoliger + RegKulturByg + Etasje + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + VannKode + AvlopsKode + BolType + Kjokken + YearQuarter, data = Analyse)
 ```
 
 ```{r}
-#vif_values_1 <- vif(linear_model_1)
-#print(vif_values_1)
+vif_values_1 <- vif(linear_model_1)
+print(vif_values_1)
 ```
 
 **GVIF-Verdier på 1.02 til 1.6. Dette er variabler vi kan bruke**
@@ -300,7 +300,7 @@ Punkt 2: Vi må finne ut kva variablar vi må ha "ln" framfor og kva variablar v
 
 ```{r}
 #Fant problemet: Kan ikkje ta variabel BRA.Annet i SF_datasett, grunna alle verdiane e 0
-mod2 <- "P ~ Alder + BLEnergikWh + BolType + AntEiendom + EiendomAreal + VannkantGL + VegkantGL + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegBoDrivePlikt + TotBoliger + BRA.Bolig + BRA.Tot + BebygdAreal + RegKulturByg + Etasje + Lopenr + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + EtasjeSeksjon + Kjokken + VannKode + AvlopsKode + YearQuarter"
+mod2 <- "P ~ Alder + BLEnergikWh + BolType + AntEiendom + EiendomAreal + VannkantGL + VegkantGL + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + TotBoliger + BRA.Bolig + BRA.Tot + BebygdAreal + RegKulturByg + Etasje + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + EtasjeSeksjon + Kjokken + VannKode + AvlopsKode + YearQuarter"
 ```
 
 ## Modell 3
@@ -308,7 +308,7 @@ mod2 <- "P ~ Alder + BLEnergikWh + BolType + AntEiendom + EiendomAreal + Vannkan
 Punkt 2: Vi må finne ut kva variablar vi må ha "ln" framfor og kva variablar vi skal ha "I" framfor for å beholde formatering.
 
 ```{r}
-mod3 <- "P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + BolType + AntEiendom + EiendomAreal + VannkantGL + VegkantGL + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegBoDrivePlikt + TotBoliger + BRA.Bolig + BRA.Tot + BebygdAreal + RegKulturByg + Etasje + Lopenr + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + EtasjeSeksjon + Kjokken + VannKode + AvlopsKode + YearQuarter + dist_cbd_km"
+mod3 <- "P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + BolType + AntEiendom + EiendomAreal + VannkantGL + VegkantGL + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + TotBoliger + BRA.Bolig + BRA.Tot + BebygdAreal + RegKulturByg + Etasje + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + EtasjeSeksjon + Kjokken + VannKode + AvlopsKode + YearQuarter + dist_cbd_km"
 ```
 
 ## Modell 4

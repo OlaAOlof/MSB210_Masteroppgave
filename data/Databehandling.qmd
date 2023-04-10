@@ -818,6 +818,12 @@ Analyse <- Analyse %>%
   filter(Oms.Typ == "Fritt salg") 
 ```
 
+```{r}
+Analyse <- Analyse %>% 
+  select(-RegBoDrivePlikt)
+```
+
+
 ## Rydder i datasett
 
 ```{r}
