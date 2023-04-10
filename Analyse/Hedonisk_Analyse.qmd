@@ -45,6 +45,15 @@ shp <- "Analyse_Shape.shp"
 class(st_geometry(st_read(shp, quiet = TRUE, type = 3)))
 ```
 
+```{r}
+Analyse_sf <- transform(Analyse_sf, EiendomAreal = as.numeric(EiendomAreal))
+Analyse_sf <- transform(Analyse_sf, BRA.Bolig = as.numeric(BRA.Bolig))
+Analyse_sf <- transform(Analyse_sf, BRA.Tot = as.numeric(BRA.Tot))
+Analyse_sf <- transform(Analyse_sf, BebygdAreal = as.numeric(BebygdAreal))
+Analyse_sf <- transform(Analyse_sf, Bruksareal.Enhet = as.numeric(Bruksareal.Enhet))
+```
+
+
 # Summary av Datasettene
 
 ```{r}
@@ -124,6 +133,7 @@ Analyse_sf_W10 <- nb2listw(Analyse_sf_nb10, style = "W")
 ```
 
 # Kontroll av nabolagsmatrise - Kevin
+
 ```{r}
 # Funksjonen returnerer en matrise med indeksene til punktene som tilhører settet av de k nærmeste naboene til hverandre.
 
@@ -132,7 +142,7 @@ coords <- st_centroid(st_geometry(bergen), of_largest_polygon=TRUE)
 col.knn <- knearneigh(coords, k=3)
 plot(st_geometry(bergen), border="grey")
 plot(knn2nb(col.knn), coords, add=TRUE)
-title(main="K nærmeste naboer, k = 3")
+title(main="K naermeste naboer, k = 3")
 ```
 
 Funksjonen returnerer en matrise med indeksene til punktene som tilhører settet av de k nærmeste naboene til hverandre.
@@ -154,6 +164,7 @@ legend("bottomright", legend = c("Points", "Selected point", "Naboer (k = 10)"),
 ```
 
 ## Norgeskart med våre salg - Kevin
+
 ```{r}
 analyse_shape <- st_read("Analyse_Shape.shp")
 norge <- st_read("norge.shp")
@@ -200,6 +211,79 @@ Det er viktig å merke seg at Moran's I-verdien avtar når antall naboer (k) øk
 
 Tallene etter Moran's I-verdiene i resultatene (-0.0003374958 og 0.0001646533 for k = 3, osv.) er konstantleddet og koeffisienten for x i Moran's I-beregningen. Disse tallene brukes for å beregne Moran's I-verdien og er ikke av stor interesse for tolkningen av resultatene.
 
+# Korrelasjonsmatriser
+
+## Sjekket for korrelasjon og multikollinearitet
+
+Sjekk korrelasjon mellom - EiendomAreal - BRA.Bolig - BRA.Annet - BRA.Tot - BebygdAreal - Bruksareal.Enhet
+
+```{r}
+cor_matrix <- cor(Analyse[c("EiendomAreal", "BRA.Bolig", "BRA.Annet", "BRA.Tot", "BebygdAreal", "Bruksareal.Enhet")])
+print(cor_matrix)
+```
+
+```{r}
+ggcorrplot(cor_matrix)
+```
+
+
+Sjekker multikollinearitet
+
+```{r}
+#linear_model_1 <- lm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + BebygdAreal + Etasje + VannkantGL + VegkantGL + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegBoDrivePlikt + TotBoliger, data = Analyse)
+```
+
+```{r}
+#vif_values_1 <- vif(linear_model_1)
+#print(vif_values_1)
+```
+
+**GVIF-Verdier på 1.02 til 1.6. Dette er variabler vi kan bruke**
+
+```{r}
+linear_model_2 <- lm(P ~ EiendomAreal + dist_cbd_km, data = Analyse_sf)
+```
+
+```{r}
+vif_values_2 <- vif(linear_model_2)
+print(vif_values_2)
+```
+
+```{r}
+linear_model_3 <- lm(P ~ BRA.Bolig + dist_cbd_km, data = Analyse_sf)
+```
+
+```{r}
+vif_values_3 <- vif(linear_model_3)
+print(vif_values_3)
+```
+
+```{r}
+linear_model_4 <- lm(P ~ Bruksareal.Enhet + dist_cbd_km, data = Analyse_sf)
+```
+
+```{r}
+vif_values_4 <- vif(linear_model_4)
+print(vif_values_4)
+```
+
+En GVIF-verdi på mindre enn 5 regnes som akseptabelt for å unngå signifikant multikollinearitet. Her har BRA.Bolig og BebygdAreal en GVIF-verdi på henholdsvis 2.03 og 1.87, som indikerer at det ikke er noen signifikant multikollinearitet mellom dem. Bruksareal.Enhet har også en lav GVIF-verdi på 1.75, selv om antallet koeffisienter i modellen er høyt (220), som kan tyde på at det ikke er noen signifikant multikollinearitet mellom denne variabelen og de andre variablene i modellen. Dermed er det sannsynlig at disse variablene kan brukes sammen i en regresjonsmodell uten å påvirke modellens prediktive kraft eller nøyaktighet negativt på grunn av multikollinearitet.
+
+```{r}
+cor_matrix <- cor(Analyse[c("P", "EL.Kar", "Alder", "B.Ar", "Etasje", "AntallRom")])
+ggcorrplot(cor_matrix)
+```
+
+```{r}
+#correlation <- cor(Analyse_sf$dist_cbd_km, Analyse$P, method = "pearson")
+#print(correlation)
+```
+
+```{r}
+#cor_matrix <- cor(Analyse_sf[c("P", "EL.Kar", "Alder", "Etasje", "AntallRom")])
+#ggcorrplot(cor_matrix, type = "lower", hc.order = TRUE, lab = TRUE)
+```
+
 # Lager modeller
 
 ## Modell 1
@@ -212,9 +296,11 @@ mod1 <- "P ~ EL.Kar + O.Karak_num + MatValg_num"
 
 Punkt 2: Vi må finne ut kva variablar vi må ha "ln" framfor og kva variablar vi skal ha "I" framfor for å beholde formatering.
 
+
+
 ```{r}
 #Fant problemet: Kan ikkje ta variabel BRA.Annet i SF_datasett, grunna alle verdiane e 0
-mod2 <- "P ~ Alder + BLEnergikWh + Oms.Typ + BolType + AntEiendom + EiendomAreal + VannkantGL + VegkantGL + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegBoDrivePlikt + TotBoliger + BRA.Bolig + BRA.Tot + BebygdAreal + RegKulturByg + Etasje + Lopenr + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + EtasjeSeksjon + Kjokken + VannKode + AvlopsKode + YearQuarter"
+mod2 <- "P ~ Alder + BLEnergikWh + BolType + AntEiendom + EiendomAreal + VannkantGL + VegkantGL + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegBoDrivePlikt + TotBoliger + BRA.Bolig + BRA.Tot + BebygdAreal + RegKulturByg + Etasje + Lopenr + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + EtasjeSeksjon + Kjokken + VannKode + AvlopsKode + YearQuarter"
 ```
 
 ## Modell 3
@@ -222,7 +308,7 @@ mod2 <- "P ~ Alder + BLEnergikWh + Oms.Typ + BolType + AntEiendom + EiendomAreal
 Punkt 2: Vi må finne ut kva variablar vi må ha "ln" framfor og kva variablar vi skal ha "I" framfor for å beholde formatering.
 
 ```{r}
-mod3 <- "P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + Oms.Typ + BolType + AntEiendom + EiendomAreal + VannkantGL + VegkantGL + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegBoDrivePlikt + TotBoliger + BRA.Bolig + BRA.Tot + BebygdAreal + RegKulturByg + Etasje + Lopenr + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + EtasjeSeksjon + Kjokken + VannKode + AvlopsKode + YearQuarter + dist_cbd_km"
+mod3 <- "P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + BolType + AntEiendom + EiendomAreal + VannkantGL + VegkantGL + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegBoDrivePlikt + TotBoliger + BRA.Bolig + BRA.Tot + BebygdAreal + RegKulturByg + Etasje + Lopenr + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + EtasjeSeksjon + Kjokken + VannKode + AvlopsKode + YearQuarter + dist_cbd_km"
 ```
 
 ## Modell 4
@@ -270,6 +356,7 @@ OLS2 = lm(mod2, data = Analyse_sf)
 ```
 
 ```{r}
+options(scipen = 999)
 summary(OLS2)
 ```
 
@@ -282,8 +369,14 @@ OLS3 = lm(mod3, data = Analyse_sf)
 ```
 
 ```{r}
+options(scipen = 999)
 summary(OLS3)
 ```
+
+```{r}
+AIC(OLS3)
+```
+
 
 ## OLS4
 
@@ -348,6 +441,7 @@ lm.morantest(OLS3, Analyse_sf_W10)
 *k = 3: Observed Moran I = -0.1653628, p-verdi = 0.9947* *k = 5: Observed Moran I = -0.1223350, p-verdi = 0.9947* *k = 10: Observed Moran I = -0.08005172, p-verdi = 0.9947* Alle p-verdiene er større enn 0.05, som indikerer at det ikke er statistisk signifikant romlig autokorrelasjon i modellen. De negative verdiene for Observed Moran I indikerer imidlertid en viss grad av romlig heterogenitet i modellen. Modellen har lavere romlig autokorrelasjon når vi øker antallet naboer fra 3 til 10. \## Moran's - OLS4
 
 ## Moran's - OLS4
+
 ```{r}
 lm.morantest(OLS4, Analyse_sf_W3)
 lm.morantest(OLS4, Analyse_sf_W5)
@@ -357,53 +451,17 @@ lm.morantest(OLS4, Analyse_sf_W10)
 Her får vi 0.3864, 0.3309, og 0.2435 for k=3, k=5, og k=10, med p-verdier som er mindre enn 0,05-nivået. Dette indikerer at det er en romlig avhengighet mellom residualene, og at det er romlig autokorrelasjon i dataene. Dette betyr at det er en tendens til at boliger som ligger nær hverandre, har lignende residualer, og at det kan være en romlig struktur i dataene som ikke tas hensyn til i modellen.
 
 ## Moran's - OLS5
+
 ```{r}
 lm.morantest(OLS5, Analyse_sf_W3)
 lm.morantest(OLS5, Analyse_sf_W5)
 lm.morantest(OLS5, Analyse_sf_W10)
 ```
 
-# Korrelasjonsmatriser
-
-## Sjekket for korrelasjon og multikollinearitet
-
-Sjekk korrelasjon mellom - EiendomAreal - BRA.Bolig - BRA.Annet - BRA.Tot - BebygdAreal - Bruksareal.Enhet
-
-```{r}
-cor_matrix <- cor(Analyse[c("EiendomAreal", "BRA.Bolig", "BRA.Annet", "BRA.Tot", "BebygdAreal", "Bruksareal.Enhet")])
-print(cor_matrix)
-```
-
-Sjekker multikollinearitet
-
-```{r}
-#vif_values <- vif(lm(P ~ EiendomAreal + BRA.Bolig + BRA.Annet + BebygdAreal + Bruksareal.Enhet, data = Analyse_sf))
-# print(vif_values)
-```
-
-En GVIF-verdi på mindre enn 5 regnes som akseptabelt for å unngå signifikant multikollinearitet. Her har BRA.Bolig og BebygdAreal en GVIF-verdi på henholdsvis 2.03 og 1.87, som indikerer at det ikke er noen signifikant multikollinearitet mellom dem. Bruksareal.Enhet har også en lav GVIF-verdi på 1.75, selv om antallet koeffisienter i modellen er høyt (220), som kan tyde på at det ikke er noen signifikant multikollinearitet mellom denne variabelen og de andre variablene i modellen. Dermed er det sannsynlig at disse variablene kan brukes sammen i en regresjonsmodell uten å påvirke modellens prediktive kraft eller nøyaktighet negativt på grunn av multikollinearitet.
-
-```{r}
-# cor_matrix <- cor(Analyse_sf[c("P", "EL.Kar", "Alder", "B.Ar", "Etasje", "AntallRom")])
-ggcorrplot(cor_matrix)
-```
-
-```{r}
-#correlation <- cor(Analyse_sf$dist_cbd_km, Analyse$P, method = "pearson")
-#print(correlation)
-```
-
-```{r}
-#cor_matrix <- cor(Analyse_sf[c("P", "EL.Kar", "Alder", "Etasje", "AntallRom")])
-#ggcorrplot(cor_matrix, type = "lower", hc.order = TRUE, lab = TRUE)
-```
-
-```{r}
-#Siste
-```
-
 # Kevins romlige modeller
+
 Denne første chunken feiler, men vil beholde den i dokumentet for eventuell inspirasjon. Kanskje vi klarer å fikse den
+
 ```{r Kevins modell}
 # Konverter Analyse_sf til en pdata.frame for romlig regresjon
 # analyse_sf_pdata <- pdata.frame(Analyse_sf)
@@ -423,6 +481,7 @@ Denne første chunken feiler, men vil beholde den i dokumentet for eventuell ins
 ```
 
 Før vi kan kjøre de romlige modellene, må vi sjekke for multikollinearitet.
+
 ```{r}
 linear_model <- lm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + Etasje + dist_cbd_km,
                    data = Analyse_sf)
@@ -433,8 +492,8 @@ vif_values <- vif(linear_model)
 print(vif_values)
 ```
 
-
 ## SAR (Spatial Autoregressiv)
+
 ```{r}
 # sar_model <- lagsarlm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + Etasje_num + dist_cbd_km, data = Analyse_sf, listw = Analyse_sf_W3, zero.policy = TRUE)
 
@@ -446,16 +505,19 @@ sar_model <- lagsarlm(P ~ O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom +
 ```
 
 ## SEM (Spatial Error Model)
+
 ```{r}
 sem_model <- errorsarlm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + Etasje + dist_cbd_km, data = Analyse_sf, listw = Analyse_sf_W3, zero.policy = TRUE)
 ```
 
-## SAC (Spatial Simultaneous Autoregressiv) 
+## SAC (Spatial Simultaneous Autoregressiv)
+
 ```{r}
 sac_model <- sacsarlm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + Etasje + dist_cbd_km, data = Analyse_sf, listw = Analyse_sf_W3, zero.policy = TRUE)
 ```
 
 ## SDM (Spatial Dubin Model)
+
 ```{r}
 # Lager romlige laggede uavhengige variabler
 X_lag <- lag.listw(Analyse_sf_W3, as.matrix(Analyse_sf[, c("Alder", "EL.Kar", "O.Karak_num", "BLEnergikWh", "MatValg_num", "AntEiendom", "EiendomAreal", "BRA.Bolig", "Etasje", "dist_cbd_km")]))
@@ -471,6 +533,7 @@ summary(durbin_model)
 ```
 
 # Resultater (SAR/SEM/SAC/SDM)
+
 ```{r}
 cat("Summary for SAR model:\n")
 print(summary(sar_model))
@@ -516,4 +579,3 @@ lrtest_sac_vs_durbin <- lrtest(sac_model, durbin_model)
 cat("\nLR test for SAC vs. Spatial Durbin:\n")
 print(lrtest_sac_vs_durbin)
 ```
-

@@ -745,8 +745,7 @@ Analyse <- Analyse %>%
                                          'Betong' = 1,
                                          'Mur/tegl' = 2,
                                          'Staal' = 3,
-                                         'Tre' = 4)) %>% 
-  select(-MatValg)
+                                         'Tre' = 4))
 ```
 
 ```{r}
@@ -812,6 +811,11 @@ Temp <- inner_join(Analyse, Coords_Temp, by = c("Dokumentnr", "Bygningsnummer"))
 
 ```{r}
 Analyse <- unique(Temp)
+```
+
+```{r}
+Analyse <- Analyse %>%
+  filter(Oms.Typ == "Fritt salg") 
 ```
 
 ## Rydder i datasett
@@ -897,7 +901,6 @@ Analyse_sf <- Analyse_sf %>%
 Analyse_sf["EtasjeSeksjon"][is.na(Analyse_sf["EtasjeSeksjon"])] <- "Ikke Oppgitt"
 ```
 
-
 ```{r}
 Analyse_sf <- Analyse_sf %>%
   mutate(Etasje_num = recode(EtasjeSeksjon,
@@ -909,7 +912,6 @@ Analyse_sf <- Analyse_sf %>%
                                                         ) %>% 
   relocate(Etasje_num, .before = EtasjeSeksjon)
 ```
-
 
 # Lager analyse-datasett for hvert individuelle år i tillegg til det totale felles dokumentet
 
@@ -1017,7 +1019,6 @@ Analyse_2022_sf$dist_cbd_km <- round(Analyse_2022_sf$dist_cbd_km, 2)
 ```{r}
 #write_sf(Analyse_sf, "Analyse/Analyse_Shape.shp")
 ```
-
 
 ```{r}
 #siste
