@@ -424,3 +424,31 @@ rm(Bergen,
 ```{r}
 hist(Analyse$EL.Kar, breaks = 5, main = "Frekvens, ulike energikarakterer", xlab = "EL.Kar.Original", col = "lightblue", border = "black")
 ```
+
+##
+
+```{r}
+library(scales)
+library(ggplot2)
+library(dplyr)
+# Regner ut snittpris for hvert kvartal
+Gjennomsnittlig_kvartalspris <- Analyse %>%
+  group_by(YearQuarter) %>%
+  summarize(Gjenomsnittspris = mean(P))
+
+# Definerer strømkrisen
+start <- "2021Q3"
+end <- "2022Q1"
+
+# Linjediagram
+ggplot(Gjennomsnittlig_kvartalspris, aes(x = YearQuarter, y = Gjenomsnittspris, group = 1)) +
+  geom_rect(aes(xmin = start, xmax = end, ymin = -Inf, ymax = Inf),
+            fill = "grey", alpha = 0.1) +
+  geom_line(aes(color = Gjenomsnittspris)) +
+  geom_point() +
+  scale_y_continuous(labels = comma) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x = "År og kvartal", y = "Gjennomsnittlig boligpris", title = "Gjennomsnittlig kvartalspris med strømkrisen i grå sone")
+```
+
+

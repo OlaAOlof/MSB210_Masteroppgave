@@ -5,6 +5,8 @@ author:
   Ola Andre Olofsson
 format: html
 editor: visual
+editor_options: 
+  chunk_output_type: inline
 ---
 
 # Setup Chunk
@@ -28,6 +30,7 @@ library(huxtable)
 library(plm)
 library(car)
 library(lmtest)
+library(magick)
 options(paged.print = FALSE)
 ```
 
@@ -52,7 +55,6 @@ Analyse_sf <- transform(Analyse_sf, BRA.Tot = as.numeric(BRA.Tot))
 Analyse_sf <- transform(Analyse_sf, BebygdAreal = as.numeric(BebygdAreal))
 Analyse_sf <- transform(Analyse_sf, Bruksareal.Enhet = as.numeric(Bruksareal.Enhet))
 ```
-
 
 # Summary av Datasettene
 
@@ -230,13 +232,15 @@ ggcorrplot(cor_matrix)
 ## Sjekker multikollinearitet
 
 ```{r}
-linear_model_1 <- lm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + Etasje + VannkantGL + VegkantGL+ BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + TotBoliger + RegKulturByg + Etasje + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + VannKode + AvlopsKode + BolType + Kjokken + YearQuarter, data = Analyse)
+linear_model_1 <- lm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + Etasje + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + TotBoliger + RegKulturByg + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + VannKode + AvlopsKode + BolType + Kjokken + YearQuarter, data = Analyse)
 ```
 
 ```{r}
 vif_values_1 <- vif(linear_model_1)
 print(vif_values_1)
 ```
+
+Vi ønsker GVIF verdier så nærme 1 som mulig. Verdier mindre enn 5 er akseptable, mens verdier over 5 må kastes. Med dette i bakhånd velger vi dermed å forkaste TotBoliger variablen. Dette kommer også av at vi er interessert i kjøp av boliger, så om det er 1 eller 10 boliger som blir solgt har ikkje så mykje å si for personen som kjøper boligen.
 
 **GVIF-Verdier på 1.02 til 1.6. Dette er variabler vi kan bruke**
 
@@ -269,10 +273,46 @@ print(vif_values_4)
 
 En GVIF-verdi på mindre enn 5 regnes som akseptabelt for å unngå signifikant multikollinearitet. Her har BRA.Bolig og BebygdAreal en GVIF-verdi på henholdsvis 2.03 og 1.87, som indikerer at det ikke er noen signifikant multikollinearitet mellom dem. Bruksareal.Enhet har også en lav GVIF-verdi på 1.75, selv om antallet koeffisienter i modellen er høyt (220), som kan tyde på at det ikke er noen signifikant multikollinearitet mellom denne variabelen og de andre variablene i modellen. Dermed er det sannsynlig at disse variablene kan brukes sammen i en regresjonsmodell uten å påvirke modellens prediktive kraft eller nøyaktighet negativt på grunn av multikollinearitet.
 
+Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + Etasje + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + TotBoliger + RegKulturByg + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + VannKode + AvlopsKode + BolType + Kjokken + YearQuarter, data = Analyse)
+
 ```{r}
-cor_matrix <- cor(Analyse[c("P", "EL.Kar", "Alder", "B.Ar", "Etasje", "AntallRom")])
-ggcorrplot(cor_matrix)
+cor_matrix_1 <- cor(Analyse[c("P", "Alder", "EL.Kar", "O.Karak_num", "BLEnergikWh", "MatValg_num", "AntEiendom", "EiendomAreal", "BRA.Bolig", "Bruksareal.Enhet", "Etasje", "VannkantGL", "VegkantGL", "BebygdAreal", "RegLBE", "RegGrunnforur", "RegKulturEiendom", "RegGrunnerverv", "TotBoliger", "RegKulturByg", "AntallRom", "AntallBad", "AntallWC", "PrivatEid", "HarHeis", "VannKode", "AvlopsKode")])
+ggcorrplot(cor_matrix_1) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8.5)) +
+  theme(axis.text.y = element_text(angle = 0, hjust = 1, size = 8.5))
 ```
+
+```{r}
+zoomi<- ggcorrplot(cor_matrix_1)
+
+# Save the ggcorrplot as a high-resolution image
+ggsave("zoomi.jpeg", zoomi, dpi = 500)
+```
+
+```{r}
+image(imageScale(zoomi.jpeg, "[200]"), "x[200]")
+```
+image_scale(image_scale(img,"[Value]"),"x[value]")
+
+```{r}
+cor_matrix_1 <- round(cor_matrix_1, 2)
+print(cor_matrix_1)
+```
+
+```{r}
+cor_matrix_1 <- sort(cor_matrix_1, decreasing = TRUE, arr.ind = TRUE)
+
+top_corr <- data.frame(vars = paste(rownames(cor_matrix_1), colnames(cor_matrix_1), sep = "-"),
+                                cor = cor_matrix_1)[1:10,]
+print(top_corr)
+```
+
+
+```{r}
+cor_matrix_2 <- cor(Analyse[c("P", "AntallRom", "AntallBad", "AntallWC")])
+ggcorrplot(cor_matrix_2)
+```
+
 
 ```{r}
 #correlation <- cor(Analyse_sf$dist_cbd_km, Analyse$P, method = "pearson")
