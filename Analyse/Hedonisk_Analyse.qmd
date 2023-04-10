@@ -56,7 +56,7 @@ Analyse_sf <- transform(Analyse_sf, BebygdAreal = as.numeric(BebygdAreal))
 Analyse_sf <- transform(Analyse_sf, Bruksareal.Enhet = as.numeric(Bruksareal.Enhet))
 ```
 
-# Summary av Datasettene
+# Summary av datasettene
 
 ```{r}
 #summary(Analyse)
@@ -329,7 +329,7 @@ print(correlation)
 
 # Lager modeller
 
-### LISTE AV VARIABLER;
+### Variabelliste;
 Alder                   - Y
 EL.Kar                  - Y
 O.Karak_num             - Y
