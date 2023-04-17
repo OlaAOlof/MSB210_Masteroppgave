@@ -392,7 +392,512 @@ var(Analyse_sf_2021$dist_cbd_km)
 var(Analyse_sf_2022$dist_cbd_km)
 ```
 
+# Makspris
+
+Boliger:
+
+```{r}
+Bergen_Bolig <- Bolig %>% 
+  filter(Knr == 4601)
+Bergen_Bolig_2019<- Bolig_2019 %>% 
+  filter(Knr == 4601)
+Bergen_Bolig_2020 <- Bolig_2020 %>% 
+  filter(Knr == 4601)
+Bergen_Bolig_2021 <- Bolig_2021 %>% 
+  filter(Knr == 4601)
+Bergen_Bolig_2022 <- Bolig_2022 %>% 
+  filter(Knr == 4601)
+```
+
+```{r}
+Uten_Bergen_Bolig <- Bolig %>% 
+  filter(Knr > 4601)
+Uten_Bergen_Bolig_2019<- Bolig_2019 %>% 
+  filter(Knr > 4601)
+Uten_Bergen_Bolig_2020 <- Bolig_2020 %>% 
+  filter(Knr > 4601)
+Uten_Bergen_Bolig_2021 <- Bolig_2021 %>% 
+  filter(Knr > 4601)
+Uten_Bergen_Bolig_2022 <- Bolig_2022 %>% 
+  filter(Knr > 4601)
+```
+
+Blokker:
+
+```{r}
+Bergen_Blokker <- Blokker %>% 
+  filter(Knr == 4601)
+Bergen_Blokker_2019<- Blokker_2019 %>% 
+  filter(Knr == 4601)
+Bergen_Blokker_2020 <- Blokker_2020 %>% 
+  filter(Knr == 4601)
+Bergen_Blokker_2021 <- Blokker_2021 %>% 
+  filter(Knr == 4601)
+Bergen_Blokker_2022 <- Blokker_2022 %>% 
+  filter(Knr == 4601)
+```
+
+```{r}
+Uten_Bergen_Blokker <- Blokker %>% 
+  filter(Knr > 4601)
+Uten_Bergen_Blokker_2019<- Blokker_2019 %>% 
+  filter(Knr > 4601)
+Uten_Bergen_Blokker_2020 <- Blokker_2020 %>% 
+  filter(Knr > 4601)
+Uten_Bergen_Blokker_2021 <- Blokker_2021 %>% 
+  filter(Knr > 4601)
+Uten_Bergen_Blokker_2022 <- Blokker_2022 %>% 
+  filter(Knr > 4601)
+```
+
+```{r}
+#Bergen_2019 <- Bergen[Bergen$DokumentAr == 2019,]
+#Bergen_2020 <- Bergen[Bergen$DokumentAr == 2020,]
+#Bergen_2021 <- Bergen[Bergen$DokumentAr == 2021,]
+#Bergen_2022 <- Bergen[Bergen$DokumentAr == 2022,]
+```
+
+## Makspris - Bergen
+
+```{r}
+options(scipen = 999)
+max(Bergen$P)
+max(Bergen_2019$P)
+max(Bergen_2020$P)
+max(Bergen_2021$P)
+max(Bergen_2022$P)
+```
+
+## Makspris Boliger - Bergen
+
+```{r}
+options(scipen = 999)
+max(Bergen_Bolig$P)
+max(Bergen_Bolig_2019$P)
+max(Bergen_Bolig_2020$P)
+max(Bergen_Bolig_2021$P)
+max(Bergen_Bolig_2022$P)
+```
+
+## Makspris Blokker - Bergen
+
+```{r}
+options(scipen = 999)
+max(Bergen$P)
+max(Bergen_Blokker_2019$P)
+max(Bergen_Blokker_2020$P)
+max(Bergen_Blokker_2021$P)
+max(Bergen_Blokker_2022$P)
+```
+
+
+## Makspris - Eksl. Bergen
+
+```{r}
+options(scipen = 999)
+max(Uten_Bergen$P)
+max(Uten_Bergen_2019$P)
+max(Uten_Bergen_2020$P)
+max(Uten_Bergen_2021$P)
+max(Uten_Bergen_2022$P)
+```
+
+## Makspris Boliger - Eksl. Bergen
+
+```{r}
+options(scipen = 999)
+max(Uten_Bergen_Bolig$P)
+max(Uten_Bergen_Bolig_2019$P)
+max(Uten_Bergen_Bolig_2020$P)
+max(Uten_Bergen_Bolig_2021$P)
+max(Uten_Bergen_Bolig_2022$P)
+```
+
+## Makspris Blokker - Eksl. Bergen
+
+```{r}
+options(scipen = 999)
+max(Uten_Bergen$P)
+max(Uten_Bergen_Blokker_2019$P)
+max(Uten_Bergen_Blokker_2020$P)
+max(Uten_Bergen_Blokker_2021$P)
+max(Uten_Bergen_Blokker_2022$P)
+```
+
+# Minpris
+
+## Minpris - Bergen
+
+```{r}
+options(scipen = 999)
+min(Bergen$P)
+min(Bergen_2019$P)
+min(Bergen_2020$P)
+min(Bergen_2021$P)
+min(Bergen_2022$P)
+```
+
+## Minpris Boliger - Bergen
+
+```{r}
+options(scipen = 999)
+min(Bergen_Bolig$P)
+min(Bergen_Bolig_2019$P)
+min(Bergen_Bolig_2020$P)
+min(Bergen_Bolig_2021$P)
+min(Bergen_Bolig_2022$P)
+```
+
+## Minpris Blokker - Bergen
+
+```{r}
+options(scipen = 999)
+min(Bergen$P)
+min(Bergen_Blokker_2019$P)
+min(Bergen_Blokker_2020$P)
+min(Bergen_Blokker_2021$P)
+min(Bergen_Blokker_2022$P)
+```
+
+
+## Minpris - Eksl. Bergen
+
+```{r}
+options(scipen = 999)
+min(Uten_Bergen$P)
+min(Uten_Bergen_2019$P)
+min(Uten_Bergen_2020$P)
+min(Uten_Bergen_2021$P)
+min(Uten_Bergen_2022$P)
+```
+
+## Minpris Boliger - Eksl. Bergen
+
+```{r}
+min(Uten_Bergen_Bolig$P)
+min(Uten_Bergen_Bolig_2019$P)
+min(Uten_Bergen_Bolig_2020$P)
+min(Uten_Bergen_Bolig_2021$P)
+min(Uten_Bergen_Bolig_2022$P)
+```
+
+## Minpris Blokker - Eksl. Bergen
+
+```{r}
+options(scipen = 999)
+min(Uten_Bergen$P)
+min(Uten_Bergen_Blokker_2019$P)
+min(Uten_Bergen_Blokker_2020$P)
+min(Uten_Bergen_Blokker_2021$P)
+min(Uten_Bergen_Blokker_2022$P)
+```
+
+
+# Kvadratmeter Pris
+
+```{r}
+Bolig_pm2 <- Bolig %>% 
+  select(P, BRA.Bolig, BRA.Tot, DokumentAr, Knr)
+```
+
+```{r}
+Blokker_pm2 <- Blokker %>% 
+  select(P, Bruksareal.Enhet, BRA.Tot, DokumentAr, Knr)
+```
+
+```{r}
+Bolig_pm2 <- Bolig_pm2 %>% 
+  mutate(pm2 = P/BRA.Tot)
+```
+
+```{r}
+Bolig_pm2$pm2[Bolig_pm2$pm2 == 'Inf'] <- 0
+```
+
+```{r}
+Bolig_pm2_Bergen <- Bolig_pm2 %>% 
+  filter(Knr == 4601)
+```
+
+```{r}
+Bolig_pm2_Uten_Bergen <- Bolig_pm2 %>% 
+  filter(Knr > 4601)
+```
+
+```{r}
+Bolig_pm2_Bergen_2019 <- Bolig_pm2_Bergen[Bolig_pm2_Bergen$DokumentAr == 2019,]
+Bolig_pm2_Bergen_2020 <- Bolig_pm2_Bergen[Bolig_pm2_Bergen$DokumentAr == 2020,]
+Bolig_pm2_Bergen_2021 <- Bolig_pm2_Bergen[Bolig_pm2_Bergen$DokumentAr == 2021,]
+Bolig_pm2_Bergen_2022 <- Bolig_pm2_Bergen[Bolig_pm2_Bergen$DokumentAr == 2022,]
+```
+
+```{r}
+Bolig_pm2_Uten_Bergen_2019 <- Bolig_pm2_Uten_Bergen[Bolig_pm2_Uten_Bergen$DokumentAr == 2019,]
+Bolig_pm2_Uten_Bergen_2020 <- Bolig_pm2_Uten_Bergen[Bolig_pm2_Uten_Bergen$DokumentAr == 2020,]
+Bolig_pm2_Uten_Bergen_2021 <- Bolig_pm2_Uten_Bergen[Bolig_pm2_Uten_Bergen$DokumentAr == 2021,]
+Bolig_pm2_Uten_Bergen_2022 <- Bolig_pm2_Uten_Bergen[Bolig_pm2_Uten_Bergen$DokumentAr == 2022,]
+```
+
+```{r}
+Blokker_pm2 <- Blokker_pm2 %>% 
+  mutate(pm2 = P/BRA.Tot)
+```
+
+```{r}
+Blokker_pm2$pm2[Blokker_pm2$pm2 == 'Inf'] <- 0
+```
+
+```{r}
+Blokker_pm2_Bergen <- Blokker_pm2 %>% 
+  filter(Knr == 4601)
+```
+
+```{r}
+Blokker_pm2_Uten_Bergen <- Blokker_pm2 %>% 
+  filter(Knr > 4601)
+```
+
+```{r}
+Blokker_pm2_Bergen_2019 <- Blokker_pm2_Bergen[Blokker_pm2_Bergen$DokumentAr == 2019,]
+Blokker_pm2_Bergen_2020 <- Blokker_pm2_Bergen[Blokker_pm2_Bergen$DokumentAr == 2020,]
+Blokker_pm2_Bergen_2021 <- Blokker_pm2_Bergen[Blokker_pm2_Bergen$DokumentAr == 2021,]
+Blokker_pm2_Bergen_2022 <- Blokker_pm2_Bergen[Blokker_pm2_Bergen$DokumentAr == 2022,]
+```
+
+```{r}
+Blokker_pm2_Uten_Bergen_2019 <- Blokker_pm2_Uten_Bergen[Blokker_pm2_Uten_Bergen$DokumentAr == 2019,]
+Blokker_pm2_Uten_Bergen_2020 <- Blokker_pm2_Uten_Bergen[Blokker_pm2_Uten_Bergen$DokumentAr == 2020,]
+Blokker_pm2_Uten_Bergen_2021 <- Blokker_pm2_Uten_Bergen[Blokker_pm2_Uten_Bergen$DokumentAr == 2021,]
+Blokker_pm2_Uten_Bergen_2022 <- Blokker_pm2_Uten_Bergen[Blokker_pm2_Uten_Bergen$DokumentAr == 2022,]
+```
+
+
+
+## KvM Pris - Bergen; Bolig
+
+### Max
+
+```{r}
+max(Bolig_pm2_Bergen$pm2)
+max(Bolig_pm2_Bergen_2019$pm2)
+max(Bolig_pm2_Bergen_2020$pm2)
+max(Bolig_pm2_Bergen_2021$pm2)
+max(Bolig_pm2_Bergen_2022$pm2)
+```
+
+### Min
+
+**NOTE: Me har eit par observasjonar som eg ikkje får med her, grunna at Ambita ikkje skille naturlig mellom blokker og boligar. Me får Vurdera ka me ska gjera med da. Enten 1. Ta vekk dei observasjonane når me kjøre Min/Max opplegget, eller finna ein anna løysning. Eg har ingen andre løysninga her og no ihvertfall.**
+
+```{r}
+min(Bolig_pm2_Bergen$pm2)
+min(Bolig_pm2_Bergen_2019$pm2)
+min(Bolig_pm2_Bergen_2020$pm2)
+min(Bolig_pm2_Bergen_2021$pm2)
+min(Bolig_pm2_Bergen_2022$pm2)
+```
+
+### Gjennomsnitt
+
+```{r}
+mean(Bolig_pm2_Bergen$pm2)
+mean(Bolig_pm2_Bergen_2019$pm2)
+mean(Bolig_pm2_Bergen_2020$pm2)
+mean(Bolig_pm2_Bergen_2021$pm2)
+mean(Bolig_pm2_Bergen_2022$pm2)
+```
+
+### Median
+
+```{r}
+median(Bolig_pm2_Bergen$pm2)
+median(Bolig_pm2_Bergen_2019$pm2)
+median(Bolig_pm2_Bergen_2020$pm2)
+median(Bolig_pm2_Bergen_2021$pm2)
+median(Bolig_pm2_Bergen_2022$pm2)
+```
+
+### Varians
+
+```{r}
+var(Bolig_pm2_Bergen$pm2)
+var(Bolig_pm2_Bergen_2019$pm2)
+var(Bolig_pm2_Bergen_2020$pm2)
+var(Bolig_pm2_Bergen_2021$pm2)
+var(Bolig_pm2_Bergen_2022$pm2)
+```
+
+## KvM Pris - Bergen; Blokker
+
+### Max
+
+```{r}
+max(Blokker_pm2_Bergen$pm2)
+max(Blokker_pm2_Bergen_2019$pm2)
+max(Blokker_pm2_Bergen_2020$pm2)
+max(Blokker_pm2_Bergen_2021$pm2)
+max(Blokker_pm2_Bergen_2022$pm2)
+```
+
+### Min
+
+**NOTE: Me har eit par observasjonar som eg ikkje får med her, grunna at Ambita ikkje skille naturlig mellom blokker og boligar. Me får Vurdera ka me ska gjera med da. Enten 1. Ta vekk dei observasjonane når me kjøre Min/Max opplegget, eller finna ein anna løysning. Eg har ingen andre løysninga her og no ihvertfall.**
+
+```{r}
+min(Blokker_pm2_Bergen$pm2)
+min(Blokker_pm2_Bergen_2019$pm2)
+min(Blokker_pm2_Bergen_2020$pm2)
+min(Blokker_pm2_Bergen_2021$pm2)
+min(Blokker_pm2_Bergen_2022$pm2)
+```
+
+### Gjennomsnitt
+
+```{r}
+mean(Blokker_pm2_Bergen$pm2)
+mean(Blokker_pm2_Bergen_2019$pm2)
+mean(Blokker_pm2_Bergen_2020$pm2)
+mean(Blokker_pm2_Bergen_2021$pm2)
+mean(Blokker_pm2_Bergen_2022$pm2)
+```
+
+### Median
+
+```{r}
+median(Blokker_pm2_Bergen$pm2)
+median(Blokker_pm2_Bergen_2019$pm2)
+median(Blokker_pm2_Bergen_2020$pm2)
+median(Blokker_pm2_Bergen_2021$pm2)
+median(Blokker_pm2_Bergen_2022$pm2)
+```
+
+### Varians
+
+```{r}
+var(Blokker_pm2_Bergen$pm2)
+var(Blokker_pm2_Bergen_2019$pm2)
+var(Blokker_pm2_Bergen_2020$pm2)
+var(Blokker_pm2_Bergen_2021$pm2)
+var(Blokker_pm2_Bergen_2022$pm2)
+```
+
+
+## KvM Pris - Eksl. Bergen; Bolig
+
+### Max
+
+```{r}
+max(Bolig_pm2_Uten_Bergen$pm2)
+max(Bolig_pm2_Uten_Bergen_2019$pm2)
+max(Bolig_pm2_Uten_Bergen_2020$pm2)
+max(Bolig_pm2_Uten_Bergen_2021$pm2)
+max(Bolig_pm2_Uten_Bergen_2022$pm2)
+```
+
+### Min
+
+**NOTE: Me har eit par observasjonar som eg ikkje får med her, grunna at Ambita ikkje skille naturlig mellom blokker og boligar. Me får Vurdera ka me ska gjera med da. Enten 1. Ta vekk dei observasjonane når me kjøre Min/Max opplegget, eller finna ein anna løysning. Eg har ingen andre løysninga her og no ihvertfall.**
+
+```{r}
+min(Bolig_pm2_Uten_Bergen$pm2)
+min(Bolig_pm2_Uten_Bergen_2019$pm2)
+min(Bolig_pm2_Uten_Bergen_2020$pm2)
+min(Bolig_pm2_Uten_Bergen_2021$pm2)
+min(Bolig_pm2_Uten_Bergen_2022$pm2)
+```
+
+### Gjennomsnitt
+
+```{r}
+mean(Bolig_pm2_Uten_Bergen$pm2)
+mean(Bolig_pm2_Uten_Bergen_2019$pm2)
+mean(Bolig_pm2_Uten_Bergen_2020$pm2)
+mean(Bolig_pm2_Uten_Bergen_2021$pm2)
+mean(Bolig_pm2_Uten_Bergen_2022$pm2)
+```
+
+### Median
+
+```{r}
+median(Bolig_pm2_Uten_Bergen$pm2)
+median(Bolig_pm2_Uten_Bergen_2019$pm2)
+median(Bolig_pm2_Uten_Bergen_2020$pm2)
+median(Bolig_pm2_Uten_Bergen_2021$pm2)
+median(Bolig_pm2_Uten_Bergen_2022$pm2)
+```
+
+### Varians
+
+```{r}
+var(Bolig_pm2_Uten_Bergen$pm2)
+var(Bolig_pm2_Uten_Bergen_2019$pm2)
+var(Bolig_pm2_Uten_Bergen_2020$pm2)
+var(Bolig_pm2_Uten_Bergen_2021$pm2)
+var(Bolig_pm2_Uten_Bergen_2022$pm2)
+```
+
+
+
+## KvM Pris - Eksl. Bergen; Blokker
+
+### Max
+
+```{r}
+max(Blokker_pm2_Uten_Bergen$pm2)
+max(Blokker_pm2_Uten_Bergen_2019$pm2)
+max(Blokker_pm2_Uten_Bergen_2020$pm2)
+max(Blokker_pm2_Uten_Bergen_2021$pm2)
+max(Blokker_pm2_Uten_Bergen_2022$pm2)
+```
+
+### Min
+
+**NOTE: Me har eit par observasjonar som eg ikkje får med her, grunna at Ambita ikkje skille naturlig mellom blokker og boligar. Me får Vurdera ka me ska gjera med da. Enten 1. Ta vekk dei observasjonane når me kjøre Min/Max opplegget, eller finna ein anna løysning. Eg har ingen andre løysninga her og no ihvertfall.**
+
+```{r}
+min(Blokker_pm2_Uten_Bergen$pm2)
+min(Blokker_pm2_Uten_Bergen_2019$pm2)
+min(Blokker_pm2_Uten_Bergen_2020$pm2)
+min(Blokker_pm2_Uten_Bergen_2021$pm2)
+min(Blokker_pm2_Uten_Bergen_2022$pm2)
+```
+
+### Gjennomsnitt
+
+```{r}
+mean(Blokker_pm2_Uten_Bergen$pm2)
+mean(Blokker_pm2_Uten_Bergen_2019$pm2)
+mean(Blokker_pm2_Uten_Bergen_2020$pm2)
+mean(Blokker_pm2_Uten_Bergen_2021$pm2)
+mean(Blokker_pm2_Uten_Bergen_2022$pm2)
+```
+
+### Median
+
+```{r}
+median(Blokker_pm2_Uten_Bergen$pm2)
+median(Blokker_pm2_Uten_Bergen_2019$pm2)
+median(Blokker_pm2_Uten_Bergen_2020$pm2)
+median(Blokker_pm2_Uten_Bergen_2021$pm2)
+median(Blokker_pm2_Uten_Bergen_2022$pm2)
+```
+
+### Varians
+
+```{r}
+var(Blokker_pm2_Uten_Bergen$pm2)
+var(Blokker_pm2_Uten_Bergen_2019$pm2)
+var(Blokker_pm2_Uten_Bergen_2020$pm2)
+var(Blokker_pm2_Uten_Bergen_2021$pm2)
+var(Blokker_pm2_Uten_Bergen_2022$pm2)
+```
+
+
+
+
 # Rydder ut datasett
+
+**LEGGA INN DEI NYE DATASETTENE. ORKE IKKJE Å GJERA DA NO. ALTFOR TRØTT!**
 
 ```{r}
 rm(Bergen,
