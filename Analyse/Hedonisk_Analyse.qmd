@@ -56,15 +56,21 @@ Analyse_sf <- transform(Analyse_sf, BebygdAreal = as.numeric(BebygdAreal))
 Analyse_sf <- transform(Analyse_sf, Bruksareal.Enhet = as.numeric(Bruksareal.Enhet))
 ```
 
+Analyse_sf <- suppressWarnings(st_read("Datasett_Analyse_sf.gpkg"))
+
 ```{r}
-Bolig <- read.csv("Bolig_Inkludert_Bergen.csv") %>% 
-  select(-X, -...1)
-Bolig_Eksl_Bergen <- read.csv("Bolig_Ekskludert_Bergen.csv") %>% 
-  select(-X, -...1)
-Blokker <- read.csv("Blokker_Inkludert_Bergen.csv") %>% 
-  select(-X, -...1)
-Blokker_Eksl_Bergen <- read.csv("Blokker_Ekskludert_Bergen.csv") %>% 
-  select(-X, -...1)
+Bolig_sf <- suppressWarnings(st_read("Bolig_Inkludert_Bergen.gpkg"))
+Bolig_Eksl_Bergen_sf <- suppressWarnings(st_read("Bolig_Ekskludert_Bergen.gpkg"))
+Blokker_sf <- suppressWarnings(st_read("Blokker_Inkludert_Bergen.gpkg"))
+Blokker_Eksl_Bergen_sf <- suppressWarnings(st_read("Blokker_Ekskludert_Bergen.gpkg"))
+```
+
+
+```{r}
+#Bolig <- read.csv("Bolig_Inkludert_Bergen.csv")
+#Bolig_Eksl_Bergen <- read.csv("Bolig_Ekskludert_Bergen.csv")
+#Blokker <- read.csv("Blokker_Inkludert_Bergen.csv")
+#Blokker_Eksl_Bergen <- read.csv("Blokker_Ekskludert_Bergen.csv")
 ```
 
 # Summary av datasettene
@@ -350,7 +356,7 @@ BIC(OLS1)
 
 ## Modell 2
 
-mod2 <- "pm2 ~ EL.Kar.Original + Alder"
+mod2 \<- "pm2 \~ EL.Kar.Original + Alder"
 
 ```{r  Modell 2}
 options(scipen = 999)
@@ -368,7 +374,7 @@ BIC(OLS2)
 options(scipen = 999)
 
 mod3 <- "P ~ EL.Kar.Original + Alder + O.Karak"
-OLS3 <- lm(mod3, data = Analyse_sf)
+OLS3 <- lm(mod3, data = Blokker)
 summary(OLS3)
 AIC(OLS3)
 BIC(OLS3)
@@ -380,7 +386,7 @@ BIC(OLS3)
 options(scipen = 999)
 
 mod4 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh"
-OLS4 <- lm(mod4, data = Analyse_sf)
+OLS4 <- lm(mod4, data = Blokker)
 summary(OLS4)
 AIC(OLS4)
 BIC(OLS4)
@@ -392,7 +398,7 @@ BIC(OLS4)
 options(scipen = 999)
 
 mod5 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg"
-OLS5 <- lm(mod5, data = Analyse_sf)
+OLS5 <- lm(mod5, data = Blokker)
 summary(OLS5)
 AIC(OLS5)
 BIC(OLS5)
@@ -404,7 +410,7 @@ BIC(OLS5)
 options(scipen = 999)
 
 mod6 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal"
-OLS6 <- lm(mod6, data = Analyse_sf)
+OLS6 <- lm(mod6, data = Blokker)
 summary(OLS6)
 AIC(OLS6)
 BIC(OLS6)
@@ -708,7 +714,7 @@ BIC(OLSEnhet)
 ## OLS1
 
 ```{r OLS1}
-OLS1 = lm(mod1, data = Analyse_sf)
+#OLS1 = lm(mod1, data = Analyse_sf)
 ```
 
 I OLS1 kan vi tolke; - *(Intercept)*: 2,872,115 er den estimerte gjennomsnittlige boligprisen når alle de uavhengige variablene er 0.
@@ -724,11 +730,11 @@ I dette tilfellet er p-verdiene for alle variablene statistisk signifikante på 
 Imidlertid er forklaringskraften i modellen ganske lav, noe som tyder på at det kan være andre faktorer som også påvirker boligprisene som ikke er inkludert i modellen.
 
 ```{r Summary OLS1}
-summary(OLS1)
+#summary(OLS1)
 ```
 
 ```{r AIC OLS1}
-AIC(OLS1)
+#AIC(OLS1)
 ```
 
 ## OLS2
@@ -736,16 +742,16 @@ AIC(OLS1)
 Punkt 2: Vi må finne ut kva variablar vi må ha "ln" framfor og kva variablar vi skal ha "I" framfor for å beholde formatering.
 
 ```{r OLS2}
-OLS2 = lm(mod2, data = Analyse_sf)
+#OLS2 = lm(mod2, data = Analyse_sf)
 ```
 
 ```{r Summary OLS2}
-options(scipen = 999)
-summary(OLS2)
+#options(scipen = 999)
+#summary(OLS2)
 ```
 
 ```{r AIC OLS2}
-AIC(OLS2)
+#AIC(OLS2)
 ```
 
 ## OLS3
@@ -753,34 +759,34 @@ AIC(OLS2)
 Punkt 2: Vi må finne ut kva variablar vi må ha "ln" framfor og kva variablar vi skal ha "I" framfor for å beholde formatering.
 
 ```{r OLS3}
-OLS3 = lm(mod3, data = Analyse_sf)
+#OLS3 = lm(mod3, data = Analyse_sf)
 ```
 
 ```{r Summary OLS3}
-options(scipen = 999)
-summary(OLS3)
+#options(scipen = 999)
+#summary(OLS3)
 ```
 
 ```{r AIC OLS3}
-AIC(OLS3)
+#AIC(OLS3)
 ```
 
 ## OLS4
 
 ```{r OLS4}
-options(scipen = 999)
-OLS4 = lm(mod4, data = Analyse_sf)
-summary(OLS4)
+#options(scipen = 999)
+#OLS4 = lm(mod4, data = Analyse_sf)
+#summary(OLS4)
 ```
 
 ```{r AIC OLS4}
-AIC(OLS4)
+#AIC(OLS4)
 ```
 
 ## OLS5 - Kevin
 
 ```{r OLS5}
-OLS5 = lm(mod5, data = Analyse_sf)
+#OLS5 = lm(mod5, data = Analyse_sf)
 # summary(OLS5)
 ```
 
@@ -789,10 +795,10 @@ OLS5 = lm(mod5, data = Analyse_sf)
 ```{r huxreg}
 #Ekje heilt oppe å går endo. Jobbe med da.
 
-huxreg("OLS1" = OLS1, "OLS2" = OLS2, "OLS3" = OLS3,
-       coefs = c("(Intercept)", "EL.Kar", "O.Karak_num", "MatValg_num"), #Lagt til filter på enkelte variabler
-       error_format = "[{statistic}]",
-       note = "{stars}. T statistic in brackets.")
+#huxreg("OLS1" = OLS1, "OLS2" = OLS2, "OLS3" = OLS3,
+#       coefs = c("(Intercept)", "EL.Kar", "O.Karak_num", "MatValg_num"), #Lagt til filter på enkelte variabler
+#       error_format = "[{statistic}]",
+#       note = "{stars}. T statistic in brackets.")
 ```
 
 I huxreg ser vi følgende; Resultatene for *OLS2* og *OLS3* viser svært høye R-kvadrat-verdier på 0,92, noe som tyder på at modellene forklarer 92% av variasjonen i boligprisene. Imidlertid er det verdt å merke seg at koeffisientene for de uavhengige variablene i disse modellene ikke er statistisk signifikante (p-verdiene \> 0,05). Dette betyr at vi ikke kan konkludere med at de uavhengige variablene har en signifikant effekt på boligprisene i disse modellene. - OLS2 og OLS3 har høyere *logLik*-verdier enn OLS1, noe som indikerer at de passer bedre til dataene. -OLS2 og OLS3 har lavere *AIC*-verdier enn OLS1, noe som tyder på at de gir en bedre balanse mellom tilpasning og kompleksitet.

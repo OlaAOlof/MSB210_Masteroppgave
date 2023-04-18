@@ -911,7 +911,11 @@ Analyse_sf <- Analyse_sf %>%
 ```
 
 ```{r}
-Analyse_sf["EtasjeSeksjon"][is.na(Analyse_sf["EtasjeSeksjon"])] <- "Ikke Oppgitt"
+Analyse_sf$EtasjeSeksjon[Analyse_sf$EtasjeSeksjon == 'NA'] <- "Ikke Oppgitt"
+```
+
+```{r}
+Analyse_sf$Snr[Analyse_sf$Snr == 'NA'] <- 0
 ```
 
 ```{r}

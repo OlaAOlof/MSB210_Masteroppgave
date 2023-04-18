@@ -33,6 +33,11 @@ Analyse_sf_2021 <- suppressWarnings(st_read("Datasett_Analyse_sf_2021.gpkg"))
 Analyse_sf_2022 <- suppressWarnings(st_read("Datasett_Analyse_sf_2022.gpkg"))
 ```
 
+```{r}
+Analyse_sf$Bruksareal.Enhet <- as.numeric(Analyse_sf$Bruksareal.Enhet)
+Analyse_sf$BRA.Bolig <- as.numeric(Analyse_sf$BRA.Bolig)
+```
+
 # Gjennomsnittsverdier
 
 ## Gjennomsnitt - Boligpris; hele datasettet
@@ -48,7 +53,7 @@ mean(Analyse_2022$P)
 ## Gjennomsnitt - Pris; Bergen
 
 ```{r}
-Bergen <- Analyse %>% 
+Bergen <- Analyse_sf %>% 
   filter(Knr == 4601)
 ```
 
@@ -70,7 +75,7 @@ mean(Bergen_2022$P)
 ## Gjennomsnitt - Pris; ekskludert Bergen
 
 ```{r}
-Uten_Bergen <- Analyse %>% 
+Uten_Bergen <- Analyse_sf %>% 
   filter(Knr > 4601)
 ```
 
@@ -122,7 +127,7 @@ mean(Analyse_2022$EiendomAreal)
 ## Gjennomsnitt - Boligstørrelse; Blokker
 
 ```{r}
-Blokker <- Analyse %>% 
+Blokker <- Analyse_sf %>% 
   filter(Snr >= 1)
 ```
 
@@ -144,8 +149,7 @@ mean(Blokker_2022$Bruksareal.Enhet)
 ## Gjennomsnitt - Boligstørrelse; Boliger
 
 ```{r}
-Bolig <- Analyse
-Bolig["Snr"][is.na(Bolig["Snr"])] <- 0
+Bolig <- Analyse_sf
 ```
 
 ```{r}
@@ -598,6 +602,10 @@ Bolig_pm2 <- Bolig %>%
 ```
 
 ```{r}
+Bolig_pm2 <- transform(Bolig_pm2, BRA.Tot = as.numeric(BRA.Tot))
+```
+
+```{r}
 Blokker_pm2 <- Blokker %>% 
   select(P, Bruksareal.Enhet, BRA.Tot, DokumentAr, Matrikkel, Postnummer, GateAdresse, Knr)
 ```
@@ -633,6 +641,10 @@ Bolig_pm2_Uten_Bergen_2019 <- Bolig_pm2_Uten_Bergen[Bolig_pm2_Uten_Bergen$Dokume
 Bolig_pm2_Uten_Bergen_2020 <- Bolig_pm2_Uten_Bergen[Bolig_pm2_Uten_Bergen$DokumentAr == 2020,]
 Bolig_pm2_Uten_Bergen_2021 <- Bolig_pm2_Uten_Bergen[Bolig_pm2_Uten_Bergen$DokumentAr == 2021,]
 Bolig_pm2_Uten_Bergen_2022 <- Bolig_pm2_Uten_Bergen[Bolig_pm2_Uten_Bergen$DokumentAr == 2022,]
+```
+
+```{r}
+Blokker_pm2 <- transform(Blokker_pm2, BRA.Tot = as.numeric(BRA.Tot))
 ```
 
 ```{r}
@@ -973,6 +985,13 @@ Uten_Bergen_Blokker$pm2 <- as.numeric(Uten_Bergen_Blokker$pm2)
 #write.csv(Uten_Bergen_Bolig, "Bolig_Ekskludert_Bergen.csv")
 #write.csv(Blokker, "Blokker_Inkludert_Bergen.csv")
 #write.csv(Uten_Bergen_Blokker, "Blokker_Ekskludert_Bergen.csv")
+```
+
+```{r}
+#st_write(Bolig, "Bolig_Inkludert_Bergen.gpkg")
+#st_write(Uten_Bergen_Bolig, "Bolig_Ekskludert_Bergen.gpkg")
+#st_write(Blokker, "Blokker_Inkludert_Bergen.gpkg")
+#st_write(Uten_Bergen_Blokker, "Blokker_Ekskludert_Bergen.gpkg")
 ```
 
 # Rydder ut datasett
