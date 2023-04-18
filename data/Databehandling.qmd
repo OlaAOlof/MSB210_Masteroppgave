@@ -1027,6 +1027,12 @@ Analyse_2022_sf$dist_cbd_km <- round(Analyse_2022_sf$dist_cbd_km, 2)
 #st_write(Analyse_2022_sf, "Analyse/Datasett_Analyse_sf_2022.gpkg")
 ```
 
+## Skriver ut Excel som skal til Liv
+
+```{r}
+#write.xlsx(Analyse, "data/Datasett.xlsx")
+```
+
 ## Skriver ut Shape fil (TEST)
 
 ```{r}

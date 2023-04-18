@@ -56,6 +56,17 @@ Analyse_sf <- transform(Analyse_sf, BebygdAreal = as.numeric(BebygdAreal))
 Analyse_sf <- transform(Analyse_sf, Bruksareal.Enhet = as.numeric(Bruksareal.Enhet))
 ```
 
+```{r}
+Bolig <- read.csv("Bolig_Inkludert_Bergen.csv") %>% 
+  select(-X, -...1)
+Bolig_Eksl_Bergen <- read.csv("Bolig_Ekskludert_Bergen.csv") %>% 
+  select(-X, -...1)
+Blokker <- read.csv("Blokker_Inkludert_Bergen.csv") %>% 
+  select(-X, -...1)
+Blokker_Eksl_Bergen <- read.csv("Blokker_Ekskludert_Bergen.csv") %>% 
+  select(-X, -...1)
+```
+
 # Summary av datasettene
 
 ```{r Summary Analyse}
@@ -330,8 +341,8 @@ Alder - Y EL.Kar - Y O.Karak_num - Y BLEnergikWh - Y MatValg_num - Y AntEiendom 
 ```{r Modell 1}
 options(scipen = 999)
 
-mod1 <- "P ~ EL.Kar.Original"
-OLS1 <- lm(mod1, data = Analyse_sf)
+mod1 <- "pm2 ~ EL.Kar.Original"
+OLS1 <- lm(mod1, data = Blokker)
 summary(OLS1)
 AIC(OLS1)
 BIC(OLS1)
@@ -339,11 +350,13 @@ BIC(OLS1)
 
 ## Modell 2
 
+mod2 <- "pm2 ~ EL.Kar.Original + Alder"
+
 ```{r  Modell 2}
 options(scipen = 999)
 
-mod2 <- "P ~ EL.Kar.Original + Alder"
-OLS2 <- lm(mod2, data = Analyse_sf)
+mod2 <- "I(log(pm2+1)) ~ EL.Kar.Original + log(Alder+1)"
+OLS2 <- lm(mod2, data = Blokker)
 summary(OLS2)
 AIC(OLS2)
 BIC(OLS2)
@@ -651,6 +664,44 @@ BIC(OLS28)
 ```
 
 Modell som inkluderer Kommuner.
+
+# Modell for BRA. Bolig og BRA.Tot individuelt
+
+## BRA.Bolig
+
+```{r Modell Bolig}
+options(scipen = 999)
+
+modBolig <- "P ~ BRA.Bolig"
+OLSBolig <- lm(modBolig, data = Analyse_sf)
+summary(OLSBolig)
+AIC(OLSBolig)
+BIC(OLSBolig)
+```
+
+## BRA.Tot
+
+```{r Modell Tot}
+options(scipen = 999)
+
+modTOT <- "P ~ BRA.Tot"
+OLSTOT <- lm(modTOT, data = Analyse_sf)
+summary(OLSTOT)
+AIC(OLSTOT)
+BIC(OLSTOT)
+```
+
+## Bruksareal.Enhet
+
+```{r Modell Boligenhet}
+options(scipen = 999)
+
+modEnhet <- "P ~ Bruksareal.Enhet"
+OLSEnhet <- lm(modEnhet, data = Analyse_sf)
+summary(OLSEnhet)
+AIC(OLSEnhet)
+BIC(OLSEnhet)
+```
 
 # Kjører OLS-Modellen på våres modeller
 

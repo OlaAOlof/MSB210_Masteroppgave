@@ -490,7 +490,6 @@ max(Bergen_Blokker_2021$P)
 max(Bergen_Blokker_2022$P)
 ```
 
-
 ## Makspris - Eksl. Bergen
 
 ```{r}
@@ -559,7 +558,6 @@ min(Bergen_Blokker_2021$P)
 min(Bergen_Blokker_2022$P)
 ```
 
-
 ## Minpris - Eksl. Bergen
 
 ```{r}
@@ -591,7 +589,6 @@ min(Uten_Bergen_Blokker_2020$P)
 min(Uten_Bergen_Blokker_2021$P)
 min(Uten_Bergen_Blokker_2022$P)
 ```
-
 
 # Kvadratmeter Pris
 
@@ -670,8 +667,6 @@ Blokker_pm2_Uten_Bergen_2020 <- Blokker_pm2_Uten_Bergen[Blokker_pm2_Uten_Bergen$
 Blokker_pm2_Uten_Bergen_2021 <- Blokker_pm2_Uten_Bergen[Blokker_pm2_Uten_Bergen$DokumentAr == 2021,]
 Blokker_pm2_Uten_Bergen_2022 <- Blokker_pm2_Uten_Bergen[Blokker_pm2_Uten_Bergen$DokumentAr == 2022,]
 ```
-
-
 
 ## KvM Pris - Bergen; Bolig
 
@@ -781,7 +776,6 @@ var(Blokker_pm2_Bergen_2021$pm2)
 var(Blokker_pm2_Bergen_2022$pm2)
 ```
 
-
 ## KvM Pris - Eksl. Bergen; Bolig
 
 ### Max
@@ -835,8 +829,6 @@ var(Bolig_pm2_Uten_Bergen_2020$pm2)
 var(Bolig_pm2_Uten_Bergen_2021$pm2)
 var(Bolig_pm2_Uten_Bergen_2022$pm2)
 ```
-
-
 
 ## KvM Pris - Eksl. Bergen; Blokker
 
@@ -892,30 +884,118 @@ var(Blokker_pm2_Uten_Bergen_2021$pm2)
 var(Blokker_pm2_Uten_Bergen_2022$pm2)
 ```
 
+# Flytter pm2 kolonner inn i Datasett som skal brukes til hedoniske analyser
 
+## Boliger
 
+### Boliger, inkludert Bergen
+
+```{r}
+Bolig$pm2 <- Bolig_pm2$pm2
+```
+
+```{r}
+Bolig$pm2 <- as.character(Bolig$pm2)
+```
+
+```{r}
+Bolig <- Bolig %>% 
+  relocate(pm2, .after = P)
+```
+
+```{r}
+Bolig$pm2 <- as.numeric(Bolig$pm2)
+```
+
+### Boliger, eksludert Bergen
+
+```{r}
+Uten_Bergen_Bolig$pm2 <- Bolig_pm2_Uten_Bergen$pm2
+```
+
+```{r}
+Uten_Bergen_Bolig$pm2 <- as.character(Uten_Bergen_Bolig$pm2)
+```
+
+```{r}
+Uten_Bergen_Bolig <- Uten_Bergen_Bolig %>% 
+  relocate(pm2, .after = P)
+```
+
+```{r}
+Uten_Bergen_Bolig$pm2 <- as.numeric(Uten_Bergen_Bolig$pm2)
+```
+
+## Blokker
+
+### Blokker, inkludert Bergen
+
+```{r}
+Blokker$pm2 <- Blokker_pm2$pm2
+```
+
+```{r}
+Blokker$pm2 <- as.character(Blokker_pm2$pm2)
+```
+
+```{r}
+Blokker <- Blokker %>% 
+  relocate(pm2, .after = P)
+```
+
+```{r}
+Blokker$pm2 <- as.numeric(Blokker$pm2)
+```
+
+### Blokker, eksludert Bergen
+
+```{r}
+Uten_Bergen_Blokker$pm2 <- Blokker_pm2_Uten_Bergen$pm2
+```
+
+```{r}
+Uten_Bergen_Blokker$pm2 <- as.character(Blokker_pm2_Uten_Bergen$pm2)
+```
+
+```{r}
+Uten_Bergen_Blokker <- Uten_Bergen_Blokker %>% 
+  relocate(pm2, .after = P)
+```
+
+```{r}
+Uten_Bergen_Blokker$pm2 <- as.numeric(Uten_Bergen_Blokker$pm2)
+```
+
+#### Skriver ut filene for vidare analyse
+
+```{r}
+#write.csv(Bolig, "Bolig_Inkludert_Bergen.csv")
+#write.csv(Uten_Bergen_Bolig, "Bolig_Ekskludert_Bergen.csv")
+#write.csv(Blokker, "Blokker_Inkludert_Bergen.csv")
+#write.csv(Uten_Bergen_Blokker, "Blokker_Ekskludert_Bergen.csv")
+```
 
 # Rydder ut datasett
 
 **LEGGA INN DEI NYE DATASETTENE. ORKE IKKJE Å GJERA DA NO. ALTFOR TRØTT!**
 
 ```{r}
-rm(Bergen,
+rm(#Bergen,
    Bergen_2019,
    Bergen_2020,
    Bergen_2021,
    Bergen_2022,
-   Uten_Bergen,
+   #Uten_Bergen,
    Uten_Bergen_2019,
    Uten_Bergen_2020,
    Uten_Bergen_2021,
    Uten_Bergen_2022,
-   Blokker,
+   #Blokker,
    Blokker_2019,
    Blokker_2020,
    Blokker_2021,
    Blokker_2022,
-   Bolig,
+   #Bolig,
    Bolig_2019,
    Bolig_2020,
    Bolig_2021,
@@ -930,7 +1010,7 @@ rm(Bergen,
 hist(Analyse$EL.Kar, breaks = 5, main = "Frekvens, ulike energikarakterer", xlab = "EL.Kar.Original", col = "lightblue", border = "black")
 ```
 
-##
+## 
 
 ```{r}
 library(scales)
@@ -955,5 +1035,3 @@ ggplot(Gjennomsnittlig_kvartalspris, aes(x = YearQuarter, y = Gjenomsnittspris, 
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(x = "År og kvartal", y = "Gjennomsnittlig boligpris", title = "Gjennomsnittlig kvartalspris med strømkrisen i grå sone")
 ```
-
-
