@@ -227,7 +227,6 @@ print(cor_matrix)
 ggcorrplot(cor_matrix)
 ```
 
-
 ## Sjekker multikollinearitet
 
 ```{r lager lineær modell1}
@@ -321,37 +320,10 @@ print(correlation)
 # Lager modeller
 
 ### Variabelliste;
-Alder                   - Y
-EL.Kar                  - Y
-O.Karak_num             - Y
-BLEnergikWh             - Y
-MatValg_num             - Y
-AntEiendom              - N
-EiendomAreal            - Y
-BRA.Bolig               - Y
-Bruksareal.Enhet        - Y
-Etasje_num              - Y
-VannkantGL              - Y
-VegkantGL               - Y
-BebygdAreal             - Y
-RegLBE                  - Y
-RegGrunnforur           - Y
-RegKulturEiendom        - Y
-RegGrunnerverv          - Y
-RegKulturByg            - Y
-AntallRom               - 
-AntallBad               - 
-AntallWC                - 
-PrivatEid               - 
-HarHeis                 - 
-VannKode                - 
-AvlopsKode              - 
-BolType                 - 
-Kjokken                 - 
-YearQuarter             - 
-dist_cbd_km             - 
 
--
+Alder - Y EL.Kar - Y O.Karak_num - Y BLEnergikWh - Y MatValg_num - Y AntEiendom - N EiendomAreal - Y BRA.Bolig - Y Bruksareal.Enhet - Y Etasje_num - Y VannkantGL - Y VegkantGL - Y BebygdAreal - Y RegLBE - Y RegGrunnforur - Y RegKulturEiendom - Y RegGrunnerverv - Y RegKulturByg - Y AntallRom - AntallBad - AntallWC - PrivatEid - HarHeis - VannKode - AvlopsKode - BolType - Kjokken - YearQuarter - dist_cbd_km -
+
+-   
 
 ## Modell 1
 
@@ -680,9 +652,6 @@ BIC(OLS28)
 
 Modell som inkluderer Kommuner.
 
-
-
-
 # Kjører OLS-Modellen på våres modeller
 
 ## OLS1
@@ -711,7 +680,6 @@ summary(OLS1)
 AIC(OLS1)
 ```
 
-
 ## OLS2
 
 Punkt 2: Vi må finne ut kva variablar vi må ha "ln" framfor og kva variablar vi skal ha "I" framfor for å beholde formatering.
@@ -728,7 +696,6 @@ summary(OLS2)
 ```{r AIC OLS2}
 AIC(OLS2)
 ```
-
 
 ## OLS3
 
@@ -747,7 +714,6 @@ summary(OLS3)
 AIC(OLS3)
 ```
 
-
 ## OLS4
 
 ```{r OLS4}
@@ -759,8 +725,6 @@ summary(OLS4)
 ```{r AIC OLS4}
 AIC(OLS4)
 ```
-
-
 
 ## OLS5 - Kevin
 

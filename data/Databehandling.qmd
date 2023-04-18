@@ -41,39 +41,38 @@ Energi_2015_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2015.cs
 Energi_2016_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2016.csv"))
 Energi_2017_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2017.csv"))
 Energi_2018_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2018.csv"))
-Energi_2019_Vestland <- suppressWarnings(read_excel("data/Energikarakterer_2019.xlsx"))
-Energi_2020_Vestland <- suppressWarnings(read_excel("data/Energikarakterer_2020.xlsx"))
-Energi_2021_Vestland <- suppressWarnings(read_excel("data/Energikarakterer_2021.xlsx"))
-Energi_2022_Vestland <- suppressWarnings(read_excel("data/Energikarakterer_2022.xlsx"))
+Energi_2019_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2019.csv"))
+Energi_2020_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2020.csv"))
+Energi_2021_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2021.csv"))
+Energi_2022_Vestland <- suppressWarnings(read_csv("data/Energikarakterer_2022.csv"))
 ```
 
 ```{r}
-Energi_2010_Vestland <- Energi_2010_Vestland[Energi_2010_Vestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ] %>% 
-  select(-Fnr)
+Energi_2010_Vestland <- Energi_2010_Vestland[Energi_2010_Vestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
 
-Energi_2011_Vestland <- Energi_2011_Vestland[Energi_2011_Vestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ] %>% 
-  select(-Fnr)
+Energi_2011_Vestland <- Energi_2011_Vestland[Energi_2011_Vestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
 
-Energi_2012_Vestland <- Energi_2012_Vestland[Energi_2012_Vestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ] %>% 
-  select(-Fnr)
+Energi_2012_Vestland <- Energi_2012_Vestland[Energi_2012_Vestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
 
-Energi_2013_Vestland <- Energi_2013_Vestland[Energi_2013_Vestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ] %>% 
-  select(-Fnr)
+Energi_2013_Vestland <- Energi_2013_Vestland[Energi_2013_Vestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
 
-Energi_2014_Vestland <- Energi_2014_Vestland[Energi_2014_Vestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ] %>% 
-  select(-Fnr)
+Energi_2014_Vestland <- Energi_2014_Vestland[Energi_2014_Vestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
 
-Energi_2015_Vestland <- Energi_2015_Vestland[Energi_2015_Vestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ] %>% 
-  select(-Fnr)
+Energi_2015_Vestland <- Energi_2015_Vestland[Energi_2015_Vestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
 
-Energi_2016_Vestland <- Energi_2016_Vestland[Energi_2016_Vestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ] %>% 
-  select(-Fnr)
+Energi_2016_Vestland <- Energi_2016_Vestland[Energi_2016_Vestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
 
-Energi_2017_Vestland <- Energi_2017_Vestland[Energi_2017_Vestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ] %>% 
-  select(-Fnr)
+Energi_2017_Vestland <- Energi_2017_Vestland[Energi_2017_Vestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
 
-Energi_2018_Vestland <- Energi_2018_Vestland[Energi_2018_Vestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ] %>% 
-  select(-Fnr)
+Energi_2018_Vestland <- Energi_2018_Vestland[Energi_2018_Vestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
+
+Energi_2019_Vestland <- Energi_2019_Vestland[Energi_2019_Vestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
+
+Energi_2020_Vestland <- Energi_2020_Vestland[Energi_2020_Vestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
+
+Energi_2021_Vestland <- Energi_2021_Vestland[Energi_2021_Vestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
+
+Energi_2022_Vestland <- Energi_2022_Vestland[Energi_2022_Vestland$Knr %in% c(4601, 4623, 4624, 4626, 4627, 4628, 4630, 4631, 4632), ]
 ```
 
 ## Sammenslår datasett, fom. 2019 tom. 2022
@@ -107,6 +106,16 @@ Vi velger å fjerne rekkene med organisasjonsnummer da dette er boliger eid og k
 ```{r}
 ENOVA_Vestland <- ENOVA_Vestland %>%
   filter(is.na(Organisasjonsnummer))
+```
+
+```{r}
+ENOVA_Vestland <- ENOVA_Vestland %>% 
+  filter(is.na(Fnr))
+```
+
+```{r}
+ENOVA_Vestland <- ENOVA_Vestland %>% 
+  select(-Fnr)
 ```
 
 ## Fjerner nå kolonnen for organisasjonsnummer
@@ -821,7 +830,6 @@ Analyse <- Analyse %>%
 Analyse <- Analyse %>% 
   select(-RegBoDrivePlikt)
 ```
-
 
 ## Rydder i datasett
 
