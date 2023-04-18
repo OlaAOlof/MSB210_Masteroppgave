@@ -597,12 +597,12 @@ min(Uten_Bergen_Blokker_2022$P)
 
 ```{r}
 Bolig_pm2 <- Bolig %>% 
-  select(P, BRA.Bolig, BRA.Tot, DokumentAr, Knr)
+  select(P, Bruksareal.Enhet, BRA.Bolig, BRA.Tot, DokumentAr, Matrikkel, Postnummer, GateAdresse, Knr)
 ```
 
 ```{r}
 Blokker_pm2 <- Blokker %>% 
-  select(P, Bruksareal.Enhet, BRA.Tot, DokumentAr, Knr)
+  select(P, Bruksareal.Enhet, BRA.Tot, DokumentAr, Matrikkel, Postnummer, GateAdresse, Knr)
 ```
 
 ```{r}
