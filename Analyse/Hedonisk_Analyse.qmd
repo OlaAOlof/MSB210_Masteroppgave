@@ -65,6 +65,16 @@ Blokker_sf <- suppressWarnings(st_read("Blokker_Inkludert_Bergen.gpkg"))
 Blokker_Eksl_Bergen_sf <- suppressWarnings(st_read("Blokker_Ekskludert_Bergen.gpkg"))
 ```
 
+```{r}
+Bolig_sf <- transform(Bolig_sf, EiendomAreal = as.numeric(EiendomAreal))
+Bolig_sf <- transform(Bolig_sf, BebygdAreal = as.numeric(BebygdAreal))
+Bolig_Eksl_Bergen_sf <- transform(Bolig_Eksl_Bergen_sf, EiendomAreal = as.numeric(EiendomAreal))
+Bolig_Eksl_Bergen_sf <- transform(Bolig_Eksl_Bergen_sf, BebygdAreal = as.numeric(BebygdAreal))
+Blokker_sf <- transform(Blokker_sf, EiendomAreal = as.numeric(EiendomAreal))
+Blokker_sf <- transform(Blokker_sf, BebygdAreal = as.numeric(BebygdAreal))
+Blokker_Eksl_Bergen_sf <- transform(Blokker_Eksl_Bergen_sf, EiendomAreal = as.numeric(EiendomAreal))
+Blokker_Eksl_Bergen_sf <- transform(Blokker_Eksl_Bergen_sf, BebygdAreal = as.numeric(BebygdAreal))
+```
 
 ```{r}
 #Bolig <- read.csv("Bolig_Inkludert_Bergen.csv")
@@ -372,334 +382,1402 @@ F-statistikken er høyere for selveierboliger (9.093) enn for borettslag (14.13)
 For begge modellene er alder og BLEnrgW signifikante faktorer for pris. I selveierboliger øker prisen med 11,907 kr for hvert år eldre, mens den i borettslag øker med 7,229.7 kr. For BLEnrgW reduseres prisen med 6,190 kr per kWh i selveierboliger og 1,864.2 kr per kWh i borettslag.
 Generelt sett viser sammenligningen at det er noen forskjeller i hvordan de forskjellige faktorene påvirker prisen på selveierboliger og borettslag.
 
-# Regresjonsmodeller
+# Regresjonsmodeller - Må fiksa YearQuarter
 
-## Modell 1
+**OLA: Må fiksa YearQuarter te numerisk.**
 
-```{r Modell 1}
+## Blokker
+
+### Modell 1
+
+```{r Modell Blokk_1}
 options(scipen = 999)
 
-mod1 <- "pm2 ~ EL.Kar.Original"
-OLS1 <- lm(mod1, data = Blokker_sf)
-summary(OLS1)
-AIC(OLS1)
-BIC(OLS1)
+modBlokk1 <- "I(log(pm2+1)) ~ EL.Kar.Original"
+OLSBlokk1 <- lm(modBlokk1, data = Blokker_sf)
+summary(OLSBlokk1)
+AIC(OLSBlokk1)
+BIC(OLSBlokk1)
 ```
 
-## Modell 2
+### Modell 2
 
-mod2 \<- "pm2 \~ EL.Kar.Original + Alder"
-
-```{r  Modell 2}
+```{r  Modell Blokk_2}
 options(scipen = 999)
 
-mod2 <- "I(log(pm2+1)) ~ EL.Kar.Original + log(Alder+1)"
-OLS2 <- lm(mod2, data = Blokker)
-summary(OLS2)
-AIC(OLS2)
-BIC(OLS2)
+modBlokk2 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1))"
+OLSBlokk2 <- lm(modBlokk2, data = Blokker_sf)
+summary(OLSBlokk2)
+AIC(OLSBlokk2)
+BIC(OLSBlokk2)
 ```
 
-## Modell 3
+### Modell 3
 
-```{r Modell 3}
+```{r Modell Blokk_3}
 options(scipen = 999)
 
-mod3 <- "P ~ EL.Kar.Original + Alder + O.Karak"
-OLS3 <- lm(mod3, data = Blokker)
-summary(OLS3)
-AIC(OLS3)
-BIC(OLS3)
+modBlokk3 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak"
+OLSBlokk3 <- lm(modBlokk3, data = Blokker_sf)
+summary(OLSBlokk3)
+AIC(OLSBlokk3)
+BIC(OLSBlokk3)
 ```
 
-## Modell 4
+### Modell 4
 
-```{r Modell 4}
+**OLA: Eg TRUR da e log(BLEnergikWh), uten "+1" på slutten. Har sjekka og studert fjorårets master, korleis dei gjere da, og ser ut te at dei gjere da på lik metode.**
+
+```{r Modell Blokk_4}
 options(scipen = 999)
 
-mod4 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh"
-OLS4 <- lm(mod4, data = Blokker)
-summary(OLS4)
-AIC(OLS4)
-BIC(OLS4)
+modBlokk4 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh))"
+OLSBlokk4 <- lm(modBlokk4, data = Blokker_sf)
+summary(OLSBlokk4)
+AIC(OLSBlokk4)
+BIC(OLSBlokk4)
 ```
 
-## Modell 5
+### Modell 5
 
-```{r Modell 5}
+```{r Modell Blokk_5}
 options(scipen = 999)
 
-mod5 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg"
-OLS5 <- lm(mod5, data = Blokker)
-summary(OLS5)
-AIC(OLS5)
-BIC(OLS5)
+modBlokk5 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg"
+OLSBlokk5 <- lm(modBlokk5, data = Blokker_sf)
+summary(OLSBlokk5)
+AIC(OLSBlokk5)
+BIC(OLSBlokk5)
 ```
 
-## Modell 6
+### Modell 6
 
-```{r Modell 6}
+```{r Modell Blokk_6}
 options(scipen = 999)
 
-mod6 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal"
-OLS6 <- lm(mod6, data = Blokker)
-summary(OLS6)
-AIC(OLS6)
-BIC(OLS6)
+modBlokk6 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1))"
+OLSBlokk6 <- lm(modBlokk6, data = Blokker_sf)
+summary(OLSBlokk6)
+AIC(OLSBlokk6)
+BIC(OLSBlokk6)
 ```
 
-## Modell 7
+### Modell 7 (UTGÅR)
 
-```{r Modell 7}
+**OLA: Denna utgår. Sio me no har splitta da i 2, eit for leilighetar og eit for boligar, så e da ikkje relevant å bruka BRA.Bolig variabelen her.**
+
+```{r}
+#options(scipen = 999)
+
+#mod7 <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig"
+#OLS7 <- lm(mod7, data = Blokker_sf)
+#summary(OLS7)
+#AIC(OLS7)
+#BIC(OLS7)
+```
+
+### Modell 7 (FORTSETTELSE)
+
+```{r Modell Blokk_7}
 options(scipen = 999)
 
-mod7 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig"
-OLS7 <- lm(mod7, data = Analyse_sf)
-summary(OLS7)
-AIC(OLS7)
-BIC(OLS7)
+modBlokk7 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) +
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(Bruksareal.Enhet+1))"
+OLSBlokk7 <- lm(modBlokk7, data = Blokker_sf)
+summary(OLSBlokk7)
+AIC(OLSBlokk7)
+BIC(OLSBlokk7)
 ```
 
-## Modell 8
+### Modell 8
 
-```{r Modell 8}
+```{r Modell Blokk_8}
 options(scipen = 999)
 
-mod8 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet"
-OLS8 <- lm(mod8, data = Analyse_sf)
-summary(OLS8)
-AIC(OLS8)
-BIC(OLS8)
+modBlokk8 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(Bruksareal.Enhet+1)) + 
+  EtasjeSeksjon"
+OLSBlokk8 <- lm(modBlokk8, data = Blokker_sf)
+summary(OLSBlokk8)
+AIC(OLSBlokk8)
+BIC(OLSBlokk8)
 ```
 
-## Modell 9
+### Modell 9
 
-```{r Modell 9}
+```{r Modell Blokk_9}
 options(scipen = 999)
 
-mod9 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon"
-OLS9 <- lm(mod9, data = Analyse_sf)
-summary(OLS9)
-AIC(OLS9)
-BIC(OLS9)
+modBlokk9 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(Bruksareal.Enhet+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL"
+OLSBlokk9 <- lm(modBlokk9, data = Blokker_sf)
+summary(OLSBlokk9)
+AIC(OLSBlokk9)
+BIC(OLSBlokk9)
 ```
 
-## Modell 10
+### Modell 10
 
-```{r Modell 10}
+```{r Modell Blokk_10}
 options(scipen = 999)
 
-mod10 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL"
-OLS10 <- lm(mod10, data = Analyse_sf)
-summary(OLS10)
-AIC(OLS10)
-BIC(OLS10)
+modBlokk10 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(Bruksareal.Enhet+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL"
+OLSBlokk10 <- lm(modBlokk10, data = Blokker_sf)
+summary(OLSBlokk10)
+AIC(OLSBlokk10)
+BIC(OLSBlokk10)
 ```
 
-## Modell 11
+### Modell 11
 
-```{r Modell 11}
+```{r Modell Blokk_11}
 options(scipen = 999)
 
-mod11 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL"
-OLS11 <- lm(mod11, data = Analyse_sf)
-summary(OLS11)
-AIC(OLS11)
-BIC(OLS11)
+modBlokk11 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(Bruksareal.Enhet+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1))"
+OLSBlokk11 <- lm(modBlokk11, data = Blokker_sf)
+summary(OLSBlokk11)
+AIC(OLSBlokk11)
+BIC(OLSBlokk11)
 ```
 
-## Modell 12
+### Modell 12
 
-```{r Modell 12}
+```{r Modell Blokk_12}
 options(scipen = 999)
 
-mod12 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal"
-OLS12 <- lm(mod12, data = Analyse_sf)
-summary(OLS12)
-AIC(OLS12)
-BIC(OLS12)
+modBlokk12 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(Bruksareal.Enhet+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE"
+OLSBlokk12 <- lm(modBlokk12, data = Blokker_sf)
+summary(OLSBlokk12)
+AIC(OLSBlokk12)
+BIC(OLSBlokk12)
 ```
 
-## Modell 13
+### Modell 13
 
-```{r Modell 13}
+```{r Modell Blokk_13}
 options(scipen = 999)
 
-mod13 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE"
-OLS13 <- lm(mod13, data = Analyse_sf)
-summary(OLS13)
-AIC(OLS13)
-BIC(OLS13)
+modBlokk13 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(Bruksareal.Enhet+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur"
+OLSBlokk13 <- lm(modBlokk13, data = Blokker_sf)
+summary(OLSBlokk13)
+AIC(OLSBlokk13)
+BIC(OLSBlokk13)
 ```
 
-## Modell 14
+### Modell 14
 
-```{r Modell 14}
+```{r Modell Blokk_14}
 options(scipen = 999)
 
-mod14 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur"
-OLS14 <- lm(mod14, data = Analyse_sf)
-summary(OLS14)
-AIC(OLS14)
-BIC(OLS14)
+modBlokk14 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(Bruksareal.Enhet+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom"
+OLSBlokk14 <- lm(modBlokk14, data = Blokker_sf)
+summary(OLSBlokk14)
+AIC(OLSBlokk14)
+BIC(OLSBlokk14)
 ```
 
-## Modell 15
+### Modell 15
 
-```{r Modell 15}
+```{r Modell Blokk_15}
 options(scipen = 999)
 
-mod15 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom"
-OLS15 <- lm(mod15, data = Analyse_sf)
-summary(OLS15)
-AIC(OLS15)
-BIC(OLS15)
+modBlokk15 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(Bruksareal.Enhet+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv"
+OLSBlokk15 <- lm(modBlokk15, data = Blokker_sf)
+summary(OLSBlokk15)
+AIC(OLSBlokk15)
+BIC(OLSBlokk15)
 ```
 
-## Modell 16
+### Modell 16
 
-```{r Modell 16}
+```{r Modell Blokk_16}
 options(scipen = 999)
 
-mod16 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv"
-OLS16 <- lm(mod16, data = Analyse_sf)
-summary(OLS16)
-AIC(OLS16)
-BIC(OLS16)
+modBlokk16 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(Bruksareal.Enhet+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg"
+OLSBlokk16 <- lm(modBlokk16, data = Blokker_sf)
+summary(OLSBlokk16)
+AIC(OLSBlokk16)
+BIC(OLSBlokk16)
 ```
 
-## Modell 17
+### Modell 17
 
-```{r Modell 17}
+```{r Modell Blokk_17}
+options(scipen = 999)
+modBlokk17 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(Bruksareal.Enhet+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1))"
+OLSBlokk17 <- lm(modBlokk17, data = Blokker_sf)
+summary(OLSBlokk17)
+AIC(OLSBlokk17)
+BIC(OLSBlokk17)
+```
+
+### Modell 18
+
+```{r Modell Blokk_18}
+options(scipen = 999)
+modBlokk18 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(Bruksareal.Enhet+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1)) + 
+  I(log(AntallBad+1))"
+OLSBlokk18 <- lm(modBlokk18, data = Blokker_sf)
+summary(OLSBlokk18)
+AIC(OLSBlokk18)
+BIC(OLSBlokk18)
+```
+
+### Modell 19
+
+```{r Modell Blokk_19}
+options(scipen = 999)
+modBlokk19 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(Bruksareal.Enhet+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1)) + 
+  I(log(AntallBad+1)) + 
+  I(log(AntallWC+1))"
+OLSBlokk19 <- lm(modBlokk19, data = Blokker_sf)
+summary(OLSBlokk19)
+AIC(OLSBlokk19)
+BIC(OLSBlokk19)
+```
+
+### Modell 20
+
+```{r Modell Blokk_20}
+options(scipen = 999)
+modBlokk20 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(Bruksareal.Enhet+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1)) + 
+  I(log(AntallBad+1)) + 
+  I(log(AntallWC+1)) + 
+  PrivatEid"
+OLSBlokk20 <- lm(modBlokk20, data = Blokker_sf)
+summary(OLSBlokk20)
+AIC(OLSBlokk20)
+BIC(OLSBlokk20)
+```
+
+### Modell 21
+
+```{r Modell Blokk_21}
+options(scipen = 999)
+modBlokk21 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(Bruksareal.Enhet+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1)) + 
+  I(log(AntallBad+1)) + 
+  I(log(AntallWC+1)) + 
+  PrivatEid + 
+  HarHeis"
+OLSBlokk21 <- lm(modBlokk21, data = Blokker_sf)
+summary(OLSBlokk21)
+AIC(OLSBlokk21)
+BIC(OLSBlokk21)
+```
+
+### Modell 22
+
+```{r Modell Blokk_22}
+options(scipen = 999)
+modBlokk22 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(Bruksareal.Enhet+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1)) + 
+  I(log(AntallBad+1)) + 
+  I(log(AntallWC+1)) + 
+  PrivatEid + 
+  HarHeis + 
+  VannKode"
+OLSBlokk22 <- lm(modBlokk22, data = Blokker_sf)
+summary(OLSBlokk22)
+AIC(OLSBlokk22)
+BIC(OLSBlokk22)
+```
+
+### Modell 23
+
+```{r Modell Blokk_23}
+options(scipen = 999)
+modBlokk23 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(Bruksareal.Enhet+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1)) + 
+  I(log(AntallBad+1)) + 
+  I(log(AntallWC+1)) + 
+  PrivatEid + 
+  HarHeis + 
+  VannKode + 
+  AvlopsKode"
+OLSBlokk23 <- lm(modBlokk23, data = Blokker_sf)
+summary(OLSBlokk23)
+AIC(OLSBlokk23)
+BIC(OLSBlokk23)
+```
+
+### Modell 24
+
+```{r Modell Blokk_24}
+options(scipen = 999)
+modBlokk24 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(Bruksareal.Enhet+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1)) + 
+  I(log(AntallBad+1)) + 
+  I(log(AntallWC+1)) + 
+  PrivatEid + 
+  HarHeis + 
+  VannKode + 
+  AvlopsKode + 
+  BolType"
+OLSBlokk24 <- lm(modBlokk24, data = Blokker_sf)
+summary(OLSBlokk24)
+AIC(OLSBlokk24)
+BIC(OLSBlokk24)
+```
+
+### Modell 25
+
+```{r Modell Blokk_25}
+options(scipen = 999)
+modBlokk25 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(Bruksareal.Enhet+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1)) + 
+  I(log(AntallBad+1)) + 
+  I(log(AntallWC+1)) + 
+  PrivatEid + 
+  HarHeis + 
+  VannKode + 
+  AvlopsKode + 
+  BolType + 
+  Kjokken"
+OLSBlokk25 <- lm(modBlokk25, data = Blokker_sf)
+summary(OLSBlokk25)
+AIC(OLSBlokk25)
+BIC(OLSBlokk25)
+```
+
+### Modell 26
+
+**OLA: Litt usikker på om YearQuarter variabelen e rekna som ein "dummy"-variabel eller ikkje. Så har foreløpig lagt den inn i I(log()) funksjon. Detta må avkreftast!**
+
+```{r Modell Blokk_26}
+options(scipen = 999)
+modBlokk26 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(Bruksareal.Enhet+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1)) + 
+  I(log(AntallBad+1)) + 
+  I(log(AntallWC+1)) + 
+  PrivatEid + 
+  HarHeis + 
+  VannKode + 
+  AvlopsKode + 
+  BolType + 
+  Kjokken + 
+  I(log(YearQuarter))"
+OLSBlokk26 <- lm(modBlokk26, data = Blokker_sf)
+summary(OLSBlokk26)
+AIC(OLSBlokk26)
+BIC(OLSBlokk26)
+```
+
+### Modell 27
+
+```{r Modell Blokk_27}
+options(scipen = 999)
+modBlokk27 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(Bruksareal.Enhet+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1)) + 
+  I(log(AntallBad+1)) + 
+  I(log(AntallWC+1)) + 
+  PrivatEid + 
+  HarHeis + 
+  VannKode + 
+  AvlopsKode + 
+  BolType + 
+  Kjokken + 
+  I(log(YearQuarter)) + 
+  I(log(dist_cbd_km))"
+OLSBlokk27 <- lm(modBlokk27, data = Blokker_sf)
+summary(OLSBlokk27)
+AIC(OLSBlokk27)
+BIC(OLSBlokk27)
+```
+
+### Model for kun energirelaterte karakteristika
+
+```{r Modell Blokk_Energi}
 options(scipen = 999)
 
-mod17 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg"
-OLS17 <- lm(mod17, data = Analyse_sf)
-summary(OLS17)
-AIC(OLS17)
-BIC(OLS17)
+modBlokkEnergi <- "I(log(pm2+1)) ~ EL.Kar.Original + O.Karak + log(BLEnergikWh) + MatValg"
+OLSBlokkEnergi <- lm(modBlokkEnergi, data = Blokker_sf)
+summary(OLSBlokkEnergi)
+AIC(OLSBlokkEnergi)
+BIC(OLSBlokkEnergi)
 ```
 
-## Modell 18
+## Boliger
 
-```{r Modell 18}
+### Modell 1
+
+```{r Modell Bolig_1}
 options(scipen = 999)
-mod18 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg + AntallRom"
-OLS18 <- lm(mod18, data = Analyse_sf)
-summary(OLS18)
-AIC(OLS18)
-BIC(OLS18)
+
+modBolig1 <- "I(log(pm2+1)) ~ EL.Kar.Original"
+OLSBolig1 <- lm(modBolig1, data = Bolig_sf)
+summary(OLSBolig1)
+AIC(OLSBolig1)
+BIC(OLSBolig1)
 ```
 
-## Modell 19
+### Modell 2
 
-```{r Modell 19}
+```{r  Modell Bolig_2}
 options(scipen = 999)
-mod19 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg + AntallRom + AntallBad"
-OLS19 <- lm(mod19, data = Analyse_sf)
-summary(OLS19)
-AIC(OLS19)
-BIC(OLS19)
+
+modBolig2 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1))"
+OLSBolig2 <- lm(modBolig2, data = Bolig_sf)
+summary(OLSBolig2)
+AIC(OLSBolig2)
+BIC(OLSBolig2)
 ```
 
-## Modell 20
+### Modell 3
 
-```{r Modell 20}
+```{r Modell Bolig_3}
 options(scipen = 999)
-mod20 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg + AntallRom + AntallBad + AntallWC"
-OLS20 <- lm(mod20, data = Analyse_sf)
-summary(OLS20)
-AIC(OLS20)
-BIC(OLS20)
+
+modBolig3 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak"
+OLSBolig3 <- lm(modBolig3, data = Bolig_sf)
+summary(OLSBolig3)
+AIC(OLSBolig3)
+BIC(OLSBolig3)
 ```
 
-## Modell 21
+### Modell 4
 
-```{r Modell 21}
+**OLA: Eg TRUR da e log(BLEnergikWh), uten "+1" på slutten. Har sjekka og studert fjorårets master, korleis dei gjere da, og ser ut te at dei gjere da på lik metode.**
+
+```{r Modell Bolig_4}
 options(scipen = 999)
-mod21 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg + AntallRom + AntallBad + AntallWC + PrivatEid"
-OLS21 <- lm(mod21, data = Analyse_sf)
-summary(OLS21)
-AIC(OLS21)
-BIC(OLS21)
+
+modBolig4 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh))"
+OLSBolig4 <- lm(modBolig4, data = Bolig_sf)
+summary(OLSBolig4)
+AIC(OLSBolig4)
+BIC(OLSBolig4)
 ```
 
-## Modell 22
+### Modell 5
 
-```{r Modell 22}
+```{r Modell Bolig_5}
 options(scipen = 999)
-mod22 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis"
-OLS22 <- lm(mod22, data = Analyse_sf)
-summary(OLS22)
-AIC(OLS22)
-BIC(OLS22)
+
+modBolig5 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg"
+OLSBolig5 <- lm(modBolig5, data = Bolig_sf)
+summary(OLSBolig5)
+AIC(OLSBolig5)
+BIC(OLSBolig5)
 ```
 
-## Modell 23
+### Modell 6
 
-```{r Modell 23}
+```{r Modell Bolig_6}
 options(scipen = 999)
-mod23 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + VannKode"
-OLS23 <- lm(mod23, data = Analyse_sf)
-summary(OLS23)
-AIC(OLS23)
-BIC(OLS23)
+
+modBolig6 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1))"
+OLSBolig6 <- lm(modBolig6, data = Bolig_sf)
+summary(OLSBolig6)
+AIC(OLSBolig6)
+BIC(OLSBolig6)
 ```
 
-## Modell 24
+### Modell 7 (UTGÅR)
 
-```{r Modell 24}
+**OLA: Denna utgår. Sio me no har splitta da i 2, eit for leilighetar og eit for boligar, så e da ikkje relevant å bruka BRA.Bolig variabelen her.**
+
+```{r}
+#options(scipen = 999)
+
+#mod7 <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig"
+#OLS7 <- lm(mod7, data = Blokker_sf)
+#summary(OLS7)
+#AIC(OLS7)
+#BIC(OLS7)
+```
+
+### Modell 7 (FORTSETTELSE)
+
+```{r Modell Bolig_7}
 options(scipen = 999)
-mod24 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + VannKode + AvlopsKode"
-OLS24 <- lm(mod24, data = Analyse_sf)
-summary(OLS24)
-AIC(OLS24)
-BIC(OLS24)
+
+modBolig7 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) +
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(BRA.Bolig+1))"
+OLSBolig7 <- lm(modBolig7, data = Bolig_sf)
+summary(OLSBolig7)
+AIC(OLSBolig7)
+BIC(OLSBolig7)
 ```
 
-## Modell 25
+### Modell 8
 
-```{r Modell 25}
+```{r Modell Bolig_8}
 options(scipen = 999)
-mod25 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + VannKode + AvlopsKode + BolType"
-OLS25 <- lm(mod25, data = Analyse_sf)
-summary(OLS25)
-AIC(OLS25)
-BIC(OLS25)
+
+modBolig8 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(BRA.Bolig+1)) + 
+  EtasjeSeksjon"
+OLSBolig8 <- lm(modBolig8, data = Bolig_sf)
+summary(OLSBolig8)
+AIC(OLSBolig8)
+BIC(OLSBolig8)
 ```
 
-## Modell 26
+### Modell 9
 
-```{r Modell 26}
+```{r Modell Bolig_9}
 options(scipen = 999)
-mod26 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + VannKode + AvlopsKode + BolType + Kjokken"
-OLS26 <- lm(mod26, data = Analyse_sf)
-summary(OLS26)
-AIC(OLS26)
-BIC(OLS26)
+
+modBolig9 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(BRA.Bolig+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL"
+OLSBolig9 <- lm(modBolig9, data = Bolig_sf)
+summary(OLSBolig9)
+AIC(OLSBolig9)
+BIC(OLSBolig9)
 ```
 
-## Modell 27
+### Modell 10
 
-```{r Modell 27}
+```{r Modell Bolig_10}
 options(scipen = 999)
-mod27 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + VannKode + AvlopsKode + BolType + Kjokken + YearQuarter"
-OLS27 <- lm(mod27, data = Analyse_sf)
-summary(OLS27)
-AIC(OLS27)
-BIC(OLS27)
+
+modBolig10 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(BRA.Bolig+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL"
+OLSBolig10 <- lm(modBolig10, data = Bolig_sf)
+summary(OLSBolig10)
+AIC(OLSBolig10)
+BIC(OLSBolig10)
 ```
 
-## Modell 28
+### Modell 11
 
-```{r Modell 28}
+```{r Modell Bolig_11}
 options(scipen = 999)
-mod28 <- "P ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + EtasjeSeksjon + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + RegKulturByg + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + VannKode + AvlopsKode + BolType + Kjokken + YearQuarter + dist_cbd_km"
-OLS28 <- lm(mod28, data = Analyse_sf)
-summary(OLS28)
-AIC(OLS28)
-BIC(OLS28)
+
+modBolig11 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(BRA.Bolig+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1))"
+OLSBolig11 <- lm(modBolig11, data = Bolig_sf)
+summary(OLSBolig11)
+AIC(OLSBolig11)
+BIC(OLSBolig11)
 ```
+
+### Modell 12
+
+```{r Modell Bolig_12}
+options(scipen = 999)
+
+modBolig12 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(BRA.Bolig+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE"
+OLSBolig12 <- lm(modBolig12, data = Bolig_sf)
+summary(OLSBolig12)
+AIC(OLSBolig12)
+BIC(OLSBolig12)
+```
+
+### Modell 13
+
+```{r Modell Bolig_13}
+options(scipen = 999)
+
+modBolig13 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(BRA.Bolig+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur"
+OLSBolig13 <- lm(modBolig13, data = Bolig_sf)
+summary(OLSBolig13)
+AIC(OLSBolig13)
+BIC(OLSBolig13)
+```
+
+### Modell 14
+
+```{r Modell Bolig_14}
+options(scipen = 999)
+
+modBolig14 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(BRA.Bolig+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom"
+OLSBolig14 <- lm(modBolig14, data = Bolig_sf)
+summary(OLSBolig14)
+AIC(OLSBolig14)
+BIC(OLSBolig14)
+```
+
+### Modell 15
+
+```{r Modell Bolig_15}
+options(scipen = 999)
+
+modBolig15 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(BRA.Bolig+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv"
+OLSBolig15 <- lm(modBolig15, data = Bolig_sf)
+summary(OLSBolig15)
+AIC(OLSBolig15)
+BIC(OLSBolig15)
+```
+
+### Modell 16
+
+```{r Modell Bolig_16}
+options(scipen = 999)
+
+modBolig16 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(BRA.Bolig+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg"
+OLSBolig16 <- lm(modBolig16, data = Bolig_sf)
+summary(OLSBolig16)
+AIC(OLSBolig16)
+BIC(OLSBolig16)
+```
+
+### Modell 17
+
+```{r Modell Bolig_17}
+options(scipen = 999)
+modBolig17 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(BRA.Bolig+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1))"
+OLSBolig17 <- lm(modBolig18, data = Bolig_sf)
+summary(OLSBolig17)
+AIC(OLSBolig17)
+BIC(OLSBolig17)
+```
+
+### Modell 18
+
+```{r Modell Bolig_18}
+options(scipen = 999)
+modBolig18 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(BRA.Bolig+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1)) + 
+  I(log(AntallBad+1))"
+OLSBolig18 <- lm(modBolig18, data = Bolig_sf)
+summary(OLSBolig18)
+AIC(OLSBolig18)
+BIC(OLSBolig18)
+```
+
+### Modell 19
+
+```{r Modell Bolig_19}
+options(scipen = 999)
+modBolig19 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(BRA.Bolig+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1)) + 
+  I(log(AntallBad+1)) + 
+  I(log(AntallWC+1))"
+OLSBolig19 <- lm(modBolig19, data = Bolig_sf)
+summary(OLSBolig19)
+AIC(OLSBolig19)
+BIC(OLSBolig19)
+```
+
+### Modell 20
+
+```{r Modell Bolig_20}
+options(scipen = 999)
+modBolig20 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(BRA.Bolig+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1)) + 
+  I(log(AntallBad+1)) + 
+  I(log(AntallWC+1)) + 
+  PrivatEid"
+OLSBolig20 <- lm(modBolig20, data = Bolig_sf)
+summary(OLSBolig20)
+AIC(OLSBolig20)
+BIC(OLSBolig20)
+```
+
+### Modell 21
+
+```{r Modell Bolig_21}
+options(scipen = 999)
+modBolig21 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(BRA.Bolig+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1)) + 
+  I(log(AntallBad+1)) + 
+  I(log(AntallWC+1)) + 
+  PrivatEid + 
+  HarHeis"
+OLSBolig21 <- lm(modBolig21, data = Bolig_sf)
+summary(OLSBolig21)
+AIC(OLSBolig21)
+BIC(OLSBolig21)
+```
+
+### Modell 22
+
+```{r Modell Bolig_22}
+options(scipen = 999)
+modBolig22 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(BRA.Bolig+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1)) + 
+  I(log(AntallBad+1)) + 
+  I(log(AntallWC+1)) + 
+  PrivatEid + 
+  HarHeis + 
+  VannKode"
+OLSBolig22 <- lm(modBolig22, data = Bolig_sf)
+summary(OLSBolig22)
+AIC(OLSBolig22)
+BIC(OLSBolig22)
+```
+
+### Modell 23
+
+```{r Modell Bolig_23}
+options(scipen = 999)
+modBolig23 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(BRA.Bolig+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1)) + 
+  I(log(AntallBad+1)) + 
+  I(log(AntallWC+1)) + 
+  PrivatEid + 
+  HarHeis + 
+  VannKode + 
+  AvlopsKode"
+OLSBolig23 <- lm(modBolig23, data = Bolig_sf)
+summary(OLSBolig23)
+AIC(OLSBolig23)
+BIC(OLSBolig23)
+```
+
+### Modell 24
+
+```{r Modell Bolig_24}
+options(scipen = 999)
+modBolig24 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(BRA.Bolig+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1)) + 
+  I(log(AntallBad+1)) + 
+  I(log(AntallWC+1)) + 
+  PrivatEid + 
+  HarHeis + 
+  VannKode + 
+  AvlopsKode + 
+  BolType"
+OLSBolig24 <- lm(modBolig24, data = Bolig_sf)
+summary(OLSBolig24)
+AIC(OLSBolig24)
+BIC(OLSBolig24)
+```
+
+### Modell 25
+
+```{r Modell Bolig_25}
+options(scipen = 999)
+modBolig25 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(BRA.Bolig+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1)) + 
+  I(log(AntallBad+1)) + 
+  I(log(AntallWC+1)) + 
+  PrivatEid + 
+  HarHeis + 
+  VannKode + 
+  AvlopsKode + 
+  BolType + 
+  Kjokken"
+OLSBolig25 <- lm(modBolig25, data = Bolig_sf)
+summary(OLSBolig25)
+AIC(OLSBolig25)
+BIC(OLSBolig25)
+```
+
+### Modell 26
+
+**OLA: Litt usikker på om YearQuarter variabelen e rekna som ein "dummy"-variabel eller ikkje. Så har foreløpig lagt den inn i I(log()) funksjon. Detta må avkreftast!**
+
+```{r Modell Bolig_26}
+options(scipen = 999)
+modBolig26 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(BRA.Bolig+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1)) + 
+  I(log(AntallBad+1)) + 
+  I(log(AntallWC+1)) + 
+  PrivatEid + 
+  HarHeis + 
+  VannKode + 
+  AvlopsKode + 
+  BolType + 
+  Kjokken + 
+  I(log(YearQuarter))"
+OLSBolig26 <- lm(modBolig26, data = Bolig_sf)
+summary(OLSBolig26)
+AIC(OLSBolig26)
+BIC(OLSBolig26)
+```
+
+### Modell 27
+
+```{r Modell Bolig_27}
+options(scipen = 999)
+modBolig27 <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(BRA.Bolig+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1)) + 
+  I(log(AntallBad+1)) + 
+  I(log(AntallWC+1)) + 
+  PrivatEid + 
+  HarHeis + 
+  VannKode + 
+  AvlopsKode + 
+  BolType + 
+  Kjokken + 
+  I(log(YearQuarter)) + 
+  I(log(dist_cbd_km))"
+OLSBolig27 <- lm(modBolig27, data = Bolig_sf)
+summary(OLSBolig27)
+AIC(OLSBolig27)
+BIC(OLSBolig27)
+```
+
+### Model for kun energirelaterte karakteristika
+
+```{r Modell Bolig_Energi}
+options(scipen = 999)
+
+modBoligEnergi <- "I(log(pm2+1)) ~ EL.Kar.Original + O.Karak + log(BLEnergikWh) + MatValg"
+OLSBoligEnergi <- lm(modBoligEnergi, data = Bolig_sf)
+summary(OLSBoligEnergi)
+AIC(OLSBoligEnergi)
+BIC(OLSBoligEnergi)
+```
+
 
 Modell som inkluderer Kommuner.
 
@@ -739,6 +1817,76 @@ OLSEnhet <- lm(modEnhet, data = Analyse_sf)
 summary(OLSEnhet)
 AIC(OLSEnhet)
 BIC(OLSEnhet)
+```
+
+# Forslag til modeller for videre modellkjøring, litt utifra Liv's tilbakemeldinger (Midlertidig, Åpen for forslag/endring)
+
+**OLA: Detta e eksludert kommune. Da tar eg etter me blir enig om finalisert modell**
+
+## Forslag, Modell Blokker
+
+```{r Modell Blokk_Forslag}
+options(scipen = 999)
+modBlokkForslag <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(Bruksareal.Enhet+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1)) + 
+  I(log(AntallBad+1)) + 
+  I(log(AntallWC+1)) + 
+  PrivatEid + 
+  HarHeis + 
+  BolType + 
+  Kjokken + 
+  I(log(YearQuarter)) + 
+  I(log(dist_cbd_km))"
+OLSBlokkForslag <- lm(modBlokkForslag, data = Blokker_sf)
+summary(OLSBlokkForslag)
+AIC(OLSBlokkForslag)
+BIC(OLSBlokkForslag)
+```
+
+## Forslag, Modell Boliger
+
+```{r Modell Bolig_Forslag}
+options(scipen = 999)
+modBoligForslag <- "I(log(pm2+1)) ~ EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  I(log(BLEnergikWh)) + 
+  MatValg + 
+  I(log(BRA.Bolig+1)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom+1)) + 
+  I(log(AntallBad+1)) + 
+  I(log(AntallWC+1)) + 
+  PrivatEid + 
+  Kjokken + 
+  I(log(YearQuarter)) + 
+  I(log(dist_cbd_km))"
+OLSBoligForslag <- lm(modBoligForslag, data = Bolig_sf)
+summary(OLSBoligForslag)
+AIC(OLSBoligForslag)
+BIC(OLSBoligForslag)
 ```
 
 # Kjører OLS-Modellen på våres modeller
