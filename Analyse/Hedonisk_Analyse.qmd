@@ -342,13 +342,45 @@ Alder - Y EL.Kar - Y O.Karak_num - Y BLEnergikWh - Y MatValg_num - Y AntEiendom 
 
 -   
 
+# Fellesgjeldproblematikken
+```{r}
+# Del datasettet i to grupper basert på eierform (selveier og borettslag)
+selveier_data <- bergen[bergen$BolType != "Blokkleilighet", ]
+borettslag_data <- bergen[bergen$BolType == "Blokkleilighet", ]
+
+# Kjør separate regresjonsmodeller for hver av gruppene
+selveier_modell <- lm(P ~ EL_Kr_O + Alder + O_Karak + BLEnrgW + MatValg, data = selveier_data)
+borettslag_modell <- lm(P ~ EL_Kr_O + Alder + O_Karak + BLEnrgW + MatValg, data = borettslag_data)
+
+# Skriv ut og sammenlign koeffisientene og deres konfidensintervaller for de to modellene
+summary(selveier_modell)
+confint(selveier_modell)
+
+summary(borettslag_modell)
+confint(borettslag_modell)
+
+# Hvis du bestemmer deg for å inkludere borettslagsleilighetene i det totale utvalget, opprett en dummy-variabel for eierform og kjør en ny modell
+bergen$eierform_dummy <- ifelse(bergen$BolType == "Blokkleilighet", 1, 0)
+total_modell <- lm(P ~ EL_Kr_O + Alder + O_Karak + BLEnrgW + MatValg + eierform_dummy, data = bergen)
+summary(total_modell)
+```
+Tolkning av resultater:
+Justert R-kvadrat (Adjusted R-squared) er høyere for selveierboliger (0.1605) enn for borettslag (0.08644), noe som indikerer at modellen forklarer en større andel av variasjonen i prisen for selveierboliger sammenlignet med borettslag.
+
+F-statistikken er høyere for selveierboliger (9.093) enn for borettslag (14.13), noe som indikerer at variablene i modellen for selveierboliger har en sterkere sammenheng med pris enn de tilsvarende variablene i modellen for borettslag.
+
+For begge modellene er alder og BLEnrgW signifikante faktorer for pris. I selveierboliger øker prisen med 11,907 kr for hvert år eldre, mens den i borettslag øker med 7,229.7 kr. For BLEnrgW reduseres prisen med 6,190 kr per kWh i selveierboliger og 1,864.2 kr per kWh i borettslag.
+Generelt sett viser sammenligningen at det er noen forskjeller i hvordan de forskjellige faktorene påvirker prisen på selveierboliger og borettslag.
+
+# Regresjonsmodeller
+
 ## Modell 1
 
 ```{r Modell 1}
 options(scipen = 999)
 
 mod1 <- "pm2 ~ EL.Kar.Original"
-OLS1 <- lm(mod1, data = Blokker)
+OLS1 <- lm(mod1, data = Blokker_sf)
 summary(OLS1)
 AIC(OLS1)
 BIC(OLS1)
