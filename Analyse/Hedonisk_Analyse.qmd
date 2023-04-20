@@ -354,10 +354,15 @@ Alder - Y EL.Kar - Y O.Karak_num - Y BLEnergikWh - Y MatValg_num - Y AntEiendom 
 
 # Fellesgjeldproblematikken
 ```{r}
-# Del datasettet i to grupper basert på eierform (selveier og borettslag)
-selveier_data <- bergen[bergen$BolType != "Blokkleilighet", ]
-borettslag_data <- bergen[bergen$BolType == "Blokkleilighet", ]
+# Tar alle boligblokker
+blokkleilighet_data <- bergen[bergen$BolType == "Blokkleilighet", ]
 
+# Del datasettet i to grupper basert på eierform (selveier og borettslag)
+selveier_data <- blokkleilighet_data[!is.na(blokkleilighet_data$Snr), ]
+borettslag_data <- blokkleilighet_data[!is.na(blokkleilighet_data$Andelsnr), ]
+```
+
+```{r}
 # Kjør separate regresjonsmodeller for hver av gruppene
 selveier_modell <- lm(P ~ EL_Kr_O + Alder + O_Karak + BLEnrgW + MatValg, data = selveier_data)
 borettslag_modell <- lm(P ~ EL_Kr_O + Alder + O_Karak + BLEnrgW + MatValg, data = borettslag_data)
