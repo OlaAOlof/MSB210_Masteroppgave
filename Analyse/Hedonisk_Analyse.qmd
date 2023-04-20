@@ -375,17 +375,13 @@ summary(borettslag_modell)
 confint(borettslag_modell)
 
 # Hvis du bestemmer deg for å inkludere borettslagsleilighetene i det totale utvalget, opprett en dummy-variabel for eierform og kjør en ny modell
-bergen$eierform_dummy <- ifelse(bergen$BolType == "Blokkleilighet", 1, 0)
-total_modell <- lm(P ~ EL_Kr_O + Alder + O_Karak + BLEnrgW + MatValg + eierform_dummy, data = bergen)
+bergen$andelsnr_dummy <- ifelse(!is.na(bergen$Andelsnr), 1, 0)
+
+# Kjører ny modell med dummy for andelsleilighet med fellesgjeld (1) eller ikke (0)
+total_modell <- lm(P ~ EL_Kr_O + Alder + O_Karak + BLEnrgW + MatValg + andelsnr_dummy, data = bergen)
 summary(total_modell)
 ```
-Tolkning av resultater:
-Justert R-kvadrat (Adjusted R-squared) er høyere for selveierboliger (0.1605) enn for borettslag (0.08644), noe som indikerer at modellen forklarer en større andel av variasjonen i prisen for selveierboliger sammenlignet med borettslag.
 
-F-statistikken er høyere for selveierboliger (9.093) enn for borettslag (14.13), noe som indikerer at variablene i modellen for selveierboliger har en sterkere sammenheng med pris enn de tilsvarende variablene i modellen for borettslag.
-
-For begge modellene er alder og BLEnrgW signifikante faktorer for pris. I selveierboliger øker prisen med 11,907 kr for hvert år eldre, mens den i borettslag øker med 7,229.7 kr. For BLEnrgW reduseres prisen med 6,190 kr per kWh i selveierboliger og 1,864.2 kr per kWh i borettslag.
-Generelt sett viser sammenligningen at det er noen forskjeller i hvordan de forskjellige faktorene påvirker prisen på selveierboliger og borettslag.
 
 # Regresjonsmodeller - Må fiksa YearQuarter
 
