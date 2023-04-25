@@ -335,8 +335,8 @@ ggcorrplot(cor_matrix_4)
 ```
 
 ```{r Korrelasjons mellom pris og distanse}
-correlation <- cor(Analyse_sf$dist_cbd_km, Analyse$P, method = "pearson")
-print(correlation)
+#correlation <- cor(Analyse_sf$dist_cbd_km, Analyse$P, method = "pearson")
+#print(correlation)
 ```
 
 ```{r Korrelasjon i .sf-fil}
@@ -353,39 +353,63 @@ Alder - Y EL.Kar - Y O.Karak_num - Y BLEnergikWh - Y MatValg_num - Y AntEiendom 
 -   
 
 # Fellesgjeldproblematikken
-```{r}
+selveier_data <- bergen[bergen$BolType != "Blokkleilighet", ]
+borettslag_data <- bergen[bergen$BolType == "Blokkleilighet", ]
+
 # Tar alle boligblokker
 blokkleilighet_data <- bergen[bergen$BolType == "Blokkleilighet", ]
 
 # Del datasettet i to grupper basert på eierform (selveier og borettslag)
 selveier_data <- blokkleilighet_data[!is.na(blokkleilighet_data$Snr), ]
-borettslag_data <- blokkleilighet_data[!is.na(blokkleilighet_data$Andelsnr), ]
+borettslag_data <- blokkleilighet_data[blokkleilighet_data$Snr == 0, ]
+
+```{r}
+Selveier <- Analyse_sf %>% 
+  filter(Snr > 0)
 ```
 
 ```{r}
+FG <- Analyse_sf %>% 
+  filter(Snr == 0)
+```
+
+```{r}
+# Tar alle boligblokker
+#blokkleilighet_data <- bergen[bergen$BolType == "Blokkleilighet", ]
+
+# Del datasettet i to grupper basert på eierform (selveier og borettslag)
+#selveier_data <- blokkleilighet_data[!is.na(blokkleilighet_data$Snr), ]
+#borettslag_data <- blokkleilighet_data[is.na(blokkleilighet_data$Snr), ]
+```
+
+```{r}
+Analyse_sf <- Analyse_sf %>% 
+  select(-P)
+```
+
+
+```{r}
 # Kjør separate regresjonsmodeller for hver av gruppene
-selveier_modell <- lm(P ~ EL_Kr_O + Alder + O_Karak + BLEnrgW + MatValg, data = selveier_data)
-borettslag_modell <- lm(P ~ EL_Kr_O + Alder + O_Karak + BLEnrgW + MatValg, data = borettslag_data)
+Selveier <- log(pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg, data = Selveier)
+FG <- log(pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg, data = FG)
 
 # Skriv ut og sammenlign koeffisientene og deres konfidensintervaller for de to modellene
-summary(selveier_modell)
-confint(selveier_modell)
+summary(Selveier)
+confint(Selveier)
 
-summary(borettslag_modell)
-confint(borettslag_modell)
+summary(FG)
+confint(FG)
 
 # Hvis du bestemmer deg for å inkludere borettslagsleilighetene i det totale utvalget, opprett en dummy-variabel for eierform og kjør en ny modell
-bergen$andelsnr_dummy <- ifelse(!is.na(bergen$Andelsnr), 1, 0)
+Analyse_sf$FG_dum <- ifelse(Analyse_sf$Snr == 0, 1, 0)
 
 # Kjører ny modell med dummy for andelsleilighet med fellesgjeld (1) eller ikke (0)
-total_modell <- lm(P ~ EL_Kr_O + Alder + O_Karak + BLEnrgW + MatValg + andelsnr_dummy, data = bergen)
+total_modell <- log(pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + FG_dum, data = Analyse_sf)
 summary(total_modell)
 ```
 
 
 # Regresjonsmodeller - Må fiksa YearQuarter
-
-**OLA: Må fiksa YearQuarter te numerisk.**
 
 ## Blokker
 
@@ -1027,7 +1051,7 @@ modBlokk26 <- "I(log(pm2+1)) ~ EL.Kar.Original +
   AvlopsKode + 
   BolType + 
   Kjokken + 
-  I(log(YearQuarter))"
+  log(YearQuarter"
 OLSBlokk26 <- lm(modBlokk26, data = Blokker_sf)
 summary(OLSBlokk26)
 AIC(OLSBlokk26)
@@ -1063,7 +1087,7 @@ modBlokk27 <- "I(log(pm2+1)) ~ EL.Kar.Original +
   AvlopsKode + 
   BolType + 
   Kjokken + 
-  I(log(YearQuarter)) + 
+  YearQuarter + 
   I(log(dist_cbd_km))"
 OLSBlokk27 <- lm(modBlokk27, data = Blokker_sf)
 summary(OLSBlokk27)
@@ -1723,7 +1747,7 @@ modBolig26 <- "I(log(pm2+1)) ~ EL.Kar.Original +
   AvlopsKode + 
   BolType + 
   Kjokken + 
-  I(log(YearQuarter))"
+  YearQuarter"
 OLSBolig26 <- lm(modBolig26, data = Bolig_sf)
 summary(OLSBolig26)
 AIC(OLSBolig26)
@@ -1759,7 +1783,7 @@ modBolig27 <- "I(log(pm2+1)) ~ EL.Kar.Original +
   AvlopsKode + 
   BolType + 
   Kjokken + 
-  I(log(YearQuarter)) + 
+  YearQuarter + 
   I(log(dist_cbd_km))"
 OLSBolig27 <- lm(modBolig27, data = Bolig_sf)
 summary(OLSBolig27)

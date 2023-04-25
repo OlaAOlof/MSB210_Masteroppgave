@@ -1080,6 +1080,59 @@ rm(temp_andel,
    unique_temp_andel)
 ```
 
+# Rydder ut observasjoner vi ikke kan bruke
+
+**Vi fjerner Bruksareal.Enhet som er lik 0. Dette kommer av at Ambita ikke alltid skiller mellom hele leilighetskomplekset og hver enkelt leilighet.**
+
+## Analyse
+
+```{r}
+Analyse <- transform(Analyse, Bruksareal.Enhet = as.numeric(Bruksareal.Enhet))
+```
+
+```{r}
+Analyse$Bruksareal.Enhet[(876)] <- 79
+Analyse$Bruksareal.Enhet[(877)] <- 62
+Analyse$Bruksareal.Enhet[(878)] <- 81
+Analyse$Bruksareal.Enhet[(879)] <- 60
+```
+
+```{r}
+Analyse <- Analyse %>% 
+  filter(Bruksareal.Enhet > 0)
+```
+
+```{r}
+Analyse <- Analyse %>% 
+  mutate(pm2 = P/Bruksareal.Enhet) %>% 
+  relocate(pm2, .before = Alder)
+```
+
+## Analyse_sf
+
+```{r}
+Analyse_sf <- transform(Analyse_sf, Bruksareal.Enhet = as.numeric(Bruksareal.Enhet))
+```
+
+
+```{r}
+Analyse_sf$Bruksareal.Enhet[(876)] <- 79
+Analyse_sf$Bruksareal.Enhet[(877)] <- 62
+Analyse_sf$Bruksareal.Enhet[(878)] <- 81
+Analyse_sf$Bruksareal.Enhet[(879)] <- 60
+```
+
+```{r}
+Analyse_sf <- Analyse_sf %>% 
+  filter(Bruksareal.Enhet > 0)
+```
+
+```{r}
+Analyse_sf <- Analyse_sf %>% 
+  mutate(pm2 = P/Bruksareal.Enhet) %>% 
+  relocate(pm2, .before = Alder)
+```
+
 # Skriver ut datasettet vårt i CSV
 
 ```{r}
