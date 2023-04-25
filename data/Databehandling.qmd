@@ -847,6 +847,64 @@ rm(Ambita_Oppdatert,
    Temp)
 ```
 
+
+# Splitter matrikkel i Analyse-datasettet
+
+
+```{r}
+Analyse <- Analyse %>% 
+  separate(Knr...Gnr...Bnr...Snr, c("Knr", "Gnr", "Bnr", "Snr"))
+```
+
+```{r}
+Analyse <- Analyse %>%
+  unite(col = "Matrikkel", c("Knr", "Gnr", "Bnr", "Snr"), sep = "/", remove = FALSE)
+```
+
+# Legger inn Andelsnummer i Analyse datasettet
+
+```{r}
+colnames(temp_andel)[colnames(temp_andel) == "Kommunenr"] <- "Knr"
+colnames(temp_andel)[colnames(temp_andel) == "Gardsnr"] <- "Gnr"
+colnames(temp_andel)[colnames(temp_andel) == "Bruksnr"] <- "Bnr"
+colnames(temp_andel)[colnames(temp_andel) == "Andelsnr"] <- "Andelsnummer"
+colnames(temp_andel)[colnames(temp_andel) == "Bygningsnr"] <- "Bygningsnummer"
+```
+
+```{r}
+Analyse <- transform(Analyse, Knr = as.numeric(Knr))
+Analyse <- transform(Analyse, Gnr = as.numeric(Gnr))
+Analyse <- transform(Analyse, Bnr = as.numeric(Bnr))
+```
+
+```{r}
+TEST <- inner_join(Analyse, temp_andel, by = c("Dokumentnr", "Bygningsnummer", "Knr", "Gnr", "Bnr"))
+```
+
+```{r}
+unique_analyse <- Analyse %>%
+  distinct(Dokumentnr, .keep_all = TRUE)
+
+
+unique_temp_andel <- temp_andel %>%
+  distinct(Dokumentnr, .keep_all = TRUE)
+
+Analyse <- inner_join(unique_analyse, unique_temp_andel, by = c("Dokumentnr"))
+```
+
+```{r}
+Analyse <- Analyse %>% 
+  select(-Bygningsnummer.y, -EiendomOstVest.y, -EiendomNordSor.y, -Bnr.y, -Gnr.y, -Knr.y)
+```
+
+```{r}
+colnames(Analyse)[colnames(Analyse) == "EiendomOstVest.x"] <- "EiendomOstVest"
+colnames(Analyse)[colnames(Analyse) == "EiendomNordSor.x"] <- "EiendomNordSor"
+colnames(Analyse)[colnames(Analyse) == "Bnr.x"] <- "Bnr"
+colnames(Analyse)[colnames(Analyse) == "Gnr.x"] <- "Gnr"
+colnames(Analyse)[colnames(Analyse) == "Knr.x"] <- "Knr"
+```
+
 # Lager kartfil ut av Analyse datasettet vårt
 
 Latitude -\> Nord/Sør Longitude -\> Vest/Øst
@@ -899,23 +957,13 @@ Analyse_sf$dist_cbd_km <- round(Analyse_sf$dist_cbd_km, 2)
 ```
 
 ```{r}
-Analyse <- Analyse %>% 
-  separate(Knr...Gnr...Bnr...Snr, c("Knr", "Gnr", "Bnr", "Snr"))
+#Analyse_sf <- Analyse_sf %>% 
+#  separate(Knr...Gnr...Bnr...Snr, c("Knr", "Gnr", "Bnr", "Snr"))
 ```
 
 ```{r}
-Analyse <- Analyse %>%
-  unite(col = "Matrikkel", c("Knr", "Gnr", "Bnr", "Snr"), sep = "/", remove = FALSE)
-```
-
-```{r}
-Analyse_sf <- Analyse_sf %>% 
-  separate(Knr...Gnr...Bnr...Snr, c("Knr", "Gnr", "Bnr", "Snr"))
-```
-
-```{r}
-Analyse_sf <- Analyse_sf %>%
-  unite(col = "Matrikkel", c("Knr", "Gnr", "Bnr", "Snr"), sep = "/", remove = FALSE)
+#Analyse_sf <- Analyse_sf %>%
+#  unite(col = "Matrikkel", c("Knr", "Gnr", "Bnr", "Snr"), sep = "/", remove = FALSE)
 ```
 
 ```{r}
@@ -937,36 +985,6 @@ Analyse_sf <- Analyse_sf %>%
                                                         ) %>% 
   relocate(Etasje_num, .before = EtasjeSeksjon)
 ```
-
-# Legger inn Andelsnummer i Analyse datasettet
-
-```{r}
-colnames(temp_andel)[colnames(temp_andel) == "Kommunenr"] <- "Knr"
-colnames(temp_andel)[colnames(temp_andel) == "Gardsnr"] <- "Gnr"
-colnames(temp_andel)[colnames(temp_andel) == "Bruksnr"] <- "Bnr"
-colnames(temp_andel)[colnames(temp_andel) == "Andelsnr"] <- "Andelsnummer"
-colnames(temp_andel)[colnames(temp_andel) == "Bygningsnr"] <- "Bygningsnummer"
-```
-Analyse <- transform(Analyse, PrivatEid_num = as.numeric(PrivatEid_num))
-```{r}
-Analyse <- transform(Analyse, Knr = as.numeric(Knr))
-Analyse <- transform(Analyse, Gnr = as.numeric(Gnr))
-Analyse <- transform(Analyse, Bnr = as.numeric(Bnr))
-```
-
-```{r}
-TEST <- inner_join(Analyse, temp_andel, by = c("Dokumentnr", "Bygningsnummer", "Knr", "Gnr", "Bnr"))
-```
-
-```{r}
-unique(TEST$Dokumentnr)
-```
-
-```{r}
-#write.xlsx(Analyse, "Analyse_Data.xlsx")
-#write.xlsx(TEST, "Analyse_TEST.xlsx")
-```
-
 
 # Lager analyse-datasett for hvert individuelle år i tillegg til det totale felles dokumentet
 
@@ -1051,6 +1069,15 @@ Analyse_2019_sf$dist_cbd_km <- round(Analyse_2019_sf$dist_cbd_km, 2)
 Analyse_2020_sf$dist_cbd_km <- round(Analyse_2020_sf$dist_cbd_km, 2)
 Analyse_2021_sf$dist_cbd_km <- round(Analyse_2021_sf$dist_cbd_km, 2)
 Analyse_2022_sf$dist_cbd_km <- round(Analyse_2022_sf$dist_cbd_km, 2)
+```
+
+# Rydder
+
+```{r}
+rm(temp_andel,
+   TEST,
+   unique_analyse,
+   unique_temp_andel)
 ```
 
 # Skriver ut datasettet vårt i CSV
