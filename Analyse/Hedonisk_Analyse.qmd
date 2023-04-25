@@ -194,11 +194,11 @@ legend("bottomright", legend = c("Points", "Selected point", "Naboer (k = 10)"),
 ## Norgeskart med våre salg - Kevin
 
 ```{r Norgeskart}
-analyse_shape <- st_read("Analyse_Shape.shp")
+Analyse_Shape <- st_read("Analyse_Shape.shp")
 norge <- st_read("norge.shp")
 
 # Transformerer kartene til samme CRS
-norge <- st_transform(norge, crs = st_crs(analyse_shape))
+norge <- st_transform(norge, crs = st_crs(Analyse_Shape))
 
 # Plotter  MultiPolygon-data
 ggplot() + 
@@ -208,7 +208,7 @@ ggplot() +
 # Legger til point-data på toppen av MultiPolygon data
 ggplot() + 
   geom_sf(data = norge) +
-  geom_sf(data = analyse_shape, color = "red") +
+  geom_sf(data = Analyse_Shape, color = "red") +
   theme_bw()
 ```
 
