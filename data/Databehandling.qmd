@@ -248,6 +248,14 @@ Ambita_Oppdatert <- read_excel("data/Ambita_Delvis_Oppdatert.xlsx")
 Ambita <- Ambita[Ambita$DokumentAr %in% c(2019, 2020, 2021, 2022), ]
 ```
 
+## Lager et temp-datasett for andelsnummer
+
+```{r}
+temp_andel <- Ambita_Oppdatert %>% 
+  select(Andelsnr, Kommunenr, Gardsnr, Bruksnr, EiendomNordSor, EiendomOstVest, InternIdBruksenhet, Bygningsnr, Dokumentnr)
+```
+
+
 ## Tar vekk kolonner som ikke er relevante for oss
 
 ### Hovedvariabler som ikke er nødvendige
@@ -929,6 +937,36 @@ Analyse_sf <- Analyse_sf %>%
                                                         ) %>% 
   relocate(Etasje_num, .before = EtasjeSeksjon)
 ```
+
+# Legger inn Andelsnummer i Analyse datasettet
+
+```{r}
+colnames(temp_andel)[colnames(temp_andel) == "Kommunenr"] <- "Knr"
+colnames(temp_andel)[colnames(temp_andel) == "Gardsnr"] <- "Gnr"
+colnames(temp_andel)[colnames(temp_andel) == "Bruksnr"] <- "Bnr"
+colnames(temp_andel)[colnames(temp_andel) == "Andelsnr"] <- "Andelsnummer"
+colnames(temp_andel)[colnames(temp_andel) == "Bygningsnr"] <- "Bygningsnummer"
+```
+Analyse <- transform(Analyse, PrivatEid_num = as.numeric(PrivatEid_num))
+```{r}
+Analyse <- transform(Analyse, Knr = as.numeric(Knr))
+Analyse <- transform(Analyse, Gnr = as.numeric(Gnr))
+Analyse <- transform(Analyse, Bnr = as.numeric(Bnr))
+```
+
+```{r}
+TEST <- inner_join(Analyse, temp_andel, by = c("Dokumentnr", "Bygningsnummer", "Knr", "Gnr", "Bnr"))
+```
+
+```{r}
+unique(TEST$Dokumentnr)
+```
+
+```{r}
+#write.xlsx(Analyse, "Analyse_Data.xlsx")
+#write.xlsx(TEST, "Analyse_TEST.xlsx")
+```
+
 
 # Lager analyse-datasett for hvert individuelle år i tillegg til det totale felles dokumentet
 
