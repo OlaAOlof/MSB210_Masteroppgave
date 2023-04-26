@@ -194,22 +194,22 @@ legend("bottomright", legend = c("Points", "Selected point", "Naboer (k = 10)"),
 ## Norgeskart med våre salg - Kevin
 
 ```{r Norgeskart}
-Analyse_Shape <- st_read("Analyse_Shape.shp")
-norge <- st_read("norge.shp")
+# Analyse_Shape <- st_read("Analyse_Shape.shp")
+# norge <- st_read("norge.shp")
 
 # Transformerer kartene til samme CRS
-norge <- st_transform(norge, crs = st_crs(Analyse_Shape))
+# norge <- st_transform(norge, crs = st_crs(Analyse_Shape))
 
 # Plotter  MultiPolygon-data
-ggplot() + 
-  geom_sf(data = norge) +
-  theme_bw()
+# ggplot() + 
+  # geom_sf(data = norge) +
+  # theme_bw()
 
 # Legger til point-data på toppen av MultiPolygon data
-ggplot() + 
-  geom_sf(data = norge) +
-  geom_sf(data = Analyse_Shape, color = "red") +
-  theme_bw()
+# ggplot() + 
+  # geom_sf(data = norge) +
+  # geom_sf(data = Analyse_Shape, color = "red") +
+  # theme_bw()
 ```
 
 # Morans I - Kevin
@@ -356,10 +356,10 @@ Alder - Y EL.Kar - Y O.Karak_num - Y BLEnergikWh - Y MatValg_num - Y AntEiendom 
 selveier_data <- bergen[bergen$BolType != "Blokkleilighet", ]
 borettslag_data <- bergen[bergen$BolType == "Blokkleilighet", ]
 
-# Tar alle boligblokker
+## Tar alle boligblokker
 blokkleilighet_data <- bergen[bergen$BolType == "Blokkleilighet", ]
 
-# Del datasettet i to grupper basert på eierform (selveier og borettslag)
+## Del datasettet i to grupper basert på eierform (selveier og borettslag)
 selveier_data <- blokkleilighet_data[!is.na(blokkleilighet_data$Snr), ]
 borettslag_data <- blokkleilighet_data[blokkleilighet_data$Snr == 0, ]
 
@@ -390,9 +390,17 @@ Analyse_sf <- Analyse_sf %>%
 
 ```{r}
 # Kjør separate regresjonsmodeller for hver av gruppene
-Selveier <- log(pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg, data = Selveier)
-FG <- log(pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg, data = FG)
+Selveier <- lm(I(log(pm2)) ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg, data = Selveier)
+FG <- lm(I(log(pm2)) ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg, data = FG)
 
+# Hvis du bestemmer deg for å inkludere borettslagsleilighetene i det totale utvalget, opprett en dummy-variabel for eierform og kjør en ny modell
+Analyse_sf$FG_dum <- ifelse(Analyse_sf$Snr == 0, 1, 0)
+
+# Kjører ny modell med dummy for andelsleilighet med fellesgjeld (1) eller ikke (0)
+total_modell <- lm(I(log(pm2)) ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + FG_dum, data = Analyse_sf)
+```
+
+```{r}
 # Skriv ut og sammenlign koeffisientene og deres konfidensintervaller for de to modellene
 summary(Selveier)
 confint(Selveier)
@@ -400,13 +408,10 @@ confint(Selveier)
 summary(FG)
 confint(FG)
 
-# Hvis du bestemmer deg for å inkludere borettslagsleilighetene i det totale utvalget, opprett en dummy-variabel for eierform og kjør en ny modell
-Analyse_sf$FG_dum <- ifelse(Analyse_sf$Snr == 0, 1, 0)
-
-# Kjører ny modell med dummy for andelsleilighet med fellesgjeld (1) eller ikke (0)
-total_modell <- log(pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + FG_dum, data = Analyse_sf)
 summary(total_modell)
 ```
+
+
 
 
 # Regresjonsmodeller - Må fiksa YearQuarter
