@@ -612,7 +612,7 @@ Blokker_pm2 <- Blokker %>%
 
 ```{r}
 Bolig_pm2 <- Bolig_pm2 %>% 
-  mutate(pm2 = P/BRA.Tot)
+  mutate(pm2 = P/Bruksareal.Enhet)
 ```
 
 ```{r}
@@ -649,7 +649,7 @@ Blokker_pm2 <- transform(Blokker_pm2, BRA.Tot = as.numeric(BRA.Tot))
 
 ```{r}
 Blokker_pm2 <- Blokker_pm2 %>% 
-  mutate(pm2 = P/BRA.Tot)
+  mutate(pm2 = P/Bruksareal.Enhet)
 ```
 
 ```{r}
