@@ -383,8 +383,8 @@ FG <- Analyse_sf %>%
 ```
 
 ```{r}
-Analyse_sf <- Analyse_sf %>% 
-  select(-P)
+#Analyse_sf <- Analyse_sf %>% 
+#  select(-P)
 ```
 
 
