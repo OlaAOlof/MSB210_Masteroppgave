@@ -56,7 +56,7 @@ Analyse_sf <- transform(Analyse_sf, BebygdAreal = as.numeric(BebygdAreal))
 Analyse_sf <- transform(Analyse_sf, Bruksareal.Enhet = as.numeric(Bruksareal.Enhet))
 ```
 
-Analyse_sf <- suppressWarnings(st_read("Datasett_Analyse_sf.gpkg"))
+Analyse_sf \<- suppressWarnings(st_read("Datasett_Analyse_sf.gpkg"))
 
 ```{r}
 Bolig_sf <- suppressWarnings(st_read("Bolig_Inkludert_Bergen.gpkg"))
@@ -104,24 +104,24 @@ Blokker_Eksl_Bergen_sf <- transform(Blokker_Eksl_Bergen_sf, BebygdAreal = as.num
 
 ### Tester Queen- og Rook
 
-```{r Queen}
-# queen.nb = poly2nb(Analyse_Shape)
+```{r Queen, eval=FALSE}
+queen.nb = poly2nb(Analyse_Shape)
 ```
 
-```{r Queen list}
-# queen.listw = nb2listw(queen.nb)
+```{r Queen list, eval=FALSE}
+queen.listw = nb2listw(queen.nb)
 ```
 
-```{r Rook}
-# rook.nb = poly2nb(Analyse_Shape, queen = FALSE)
+```{r Rook, eval=FALSE}
+rook.nb = poly2nb(Analyse_Shape, queen = FALSE)
 ```
 
-```{r Rook list}
-# rook.listw = nb2listw(rook.nb)
+```{r Rook list, eval=FALSE}
+rook.listw = nb2listw(rook.nb)
 ```
 
-```{r List W}
-# listw1 = queen.listw
+```{r List W, eval=FALSE}
+listw1 = queen.listw
 ```
 
 ### Tester K-nærmeste-naboer-metoden
@@ -134,17 +134,35 @@ K-nærmeste naboer-metoden som brukes fremvoer fungerer for punktdata og definer
 
 Oppretter romlige vektmatriser for k-nærmeste naboer med k = 3
 
-```{r KNN 3}
+```{r KNN 3, eval=FALSE}
 Analyse_sf_mat_nb3 <- knearneigh(Analyse_sf, k = 3)
 Analyse_sf_nb3 <- knn2nb(Analyse_sf_mat_nb3)
 Analyse_sf_W3 <- nb2listw(Analyse_sf_nb3, style = "W")
+```
+
+Ny matrise etter ny funksjon fra Arnstein
+```{r KNN 3}
+# Hent ut x- og y-koordinater fra geometrikolonnen
+coords <- suppressWarnings(st_coordinates(st_centroid(Analyse_sf)))
+
+# Opprett relativeneigh-objektet med en økt nnmult-verdi
+Analyse_sf_mat_nb3 <- knearneigh(Analyse_sf, k = 3)
+
+# Konverterer knearneigh til en naboliste
+Analyse_sf_nb3 <- knn2nb(Analyse_sf_mat_nb3)
+
+# Bruker funksjonen nb2blocknb
+Analyse_sf_block_nb3 <- nb2blocknb(Analyse_sf_nb3, ID = as.character(Analyse_sf$Dokumentnr))
+
+# Opprett den romlige vektmatrisen for blokknaboene
+Analyse_sf_W3 <- nb2listw(Analyse_sf_block_nb3, style = "W")
 ```
 
 #### Vektmatrise, K = 5
 
 Oppretter romlige vektmatriser for k-nærmeste naboer med k = 5
 
-```{r KNN 5}
+```{r KNN 5, eval=FALSE}}
 Analyse_sf_mat_nb5 <- knearneigh(Analyse_sf, k = 5)
 Analyse_sf_nb5 <- knn2nb(Analyse_sf_mat_nb5)
 Analyse_sf_W5 <- nb2listw(Analyse_sf_nb5, style = "W")
@@ -154,7 +172,7 @@ Analyse_sf_W5 <- nb2listw(Analyse_sf_nb5, style = "W")
 
 Oppretter romlige vektmatriser for k-nærmeste naboer med k = 10
 
-```{r KNN 10}
+```{r KNN 10, eval=FALSE}}
 Analyse_sf_mat_nb10 <- knearneigh(Analyse_sf, k = 10)
 Analyse_sf_nb10 <- knn2nb(Analyse_sf_mat_nb10)
 Analyse_sf_W10 <- nb2listw(Analyse_sf_nb10, style = "W")
@@ -193,28 +211,28 @@ legend("bottomright", legend = c("Points", "Selected point", "Naboer (k = 10)"),
 
 ## Norgeskart med våre salg - Kevin
 
-```{r Norgeskart}
-# Analyse_Shape <- st_read("Analyse_Shape.shp")
-# norge <- st_read("norge.shp")
+```{r Norgeskart, eval=FALSE}
+Analyse_Shape <- st_read("Analyse_Shape.shp")
+norge <- st_read("norge.shp")
 
-# Transformerer kartene til samme CRS
-# norge <- st_transform(norge, crs = st_crs(Analyse_Shape))
+Transformerer kartene til samme CRS
+norge <- st_transform(norge, crs = st_crs(Analyse_Shape))
 
-# Plotter  MultiPolygon-data
-# ggplot() + 
-  # geom_sf(data = norge) +
-  # theme_bw()
+Plotter  MultiPolygon-data
+ggplot() + 
+  geom_sf(data = norge) +
+  theme_bw()
 
-# Legger til point-data på toppen av MultiPolygon data
-# ggplot() + 
-  # geom_sf(data = norge) +
-  # geom_sf(data = Analyse_Shape, color = "red") +
-  # theme_bw()
+Legger til point-data på toppen av MultiPolygon data
+ggplot() + 
+  geom_sf(data = norge) +
+  geom_sf(data = Analyse_Shape, color = "red") +
+  theme_bw()
 ```
 
 # Morans I - Kevin
 
-```{r Kevins Moran}
+```{r Kevins Moran, eval=FALSE}
 # Definer en variabel for romlig analyse
 Pris <- Analyse_sf$P
 
@@ -245,12 +263,12 @@ Tallene etter Moran's I-verdiene i resultatene (-0.0003374958 og 0.0001646533 fo
 
 Sjekk korrelasjon mellom - EiendomAreal - BRA.Bolig - BRA.Annet - BRA.Tot - BebygdAreal - Bruksareal.Enhet
 
-```{r Korrelasjonsmatrise Eiendom}
+```{r Korrelasjonsmatrise Eiendom, eval=FALSE}
 cor_matrix <- cor(Analyse[c("EiendomAreal", "BRA.Bolig", "BRA.Annet", "BRA.Tot", "BebygdAreal", "Bruksareal.Enhet")])
 print(cor_matrix)
 ```
 
-```{r Visualisering av korrelasjonsmatrise}
+```{r Visualisering av korrelasjonsmatrise, eval=FALSE}
 ggcorrplot(cor_matrix)
 ```
 
@@ -260,7 +278,7 @@ ggcorrplot(cor_matrix)
 linear_model_1 <- lm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + Etasje + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + TotBoliger + RegKulturByg + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + VannKode + AvlopsKode + BolType + Kjokken + YearQuarter, data = Analyse)
 ```
 
-```{r Sjekker multikollinearitet i lm1}
+```{r Sjekker multikollinearitet i lm1, eval=FALSE}
 vif_values_1 <- vif(linear_model_1)
 print(vif_values_1)
 ```
@@ -273,7 +291,7 @@ Vi ønsker GVIF verdier så nærme 1 som mulig. Verdier mindre enn 5 er akseptab
 linear_model_2 <- lm(P ~ EiendomAreal + dist_cbd_km, data = Analyse_sf)
 ```
 
-```{r Sjekker multikollinearitet i lm2}
+```{r Sjekker multikollinearitet i lm2, eval=FALSE}
 vif_values_2 <- vif(linear_model_2)
 print(vif_values_2)
 ```
@@ -282,7 +300,7 @@ print(vif_values_2)
 linear_model_3 <- lm(P ~ BRA.Bolig + dist_cbd_km, data = Analyse_sf)
 ```
 
-```{r Sjekker multikollinearitet i lm3}
+```{r Sjekker multikollinearitet i lm3, eval=FALSE}
 vif_values_3 <- vif(linear_model_3)
 print(vif_values_3)
 ```
@@ -291,57 +309,57 @@ print(vif_values_3)
 linear_model_4 <- lm(P ~ Bruksareal.Enhet + dist_cbd_km, data = Analyse_sf)
 ```
 
-```{r Sjekker multikollinearitet i lm4}
+```{r Sjekker multikollinearitet i lm4, eval=FALSE}
 vif_values_4 <- vif(linear_model_4)
 print(vif_values_4)
 ```
 
 En GVIF-verdi på mindre enn 5 regnes som akseptabelt for å unngå signifikant multikollinearitet. Her har BRA.Bolig og BebygdAreal en GVIF-verdi på henholdsvis 2.03 og 1.87, som indikerer at det ikke er noen signifikant multikollinearitet mellom dem. Bruksareal.Enhet har også en lav GVIF-verdi på 1.75, selv om antallet koeffisienter i modellen er høyt (220), som kan tyde på at det ikke er noen signifikant multikollinearitet mellom denne variabelen og de andre variablene i modellen. Dermed er det sannsynlig at disse variablene kan brukes sammen i en regresjonsmodell uten å påvirke modellens prediktive kraft eller nøyaktighet negativt på grunn av multikollinearitet.
 
-```{r Fullstendig korrelasjonsmatrise }
+```{r Fullstendig korrelasjonsmatrise, eval=FALSE}
 cor_matrix_1 <- cor(Analyse[c("P", "Alder", "EL.Kar", "O.Karak_num", "BLEnergikWh", "MatValg_num", "AntEiendom", "EiendomAreal", "BRA.Bolig", "Bruksareal.Enhet", "Etasje", "VannkantGL", "VegkantGL", "BebygdAreal", "RegLBE", "RegGrunnforur", "RegKulturEiendom", "RegGrunnerverv", "TotBoliger", "RegKulturByg", "AntallRom", "AntallBad", "AntallWC", "PrivatEid", "HarHeis", "VannKode", "AvlopsKode")])
 ggcorrplot(cor_matrix_1) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8.5)) +
   theme(axis.text.y = element_text(angle = 0, hjust = 1, size = 8.5))
 ```
 
-```{r Visualisering av fullstendig korrelasjonsmatrise}
-#zoomi <- ggcorrplot(cor_matrix_1) +
-#  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8.5)) +
-#  theme(axis.text.y = element_text(angle = 0, hjust = 1, size = 8.5))
+```{r Visualisering av fullstendig korrelasjonsmatrise, eval=FALSE}
+zoomi <- ggcorrplot(cor_matrix_1) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8.5)) +
+  theme(axis.text.y = element_text(angle = 0, hjust = 1, size = 8.5))
 
-# Save the ggcorrplot as a high-resolution image
-#ggsave("zoomi.jpeg", zoomi, dpi = 500)
+ Save the ggcorrplot as a high-resolution image
+ggsave("zoomi.jpeg", zoomi, dpi = 500)
 ```
 
-```{r Print av fullstendig korrelasjonsmatrise}
-#cor_matrix_1 <- round(cor_matrix_1, 2)
-#print(cor_matrix_1)
+```{r Print av fullstendig korrelasjonsmatrise, eval=FALSE}
+cor_matrix_1 <- round(cor_matrix_1, 2)
+print(cor_matrix_1)
 ```
 
-```{r Korrelasjonsmatrise rom}
+```{r Korrelasjonsmatrise rom, eval=FALSE}
 cor_matrix_2 <- cor(Analyse[c("P", "AntallRom", "AntallBad", "AntallWC")])
 ggcorrplot(cor_matrix_2)
 ```
 
-```{r Korrelasjonsmatrise diverse}
+```{r Korrelasjonsmatrise diverse, eval=FALSE}
 cor_matrix_3 <- cor(Analyse[c("P", "Alder", "BLEnergikWh", "EL.Kar", "O.Karak_num", "MatValg_num")])
 ggcorrplot(cor_matrix_3)
 ```
 
-```{r Korrelasjonsmatrise areal og rom}
+```{r Korrelasjonsmatrise areal og rom, eval=FALSE}
 cor_matrix_4 <- cor(Analyse[c("P", "BRA.Bolig", "Bruksareal.Enhet", "AntallRom", "AntallBad", "AntallWC")])
 ggcorrplot(cor_matrix_4)
 ```
 
-```{r Korrelasjons mellom pris og distanse}
-#correlation <- cor(Analyse_sf$dist_cbd_km, Analyse$P, method = "pearson")
-#print(correlation)
+```{r Korrelasjons mellom pris og distanse, eval=FALSE}
+correlation <- cor(Analyse_sf$dist_cbd_km, Analyse$P, method = "pearson")
+print(correlation)
 ```
 
-```{r Korrelasjon i .sf-fil}
-#cor_matrix <- cor(Analyse_sf[c("P", "EL.Kar", "Alder", "Etasje", "AntallRom")])
-#ggcorrplot(cor_matrix, type = "lower", hc.order = TRUE, lab = TRUE)
+```{r Korrelasjon i .sf-fil, eval=FALSE}
+cor_matrix <- cor(Analyse_sf[c("P", "EL.Kar", "Alder", "Etasje", "AntallRom")])
+ggcorrplot(cor_matrix, type = "lower", hc.order = TRUE, lab = TRUE)
 ```
 
 # Lager modeller
@@ -353,15 +371,16 @@ Alder - Y EL.Kar - Y O.Karak_num - Y BLEnergikWh - Y MatValg_num - Y AntEiendom 
 -   
 
 # Fellesgjeldproblematikken
-selveier_data <- bergen[bergen$BolType != "Blokkleilighet", ]
-borettslag_data <- bergen[bergen$BolType == "Blokkleilighet", ]
+
+selveier_data \<- bergen\[bergen$BolType != "Blokkleilighet", ] borettslag_data <- bergen[bergen$BolType == "Blokkleilighet", \]
 
 ## Tar alle boligblokker
-blokkleilighet_data <- bergen[bergen$BolType == "Blokkleilighet", ]
+
+blokkleilighet_data \<- bergen\[bergen\$BolType == "Blokkleilighet", \]
 
 ## Del datasettet i to grupper basert på eierform (selveier og borettslag)
-selveier_data <- blokkleilighet_data[!is.na(blokkleilighet_data$Snr), ]
-borettslag_data <- blokkleilighet_data[blokkleilighet_data$Snr == 0, ]
+
+selveier_data \<- blokkleilighet_data\[!is.na(blokkleilighet_data$Snr), ] borettslag_data <- blokkleilighet_data[blokkleilighet_data$Snr == 0, \]
 
 ```{r}
 Selveier <- Analyse_sf %>% 
@@ -387,8 +406,7 @@ FG <- Analyse_sf %>%
 #  select(-P)
 ```
 
-
-```{r}
+```{r, eval=FALSE}
 # Kjør separate regresjonsmodeller for hver av gruppene
 Selveier <- lm(I(log(pm2)) ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg, data = Selveier)
 FG <- lm(I(log(pm2)) ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg, data = FG)
@@ -400,7 +418,7 @@ Analyse_sf$FG_dum <- ifelse(Analyse_sf$Snr == 0, 1, 0)
 total_modell <- lm(I(log(pm2)) ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + FG_dum, data = Analyse_sf)
 ```
 
-```{r}
+```{r, eval=FALSE}
 # Skriv ut og sammenlign koeffisientene og deres konfidensintervaller for de to modellene
 summary(Selveier)
 confint(Selveier)
@@ -410,9 +428,6 @@ confint(FG)
 
 summary(total_modell)
 ```
-
-
-
 
 # Regresjonsmodeller - Må fiksa YearQuarter
 
@@ -511,14 +526,14 @@ BIC(OLSBlokk6)
 
 **OLA: Denna utgår. Sio me no har splitta da i 2, eit for leilighetar og eit for boligar, så e da ikkje relevant å bruka BRA.Bolig variabelen her.**
 
-```{r}
-#options(scipen = 999)
+```{r, eval=FALSE}
+options(scipen = 999)
 
-#mod7 <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig"
-#OLS7 <- lm(mod7, data = Blokker_sf)
-#summary(OLS7)
-#AIC(OLS7)
-#BIC(OLS7)
+mod7 <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig"
+OLS7 <- lm(mod7, data = Blokker_sf)
+summary(OLS7)
+AIC(OLS7)
+BIC(OLS7)
 ```
 
 ### Modell 7 (FORTSETTELSE)
@@ -1807,7 +1822,6 @@ summary(OLSBoligEnergi)
 AIC(OLSBoligEnergi)
 BIC(OLSBoligEnergi)
 ```
-
 
 Modell som inkluderer Kommuner.
 
