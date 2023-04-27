@@ -429,7 +429,31 @@ confint(FG)
 summary(total_modell)
 ```
 
-# Regresjonsmodeller - Må fiksa YearQuarter
+# Fjerner Snr = 0 Observasjoner
+
+**Ut ifra tilbakemeldinger fra veileder, så fjerner vi observasjoner som har Snr = 0, da disse er med fellesgjeld, og ikke hadde noe signifikant utslag i våres analyse. Vi må gjøre dette på på grunnleggende datasettene, samt på alle datasett som vi bruker i analysen**
+
+```{r}
+Analyse <- Analyse %>% 
+  filter(Snr > 0)
+
+Analyse_sf <- Analyse_sf %>% 
+  filter(Snr > 0)
+
+Blokker_sf <- Blokker_sf %>% 
+  filter(Snr > 0)
+
+Bolig_sf <- Bolig_sf %>% 
+  filter(Snr > 0)
+
+Blokker_Eksl_Bergen_sf <- Blokker_Eksl_Bergen_sf %>% 
+  filter(Snr > 0)
+
+Bolig_Eksl_Bergen_sf <- Bolig_Eksl_Bergen_sf %>% 
+  filter(Snr > 0)
+```
+
+# Regresjonsmodeller
 
 ## Blokker
 

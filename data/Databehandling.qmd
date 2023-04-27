@@ -900,9 +900,19 @@ Analyse <- Analyse %>%
 ```{r}
 colnames(Analyse)[colnames(Analyse) == "EiendomOstVest.x"] <- "EiendomOstVest"
 colnames(Analyse)[colnames(Analyse) == "EiendomNordSor.x"] <- "EiendomNordSor"
+colnames(Analyse)[colnames(Analyse) == "Bygningsnummer.x"] <- "Bygningsnummer"
 colnames(Analyse)[colnames(Analyse) == "Bnr.x"] <- "Bnr"
 colnames(Analyse)[colnames(Analyse) == "Gnr.x"] <- "Gnr"
 colnames(Analyse)[colnames(Analyse) == "Knr.x"] <- "Knr"
+```
+
+# Fjerner feilregistrerte observasjoner på Bad og WC
+
+**Det er snakk om 21 observasjoner som ser ut til å vere feilregistrert eller har manglande registrering på variablene Bad og WC. Vi fjerner disse**
+
+```{r}
+Analyse <- Analyse %>% 
+  filter(AntallWC > 0)
 ```
 
 # Lager kartfil ut av Analyse datasettet vårt
@@ -1136,11 +1146,11 @@ Analyse_sf <- Analyse_sf %>%
 # Skriver ut datasettet vårt i CSV
 
 ```{r}
-#write.csv(Analyse, "Analyse/Datasett_Analyse.csv")
-#write.csv(Analyse_2019, "Analyse/Datasett_Analyse_2019.csv")
-#write.csv(Analyse_2020, "Analyse/Datasett_Analyse_2020.csv")
-#write.csv(Analyse_2021, "Analyse/Datasett_Analyse_2021.csv")
-#write.csv(Analyse_2022, "Analyse/Datasett_Analyse_2022.csv")
+write.csv(Analyse, "Analyse/Datasett_Analyse.csv")
+write.csv(Analyse_2019, "Analyse/Datasett_Analyse_2019.csv")
+write.csv(Analyse_2020, "Analyse/Datasett_Analyse_2020.csv")
+write.csv(Analyse_2021, "Analyse/Datasett_Analyse_2021.csv")
+write.csv(Analyse_2022, "Analyse/Datasett_Analyse_2022.csv")
 
 #st_write(Analyse_sf, "Analyse/Datasett_Analyse_sf.gpkg")
 #st_write(Analyse_2019_sf, "Analyse/Datasett_Analyse_sf_2019.gpkg")
