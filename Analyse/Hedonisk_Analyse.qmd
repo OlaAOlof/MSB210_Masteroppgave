@@ -142,22 +142,30 @@ Analyse_sf_nb3 <- knn2nb(Analyse_sf_mat_nb3)
 Analyse_sf_W3 <- nb2listw(Analyse_sf_nb3, style = "W")
 ```
 
-Ny matrise etter ny funksjon fra Arnstein
+# Forsøk på ny matrise etter ny funksjon fra Arnstein
+
+```{r KNN 3, eval=FALSE}
+#Analyse_sf_mat_nb3 <- knearneigh(Analyse_sf, k = 3)
+#Analyse_sf_nb3 <- nb2blocknb(Analyse_sf_mat_nb3)
+#Analyse_sf_W3 <- nb2listw(Analyse_sf_nb3, style = "W")
+```
+
+
 ```{r KNN 3}
 # Hent ut x- og y-koordinater fra geometrikolonnen
-coords <- suppressWarnings(st_coordinates(st_centroid(Analyse_sf)))
+#coords <- suppressWarnings(st_coordinates(st_centroid(Analyse_sf)))
 
 # Opprett relativeneigh-objektet med en økt nnmult-verdi
-Analyse_sf_mat_nb3 <- knearneigh(Analyse_sf, k = 3)
+#Analyse_sf_mat_nb3 <- knearneigh(Analyse_sf, k = 3)
 
 # Konverterer knearneigh til en naboliste
-Analyse_sf_nb3 <- knn2nb(Analyse_sf_mat_nb3)
+#Analyse_sf_nb3 <- knn2nb(Analyse_sf_mat_nb3)
 
 # Bruker funksjonen nb2blocknb
-Analyse_sf_block_nb3 <- nb2blocknb(Analyse_sf_nb3, ID = as.character(Analyse_sf$Dokumentnr))
+#Analyse_sf_block_nb3 <- nb2blocknb(Analyse_sf_nb3, ID = as.character(Analyse_sf$Dokumentnr))
 
 # Opprett den romlige vektmatrisen for blokknaboene
-Analyse_sf_W3 <- nb2listw(Analyse_sf_block_nb3, style = "W")
+#Analyse_sf_W3 <- nb2listw(Analyse_sf_block_nb3, style = "W")
 ```
 
 #### Vektmatrise, K = 5
@@ -182,7 +190,7 @@ Analyse_sf_W10 <- nb2listw(Analyse_sf_nb10, style = "W")
 
 # Kontroll av nabolagsmatrise - Kevin
 
-```{r Nabomatrise}
+```{r Nabomatrise, eval=FALSE}}
 # Funksjonen returnerer en matrise med indeksene til punktene som tilhører settet av de k nærmeste naboene til hverandre.
 
 bergen <- st_read(("Analyse_Shape.shp"), quiet=TRUE)
@@ -195,7 +203,7 @@ title(main="K naermeste naboer, k = 3")
 
 Funksjonen returnerer en matrise med indeksene til punktene som tilhører settet av de k nærmeste naboene til hverandre.
 
-```{r Nabomatrise med farger og punkt}
+```{r Nabomatrise med farger og punkt, eval=FALSE}}
 # Nå plotter vi punktene og naboene for et utvalg av punkter for å se om det ser ut som om de har riktig antall naboer (k = 10).
 plot(st_geometry(Analyse_sf), pch = 19, cex = 0.5, col = "blue")
 
@@ -1151,7 +1159,7 @@ BIC(OLSBlokkEnergi)
 
 ### Modell 1
 
-```{r Modell Bolig_1}
+```{r Modell Bolig_1, eval=FALSE}}
 options(scipen = 999)
 
 modBolig1 <- "I(log(pm2)) ~ EL.Kar.Original"
@@ -1163,7 +1171,7 @@ BIC(OLSBolig1)
 
 ### Modell 2
 
-```{r  Modell Bolig_2}
+```{r  Modell Bolig_2, eval=FALSE}}
 options(scipen = 999)
 
 modBolig2 <- "I(log(pm2)) ~ EL.Kar.Original + 
@@ -1176,7 +1184,7 @@ BIC(OLSBolig2)
 
 ### Modell 3
 
-```{r Modell Bolig_3}
+```{r Modell Bolig_3, eval=FALSE}}
 options(scipen = 999)
 
 modBolig3 <- "I(log(pm2)) ~ EL.Kar.Original + 
@@ -1192,7 +1200,7 @@ BIC(OLSBolig3)
 
 **OLA: Eg TRUR da e log(BLEnergikWh), uten "+1" på slutten. Har sjekka og studert fjorårets master, korleis dei gjere da, og ser ut te at dei gjere da på lik metode.**
 
-```{r Modell Bolig_4}
+```{r Modell Bolig_4, eval=FALSE}}
 options(scipen = 999)
 
 modBolig4 <- "I(log(pm2)) ~ EL.Kar.Original + 
@@ -1207,7 +1215,7 @@ BIC(OLSBolig4)
 
 ### Modell 5
 
-```{r Modell Bolig_5}
+```{r Modell Bolig_5, eval=FALSE}}
 options(scipen = 999)
 
 modBolig5 <- "I(log(pm2)) ~ EL.Kar.Original + 
@@ -1223,7 +1231,7 @@ BIC(OLSBolig5)
 
 ### Modell 6
 
-```{r Modell Bolig_6}
+```{r Modell Bolig_6, eval=FALSE}}
 options(scipen = 999)
 
 modBolig6 <- "I(log(pm2)) ~ EL.Kar.Original + 
@@ -1254,7 +1262,7 @@ BIC(OLSBolig6)
 
 ### Modell 7 (FORTSETTELSE)
 
-```{r Modell Bolig_7}
+```{r Modell Bolig_7, eval=FALSE}}
 options(scipen = 999)
 
 modBolig7 <- "I(log(pm2)) ~ EL.Kar.Original + 
@@ -1272,7 +1280,7 @@ BIC(OLSBolig7)
 
 ### Modell 8
 
-```{r Modell Bolig_8}
+```{r Modell Bolig_8, eval=FALSE}}
 options(scipen = 999)
 
 modBolig8 <- "I(log(pm2)) ~ EL.Kar.Original + 
@@ -1291,7 +1299,7 @@ BIC(OLSBolig8)
 
 ### Modell 9
 
-```{r Modell Bolig_9}
+```{r Modell Bolig_9, eval=FALSE}}
 options(scipen = 999)
 
 modBolig9 <- "I(log(pm2)) ~ EL.Kar.Original + 
@@ -1311,7 +1319,7 @@ BIC(OLSBolig9)
 
 ### Modell 10
 
-```{r Modell Bolig_10}
+```{r Modell Bolig_10, eval=FALSE}}
 options(scipen = 999)
 
 modBolig10 <- "I(log(pm2)) ~ EL.Kar.Original + 
@@ -1332,7 +1340,7 @@ BIC(OLSBolig10)
 
 ### Modell 11
 
-```{r Modell Bolig_11}
+```{r Modell Bolig_11, eval=FALSE}}
 options(scipen = 999)
 
 modBolig11 <- "I(log(pm2)) ~ EL.Kar.Original + 
@@ -1354,7 +1362,7 @@ BIC(OLSBolig11)
 
 ### Modell 12
 
-```{r Modell Bolig_12}
+```{r Modell Bolig_12, eval=FALSE}}
 options(scipen = 999)
 
 modBolig12 <- "I(log(pm2)) ~ EL.Kar.Original + 
@@ -1377,7 +1385,7 @@ BIC(OLSBolig12)
 
 ### Modell 13
 
-```{r Modell Bolig_13}
+```{r Modell Bolig_13, eval=FALSE}}
 options(scipen = 999)
 
 modBolig13 <- "I(log(pm2)) ~ EL.Kar.Original + 
@@ -1401,7 +1409,7 @@ BIC(OLSBolig13)
 
 ### Modell 14
 
-```{r Modell Bolig_14}
+```{r Modell Bolig_14, eval=FALSE}}
 options(scipen = 999)
 
 modBolig14 <- "I(log(pm2)) ~ EL.Kar.Original + 
@@ -1426,7 +1434,7 @@ BIC(OLSBolig14)
 
 ### Modell 15
 
-```{r Modell Bolig_15}
+```{r Modell Bolig_15, eval=FALSE}}
 options(scipen = 999)
 
 modBolig15 <- "I(log(pm2)) ~ EL.Kar.Original + 
@@ -1452,7 +1460,7 @@ BIC(OLSBolig15)
 
 ### Modell 16
 
-```{r Modell Bolig_16}
+```{r Modell Bolig_16, eval=FALSE}}
 options(scipen = 999)
 
 modBolig16 <- "I(log(pm2)) ~ EL.Kar.Original + 
@@ -1479,7 +1487,7 @@ BIC(OLSBolig16)
 
 ### Modell 17
 
-```{r Modell Bolig_17}
+```{r Modell Bolig_17, eval=FALSE}}
 options(scipen = 999)
 modBolig17 <- "I(log(pm2)) ~ EL.Kar.Original + 
   I(log(Alder+1)) + 
@@ -1506,7 +1514,7 @@ BIC(OLSBolig17)
 
 ### Modell 18
 
-```{r Modell Bolig_18}
+```{r Modell Bolig_18, eval=FALSE}}
 options(scipen = 999)
 modBolig18 <- "I(log(pm2)) ~ EL.Kar.Original + 
   I(log(Alder+1)) + 
@@ -1534,7 +1542,7 @@ BIC(OLSBolig18)
 
 ### Modell 19
 
-```{r Modell Bolig_19}
+```{r Modell Bolig_19, eval=FALSE}}
 options(scipen = 999)
 modBolig19 <- "I(log(pm2)) ~ EL.Kar.Original + 
   I(log(Alder+1)) + 
@@ -1563,7 +1571,7 @@ BIC(OLSBolig19)
 
 ### Modell 20
 
-```{r Modell Bolig_20}
+```{r Modell Bolig_20, eval=FALSE}}
 options(scipen = 999)
 modBolig20 <- "I(log(pm2)) ~ EL.Kar.Original + 
   I(log(Alder+1)) + 
@@ -1593,7 +1601,7 @@ BIC(OLSBolig20)
 
 ### Modell 21
 
-```{r Modell Bolig_21}
+```{r Modell Bolig_21, eval=FALSE}}
 options(scipen = 999)
 modBolig21 <- "I(log(pm2)) ~ EL.Kar.Original + 
   I(log(Alder+1)) + 
@@ -1624,7 +1632,7 @@ BIC(OLSBolig21)
 
 ### Modell 22
 
-```{r Modell Bolig_22}
+```{r Modell Bolig_22, eval=FALSE}}
 options(scipen = 999)
 modBolig22 <- "I(log(pm2)) ~ EL.Kar.Original + 
   I(log(Alder+1)) + 
@@ -1656,7 +1664,7 @@ BIC(OLSBolig22)
 
 ### Modell 23
 
-```{r Modell Bolig_23}
+```{r Modell Bolig_23, eval=FALSE}}
 options(scipen = 999)
 modBolig23 <- "I(log(pm2)) ~ EL.Kar.Original + 
   I(log(Alder+1)) + 
@@ -1689,7 +1697,7 @@ BIC(OLSBolig23)
 
 ### Modell 24
 
-```{r Modell Bolig_24}
+```{r Modell Bolig_24, eval=FALSE}}
 options(scipen = 999)
 modBolig24 <- "I(log(pm2)) ~ EL.Kar.Original + 
   I(log(Alder+1)) + 
@@ -1723,7 +1731,7 @@ BIC(OLSBolig24)
 
 ### Modell 25
 
-```{r Modell Bolig_25}
+```{r Modell Bolig_25, eval=FALSE}}
 options(scipen = 999)
 modBolig25 <- "I(log(pm2)) ~ EL.Kar.Original + 
   I(log(Alder+1)) + 
@@ -1760,7 +1768,7 @@ BIC(OLSBolig25)
 
 **OLA: Litt usikker på om YearQuarter variabelen e rekna som ein "dummy"-variabel eller ikkje. Så har foreløpig lagt den inn i I(log()) funksjon. Detta må avkreftast!**
 
-```{r Modell Bolig_26}
+```{r Modell Bolig_26, eval=FALSE}}
 options(scipen = 999)
 modBolig26 <- "I(log(pm2)) ~ EL.Kar.Original + 
   I(log(Alder+1)) + 
@@ -1796,7 +1804,7 @@ BIC(OLSBolig26)
 
 ### Modell 27
 
-```{r Modell Bolig_27}
+```{r Modell Bolig_27, eval=FALSE}}
 options(scipen = 999)
 modBolig27 <- "I(log(pm2)) ~ EL.Kar.Original + 
   I(log(Alder+1)) + 
@@ -1833,7 +1841,7 @@ BIC(OLSBolig27)
 
 ### Model for kun energirelaterte karakteristika
 
-```{r Modell Bolig_Energi}
+```{r Modell Bolig_Energi, eval=FALSE}}
 options(scipen = 999)
 
 modBoligEnergi <- "I(log(pm2)) ~ EL.Kar.Original + O.Karak + log(BLEnergikWh) + MatValg"
@@ -1922,7 +1930,7 @@ BIC(OLSBlokkForslag)
 
 ## Forslag, Modell Boliger
 
-```{r Modell Bolig_Forslag}
+```{r Modell Bolig_Forslag, eval=FALSE}}
 options(scipen = 999)
 modBoligForslag <- "I(log(pm2)) ~ EL.Kar.Original + 
   I(log(Alder+1)) + 
