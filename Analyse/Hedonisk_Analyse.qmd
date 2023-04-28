@@ -134,6 +134,8 @@ K-nærmeste naboer-metoden som brukes fremvoer fungerer for punktdata og definer
 
 Oppretter romlige vektmatriser for k-nærmeste naboer med k = 3
 
+nb2blocknb
+
 ```{r KNN 3, eval=FALSE}
 Analyse_sf_mat_nb3 <- knearneigh(Analyse_sf, k = 3)
 Analyse_sf_nb3 <- knn2nb(Analyse_sf_mat_nb3)
