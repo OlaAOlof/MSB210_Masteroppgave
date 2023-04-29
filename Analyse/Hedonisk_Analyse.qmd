@@ -90,6 +90,34 @@ Blokker_Eksl_Bergen_sf <- transform(Blokker_Eksl_Bergen_sf, BebygdAreal = as.num
 #summary(Analyse_sf)
 ```
 
+# Lager en kolonne med kommune navn
+Analyse <- Analyse %>%
+  mutate(Energikar_num = recode(Energikarakter,
+                                         'G' = 1,
+                                         'F' = 2,
+                                         'E' = 3,
+                                         'D' = 4,
+                                         'C' = 5,
+                                         'B' = 6,
+                                         'A' = 7))
+
+```{r Mutater_Kommuner, eval=FALSE}}
+Analyse_sf <- Analyse_sf %>% 
+  mutate(Kommune = recode(Knr,
+                          4601 = "Bergen",
+                          4624 = "Bjornafjorden",
+                          4626 = "Oygarden",
+                          4627 = "Askoy",
+                          4628 = "Vaksdal",
+                          4630 = "Osteroy",
+                          4631 = "Alver",
+                          4632 = "Austrheim"))
+```
+
+
+
+
+
 # Lager vektmatriser
 
 ```{r KNN naboer}
