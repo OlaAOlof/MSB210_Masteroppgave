@@ -101,7 +101,7 @@ Analyse <- Analyse %>%
                                          'B' = 6,
                                          'A' = 7))
 
-```{r Mutater_Kommuner, eval=FALSE}}
+```{r Mutater_Kommuner, eval=FALSE}
 Analyse_sf <- Analyse_sf %>% 
   mutate(Kommune = recode(Knr,
                           4601 = "Bergen",
@@ -114,8 +114,21 @@ Analyse_sf <- Analyse_sf %>%
                           4632 = "Austrheim"))
 ```
 
-
-
+```{r}
+Analyse_sf <- Analyse_sf %>%
+  mutate(Kommune = case_when(
+    Knr == 4601 ~ "Bergen",
+    Knr == 4624 ~ "Bjørnafjorden",
+    Knr == 4626 ~ "Øygarden",
+    Knr == 4627 ~ "Askøy",
+    Knr == 4628 ~ "Vaksdal",
+    Knr == 4630 ~ "Osterøy",
+    Knr == 4631 ~ "Alver",
+    Knr == 4632 ~ "Austrheim",
+    TRUE ~ "Unknown"
+  )) %>%
+  relocate(Kommune, .before = Knr)
+```
 
 
 # Lager vektmatriser
@@ -404,16 +417,6 @@ ggcorrplot(cor_matrix, type = "lower", hc.order = TRUE, lab = TRUE)
 
 # Fellesgjeldproblematikken
 
-selveier_data \<- bergen\[bergen$BolType != "Blokkleilighet", ] borettslag_data <- bergen[bergen$BolType == "Blokkleilighet", \]
-
-## Tar alle boligblokker
-
-blokkleilighet_data \<- bergen\[bergen\$BolType == "Blokkleilighet", \]
-
-## Del datasettet i to grupper basert på eierform (selveier og borettslag)
-
-selveier_data \<- blokkleilighet_data\[!is.na(blokkleilighet_data$Snr), ] borettslag_data <- blokkleilighet_data[blokkleilighet_data$Snr == 0, \]
-
 ```{r}
 Selveier <- Analyse_sf %>% 
   filter(Snr > 0)
@@ -424,42 +427,6 @@ FG <- Analyse_sf %>%
   filter(Snr == 0)
 ```
 
-```{r}
-# Tar alle boligblokker
-#blokkleilighet_data <- bergen[bergen$BolType == "Blokkleilighet", ]
-
-# Del datasettet i to grupper basert på eierform (selveier og borettslag)
-#selveier_data <- blokkleilighet_data[!is.na(blokkleilighet_data$Snr), ]
-#borettslag_data <- blokkleilighet_data[is.na(blokkleilighet_data$Snr), ]
-```
-
-```{r}
-#Analyse_sf <- Analyse_sf %>% 
-#  select(-P)
-```
-
-```{r, eval=FALSE}
-# Kjør separate regresjonsmodeller for hver av gruppene
-Selveier <- lm(I(log(pm2)) ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg, data = Selveier)
-FG <- lm(I(log(pm2)) ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg, data = FG)
-
-# Hvis du bestemmer deg for å inkludere borettslagsleilighetene i det totale utvalget, opprett en dummy-variabel for eierform og kjør en ny modell
-Analyse_sf$FG_dum <- ifelse(Analyse_sf$Snr == 0, 1, 0)
-
-# Kjører ny modell med dummy for andelsleilighet med fellesgjeld (1) eller ikke (0)
-total_modell <- lm(I(log(pm2)) ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + FG_dum, data = Analyse_sf)
-```
-
-```{r, eval=FALSE}
-# Skriv ut og sammenlign koeffisientene og deres konfidensintervaller for de to modellene
-summary(Selveier)
-confint(Selveier)
-
-summary(FG)
-confint(FG)
-
-summary(total_modell)
-```
 
 # Fjerner Snr = 0 Observasjoner
 
@@ -2085,7 +2052,7 @@ I huxreg ser vi følgende; Resultatene for *OLS2* og *OLS3* viser svært høye R
 
 ## Moran's - OLS1
 
-```{r Morans test OLS1}
+```{r Morans test OLS1, eval=FALSE}
 lm.morantest(OLS1, Analyse_sf_W3)
 lm.morantest(OLS1, Analyse_sf_W5)
 lm.morantest(OLS1, Analyse_sf_W10)
@@ -2095,7 +2062,7 @@ For alle tre romlige vektmatrisene (k = 3, 5, 10) viser Moran's I-test betydelig
 
 ## Moran's - OLS2
 
-```{r Morans test OLS2}
+```{r Morans test OLS2, eval=FALSE}
 lm.morantest(OLS2, Analyse_sf_W3)
 lm.morantest(OLS2, Analyse_sf_W5)
 lm.morantest(OLS2, Analyse_sf_W10)
@@ -2105,7 +2072,7 @@ For alle tre romlige vektmatrisene (k = 3, 5, 10) viser Moran's I-test for OLS2-
 
 ## Moran's - OLS3
 
-```{r Morans test OLS3}
+```{r Morans test OLS3, eval=FALSE}
 lm.morantest(OLS3, Analyse_sf_W3)
 lm.morantest(OLS3, Analyse_sf_W5)
 lm.morantest(OLS3, Analyse_sf_W10)
@@ -2115,7 +2082,7 @@ lm.morantest(OLS3, Analyse_sf_W10)
 
 ## Moran's - OLS4
 
-```{r Morans test OLS4}
+```{r Morans test OLS4, eval=FALSE}
 lm.morantest(OLS4, Analyse_sf_W3)
 lm.morantest(OLS4, Analyse_sf_W5)
 lm.morantest(OLS4, Analyse_sf_W10)
@@ -2125,7 +2092,7 @@ Her får vi 0.3864, 0.3309, og 0.2435 for k=3, k=5, og k=10, med p-verdier som e
 
 ## Moran's - OLS5
 
-```{r Morans test OLS5}
+```{r Morans test OLS5, eval=FALSE}
 lm.morantest(OLS5, Analyse_sf_W3)
 lm.morantest(OLS5, Analyse_sf_W5)
 lm.morantest(OLS5, Analyse_sf_W10)
