@@ -32,6 +32,10 @@ library(car)
 library(lmtest)
 library(magick)
 library(olsrr)
+library(vip)
+library(xgboost)
+library(ranger)
+library(rpart)
 options(paged.print = FALSE)
 ```
 
@@ -1144,8 +1148,10 @@ BIC(OLSBlokkEnergi)
 
 # VarImplot
 
+## Forsøk 1, "Added Variable Modell"-funksjon
+
 ```{r variable_modell, eval=FALSE}
-modell <- lm(I(log(pm2)) ~ 
+modell_A <- lm(I(log(pm2)) ~ 
   EL.Kar.Original + 
   I(log(Alder+1)) + 
   O.Karak + 
@@ -1178,8 +1184,87 @@ modell <- lm(I(log(pm2)) ~
 
 
 ```{r added_variable_modell, eval=FALSE}
-ols_plot_added_variable(modell, print_plot = TRUE)
+ols_plot_added_variable(modell_A, print_plot = TRUE)
 ```
+
+## Forsøk 2, "Importance"-funksjon
+
+```{r tree}
+tree <- rpart(pm2 ~ 
+  EL.Kar.Original + 
+  Alder + 
+  O.Karak + 
+  BLEnergikWh + 
+  MatValg + 
+  EiendomAreal + 
+  Bruksareal.Enhet + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  BebygdAreal + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  AntallRom + 
+  AntallBad + 
+  AntallWC + 
+  PrivatEid + 
+  HarHeis + 
+  VannKode + 
+  AvlopsKode + 
+  BolType + 
+  Kjokken + 
+  YearQuarter + 
+  dist_cbd_km, 
+    data = Blokker_sf)
+```
+
+### Importance-Problemer
+
+**OLA: Trur detta ska vera rett model, i henhold te malen du sendte. Derimot "importance" funksjonen e problematisk. Eg får den ikkje te å kjøra, og eg veit ikkje heilt ka faktor eg ska legga inn der, for at den ska kjøra skikkelig heller, og ka betydning da har med ulike faktora. Ska me bruka frå datasettet? eller e da noke i pakken som ska brukast?. Noken tanka om detta Kevin?**
+
+*Link til side med mal: https://koalaverse.github.io/vip/articles/vip.html *
+
+```{r rfo, eval=FALSE}
+#I følge malen eg følgte på nettsio, så ska detta vera rett modell.
+
+# Eg e derimot usikker på korleis importance funksjonen fungere. Eg veitkje heilt kass faktor me ska setta inn der, og da står ingenting om da på sio, som eg kan sjå heller.
+
+rfo <- ranger(pm2 ~ 
+  EL.Kar.Original + 
+  Alder + 
+  O.Karak + 
+  BLEnergikWh + 
+  MatValg + 
+  EiendomAreal + 
+  Bruksareal.Enhet + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  BebygdAreal + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  AntallRom + 
+  AntallBad + 
+  AntallWC + 
+  PrivatEid + 
+  HarHeis + 
+  VannKode + 
+  AvlopsKode + 
+  BolType + 
+  Kjokken + 
+  YearQuarter + 
+  dist_cbd_km, 
+    data = Blokker_sf,
+      importance = "pm2")
+```
+
+
 
 ## Boliger
 
