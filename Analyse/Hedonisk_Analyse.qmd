@@ -1138,6 +1138,16 @@ AIC(OLSBlokk27)
 BIC(OLSBlokk27)
 ```
 
+# VarImplot
+```{r}
+# Denne funksjonen utfører en regresjon med alle mulige delsett, der den tilpasser en OLS-modell for alle mulige kombinasjoner av prediktorer og returnerer en oppsummering av resultatene.
+step <- ols_step_all_possible(OLSBlokk27)
+```
+```{r}
+ols_plot_varimp(step)
+```
+
+
 ### Model for kun energirelaterte karakteristika
 
 ```{r Modell Blokk_Energi}
