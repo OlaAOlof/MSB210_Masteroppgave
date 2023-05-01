@@ -31,6 +31,7 @@ library(plm)
 library(car)
 library(lmtest)
 library(magick)
+library(olsrr)
 options(paged.print = FALSE)
 ```
 
@@ -91,15 +92,6 @@ Blokker_Eksl_Bergen_sf <- transform(Blokker_Eksl_Bergen_sf, BebygdAreal = as.num
 ```
 
 # Lager en kolonne med kommune navn
-Analyse <- Analyse %>%
-  mutate(Energikar_num = recode(Energikarakter,
-                                         'G' = 1,
-                                         'F' = 2,
-                                         'E' = 3,
-                                         'D' = 4,
-                                         'C' = 5,
-                                         'B' = 6,
-                                         'A' = 7))
 
 ```{r Mutater_Kommuner, eval=FALSE}
 Analyse_sf <- Analyse_sf %>% 
@@ -118,11 +110,11 @@ Analyse_sf <- Analyse_sf %>%
 Analyse_sf <- Analyse_sf %>%
   mutate(Kommune = case_when(
     Knr == 4601 ~ "Bergen",
-    Knr == 4624 ~ "Bjørnafjorden",
-    Knr == 4626 ~ "Øygarden",
-    Knr == 4627 ~ "Askøy",
+    Knr == 4624 ~ "Bjornafjorden",
+    Knr == 4626 ~ "Oygarden",
+    Knr == 4627 ~ "Askoy",
     Knr == 4628 ~ "Vaksdal",
-    Knr == 4630 ~ "Osterøy",
+    Knr == 4630 ~ "Osteroy",
     Knr == 4631 ~ "Alver",
     Knr == 4632 ~ "Austrheim",
     TRUE ~ "Unknown"
@@ -1138,16 +1130,6 @@ AIC(OLSBlokk27)
 BIC(OLSBlokk27)
 ```
 
-# VarImplot
-```{r}
-# Denne funksjonen utfører en regresjon med alle mulige delsett, der den tilpasser en OLS-modell for alle mulige kombinasjoner av prediktorer og returnerer en oppsummering av resultatene.
-step <- ols_step_all_possible(OLSBlokk27)
-```
-```{r}
-ols_plot_varimp(step)
-```
-
-
 ### Model for kun energirelaterte karakteristika
 
 ```{r Modell Blokk_Energi}
@@ -1158,6 +1140,45 @@ OLSBlokkEnergi <- lm(modBlokkEnergi, data = Blokker_sf)
 summary(OLSBlokkEnergi)
 AIC(OLSBlokkEnergi)
 BIC(OLSBlokkEnergi)
+```
+
+# VarImplot
+
+```{r variable_modell, eval=FALSE}
+modell <- lm(I(log(pm2)) ~ 
+  EL.Kar.Original + 
+  I(log(Alder+1)) + 
+  O.Karak + 
+  log(BLEnergikWh) + 
+  MatValg + 
+  I(log(EiendomAreal+1)) + 
+  I(log(Bruksareal.Enhet)) + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+  VegkantGL + 
+  I(log(BebygdAreal+1)) + 
+  RegLBE + 
+  RegGrunnforur + 
+  RegKulturEiendom + 
+  RegGrunnerverv + 
+  RegKulturByg + 
+  I(log(AntallRom)) + 
+  I(log(AntallBad)) + 
+  I(log(AntallWC)) + 
+  PrivatEid + 
+  HarHeis + 
+  VannKode + 
+  AvlopsKode + 
+  BolType + 
+  Kjokken + 
+  YearQuarter + 
+  I(log(dist_cbd_km)), 
+  data = Blokker_sf)
+```
+
+
+```{r added_variable_modell, eval=FALSE}
+ols_plot_added_variable(modell, print_plot = TRUE)
 ```
 
 ## Boliger
