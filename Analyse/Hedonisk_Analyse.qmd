@@ -1181,38 +1181,6 @@ BIC(OLSBlokkEnergi)
 
 *Link til side med mal: https://koalaverse.github.io/vip/articles/vip.html *
 
-```{r tree}
-tree <- rpart(pm2 ~ 
-  EL.Kar.Original + 
-  Alder + 
-  O.Karak + 
-  BLEnergikWh + 
-  MatValg + 
-  EiendomAreal + 
-  Bruksareal.Enhet + 
-  EtasjeSeksjon + 
-  VannkantGL + 
-  VegkantGL + 
-  BebygdAreal + 
-  RegLBE + 
-  RegGrunnforur + 
-  RegKulturEiendom + 
-  RegGrunnerverv + 
-  RegKulturByg + 
-  AntallRom + 
-  AntallBad + 
-  AntallWC + 
-  PrivatEid + 
-  HarHeis + 
-  VannKode + 
-  AvlopsKode + 
-  BolType + 
-  Kjokken + 
-  YearQuarter +
-  Kommune,
-    data = Analyse)
-```
-
 ```{r rfo_pris}
 rfo_pris <- ranger(pm2 ~ 
   EL.Kar.Original + 
