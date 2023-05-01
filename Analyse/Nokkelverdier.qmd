@@ -1038,7 +1038,7 @@ library(dplyr)
 # Regner ut snittpris for hvert kvartal
 Gjennomsnittlig_kvartalspris <- Analyse %>%
   group_by(YearQuarter) %>%
-  summarize(Gjenomsnittspris = mean(P))
+  summarize(Gjenomsnittspris = mean(pm2))
 
 # Definerer strømkrisen
 start <- "2021Q3"
@@ -1052,5 +1052,5 @@ ggplot(Gjennomsnittlig_kvartalspris, aes(x = YearQuarter, y = Gjenomsnittspris, 
   geom_point() +
   scale_y_continuous(labels = comma) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(x = "År og kvartal", y = "Gjennomsnittlig boligpris", title = "Gjennomsnittlig kvartalspris med strømkrisen i grå sone")
+  labs(x = "Aar og kvartal", y = "Gjennomsnittlig boligpris", title = "Gjennomsnittlig kvartalspris med stromkrisen i graa sone")
 ```

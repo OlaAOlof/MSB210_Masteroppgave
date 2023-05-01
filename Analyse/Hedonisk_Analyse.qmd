@@ -126,6 +126,37 @@ Analyse_sf <- Analyse_sf %>%
   relocate(Kommune, .before = Knr)
 ```
 
+```{r}
+Analyse <- Analyse %>%
+  mutate(Kommune = case_when(
+    Knr == 4601 ~ "Bergen",
+    Knr == 4624 ~ "Bjornafjorden",
+    Knr == 4626 ~ "Oygarden",
+    Knr == 4627 ~ "Askoy",
+    Knr == 4628 ~ "Vaksdal",
+    Knr == 4630 ~ "Osteroy",
+    Knr == 4631 ~ "Alver",
+    Knr == 4632 ~ "Austrheim",
+    TRUE ~ "Unknown"
+  )) %>%
+  relocate(Kommune, .before = Knr)
+```
+
+```{r}
+Blokker_sf <- Blokker_sf %>%
+  mutate(Kommune = case_when(
+    Knr == 4601 ~ "Bergen",
+    Knr == 4624 ~ "Bjornafjorden",
+    Knr == 4626 ~ "Oygarden",
+    Knr == 4627 ~ "Askoy",
+    Knr == 4628 ~ "Vaksdal",
+    Knr == 4630 ~ "Osteroy",
+    Knr == 4631 ~ "Alver",
+    Knr == 4632 ~ "Austrheim",
+    TRUE ~ "Unknown"
+  )) %>%
+  relocate(Kommune, .before = Knr)
+```
 
 # Lager vektmatriser
 
@@ -1148,46 +1179,7 @@ BIC(OLSBlokkEnergi)
 
 # VarImplot
 
-## Forsøk 1, "Added Variable Modell"-funksjon
-
-```{r variable_modell, eval=FALSE}
-modell_A <- lm(I(log(pm2)) ~ 
-  EL.Kar.Original + 
-  I(log(Alder+1)) + 
-  O.Karak + 
-  log(BLEnergikWh) + 
-  MatValg + 
-  I(log(EiendomAreal+1)) + 
-  I(log(Bruksareal.Enhet)) + 
-  EtasjeSeksjon + 
-  VannkantGL + 
-  VegkantGL + 
-  I(log(BebygdAreal+1)) + 
-  RegLBE + 
-  RegGrunnforur + 
-  RegKulturEiendom + 
-  RegGrunnerverv + 
-  RegKulturByg + 
-  I(log(AntallRom)) + 
-  I(log(AntallBad)) + 
-  I(log(AntallWC)) + 
-  PrivatEid + 
-  HarHeis + 
-  VannKode + 
-  AvlopsKode + 
-  BolType + 
-  Kjokken + 
-  YearQuarter + 
-  I(log(dist_cbd_km)), 
-  data = Blokker_sf)
-```
-
-
-```{r added_variable_modell, eval=FALSE}
-ols_plot_added_variable(modell_A, print_plot = TRUE)
-```
-
-## Forsøk 2, "Importance"-funksjon
+*Link til side med mal: https://koalaverse.github.io/vip/articles/vip.html *
 
 ```{r tree}
 tree <- rpart(pm2 ~ 
@@ -1216,61 +1208,128 @@ tree <- rpart(pm2 ~
   AvlopsKode + 
   BolType + 
   Kjokken + 
-  YearQuarter + 
-  dist_cbd_km, 
-    data = Blokker_sf)
+  YearQuarter +
+  Kommune,
+    data = Analyse)
 ```
 
-### Importance-Problemer
-
-**OLA: Trur detta ska vera rett model, i henhold te malen du sendte. Derimot "importance" funksjonen e problematisk. Eg får den ikkje te å kjøra, og eg veit ikkje heilt ka faktor eg ska legga inn der, for at den ska kjøra skikkelig heller, og ka betydning da har med ulike faktora. Ska me bruka frå datasettet? eller e da noke i pakken som ska brukast?. Noken tanka om detta Kevin?**
-
-*Link til side med mal: https://koalaverse.github.io/vip/articles/vip.html *
-
-```{r rfo, eval=FALSE}
-#I følge malen eg følgte på nettsio, så ska detta vera rett modell.
-
-# Eg e derimot usikker på korleis importance funksjonen fungere. Eg veitkje heilt kass faktor me ska setta inn der, og da står ingenting om da på sio, som eg kan sjå heller.
-
-rfo <- ranger(pm2 ~ 
+```{r rfo_pris}
+rfo_pris <- ranger(pm2 ~ 
   EL.Kar.Original + 
   Alder + 
   O.Karak + 
   BLEnergikWh + 
   MatValg + 
-  EiendomAreal + 
+#  EiendomAreal + 
   Bruksareal.Enhet + 
   EtasjeSeksjon + 
   VannkantGL + 
-  VegkantGL + 
-  BebygdAreal + 
-  RegLBE + 
-  RegGrunnforur + 
+#  VegkantGL + 
+#  BebygdAreal + 
+#  RegLBE + 
+#  RegGrunnforur + 
   RegKulturEiendom + 
-  RegGrunnerverv + 
+#  RegGrunnerverv + 
   RegKulturByg + 
   AntallRom + 
   AntallBad + 
   AntallWC + 
   PrivatEid + 
   HarHeis + 
-  VannKode + 
-  AvlopsKode + 
+#  VannKode + 
+#  AvlopsKode + 
   BolType + 
-  Kjokken + 
-  YearQuarter + 
-  dist_cbd_km, 
-    data = Blokker_sf,
-      importance = "pm2")
+#  Kjokken + 
+  YearQuarter +
+  Kommune, 
+    data = Analyse,
+      importance = "impurity")
 ```
 
+```{r rfo_energi}
+rfo_energi <- ranger(EL.Kar ~ 
+  pm2 + 
+  Alder + 
+  O.Karak + 
+  BLEnergikWh + 
+  MatValg + 
+#  EiendomAreal + 
+  Bruksareal.Enhet + 
+  EtasjeSeksjon + 
+  VannkantGL + 
+#  VegkantGL + 
+#  BebygdAreal + 
+#  RegLBE + 
+#  RegGrunnforur + 
+  RegKulturEiendom + 
+#  RegGrunnerverv + 
+  RegKulturByg + 
+  AntallRom + 
+  AntallBad + 
+  AntallWC + 
+  PrivatEid + 
+  HarHeis + 
+#  VannKode + 
+#  AvlopsKode + 
+  BolType + 
+#  Kjokken + 
+  YearQuarter +
+  Kommune, 
+    data = Analyse,
+      importance = "impurity")
+```
 
+```{r}
+vi_rfo2 <- importance(rfo_pris, type = 1)
+var_imp_df_pris <- data.frame(variable = names(vi_rfo2),
+                         importance = vi_rfo2,
+                         stringsAsFactors = FALSE)
+
+var_imp_df_pris <- var_imp_df_pris[order(-var_imp_df_pris$importance),]
+```
+
+```{r}
+vi_rfo3 <- importance(rfo_energi, type = 1)
+var_imp_df_energi <- data.frame(variable = names(vi_rfo3),
+                         importance = vi_rfo3,
+                         stringsAsFactors = FALSE)
+
+var_imp_df_energi <- var_imp_df_energi[order(-var_imp_df_energi$importance),]
+```
+
+```{r}
+ggplot(var_imp_df_pris, aes(x = reorder(variable, importance), y = importance, fill = importance)) +
+  geom_col(show.legend = FALSE) +
+  scale_fill_gradient(low = "#64D0DF", high = "#004357") +
+  labs(title = "Variable Importance - Pris", x = "Predictor Variable", y = "Importance") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.title = element_text(size = 14),
+        axis.text = element_text(size = 12),
+        panel.border = element_blank(),
+        plot.margin = unit(c(0.01,0.01,0.01,0.01), "lines")) +
+  coord_flip()
+```
+
+```{r}
+ggplot(var_imp_df_energi, aes(x = reorder(variable, importance), y = importance, fill = importance)) +
+  geom_col(show.legend = FALSE) +
+  scale_fill_gradient(low = "#64D0DF", high = "#004357") +
+  labs(title = "Variable Importance - Energikarakter", x = "Predictor Variable", y = "Importance") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.title = element_text(size = 14),
+        axis.text = element_text(size = 12),
+        panel.border = element_blank(),
+        plot.margin = unit(c(0.01,0.01,0.01,0.01), "lines")) +
+  coord_flip()
+```
 
 ## Boliger
 
 ### Modell 1
 
-```{r Modell Bolig_1, eval=FALSE}}
+```{r Modell Bolig_1, eval=FALSE}
 options(scipen = 999)
 
 modBolig1 <- "I(log(pm2)) ~ EL.Kar.Original"
@@ -2010,7 +2069,8 @@ BIC(OLSEnhet)
 
 ```{r Modell Blokk_Forslag}
 options(scipen = 999)
-modBlokkForslag <- "I(log(pm2)) ~ EL.Kar.Original + 
+modBlokkForslag <- "I(log(pm2)) ~ 
+  EL.Kar.Original + 
   I(log(Alder+1)) + 
   O.Karak + 
   log(BLEnergikWh) + 
@@ -2018,20 +2078,15 @@ modBlokkForslag <- "I(log(pm2)) ~ EL.Kar.Original +
   I(log(Bruksareal.Enhet)) + 
   EtasjeSeksjon + 
   VannkantGL + 
-  VegkantGL + 
-  RegLBE + 
-  RegGrunnforur + 
-  RegKulturEiendom + 
-  RegGrunnerverv + 
   RegKulturByg + 
   I(log(AntallRom)) + 
   I(log(AntallBad)) + 
   I(log(AntallWC)) + 
-  PrivatEid + 
   HarHeis + 
   BolType + 
   Kjokken + 
-  YearQuarter + 
+  YearQuarter +
+  Kommune + 
   I(log(dist_cbd_km))"
 OLSBlokkForslag <- lm(modBlokkForslag, data = Blokker_sf)
 summary(OLSBlokkForslag)
