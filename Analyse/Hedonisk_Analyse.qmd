@@ -64,17 +64,17 @@ Analyse_sf <- transform(Analyse_sf, Bruksareal.Enhet = as.numeric(Bruksareal.Enh
 Analyse_sf \<- suppressWarnings(st_read("Datasett_Analyse_sf.gpkg"))
 
 ```{r}
-Bolig_sf <- suppressWarnings(st_read("Bolig_Inkludert_Bergen.gpkg"))
-Bolig_Eksl_Bergen_sf <- suppressWarnings(st_read("Bolig_Ekskludert_Bergen.gpkg"))
+#Bolig_sf <- suppressWarnings(st_read("Bolig_Inkludert_Bergen.gpkg"))
+#Bolig_Eksl_Bergen_sf <- suppressWarnings(st_read("Bolig_Ekskludert_Bergen.gpkg"))
 Blokker_sf <- suppressWarnings(st_read("Blokker_Inkludert_Bergen.gpkg"))
 Blokker_Eksl_Bergen_sf <- suppressWarnings(st_read("Blokker_Ekskludert_Bergen.gpkg"))
 ```
 
 ```{r}
-Bolig_sf <- transform(Bolig_sf, EiendomAreal = as.numeric(EiendomAreal))
-Bolig_sf <- transform(Bolig_sf, BebygdAreal = as.numeric(BebygdAreal))
-Bolig_Eksl_Bergen_sf <- transform(Bolig_Eksl_Bergen_sf, EiendomAreal = as.numeric(EiendomAreal))
-Bolig_Eksl_Bergen_sf <- transform(Bolig_Eksl_Bergen_sf, BebygdAreal = as.numeric(BebygdAreal))
+#Bolig_sf <- transform(Bolig_sf, EiendomAreal = as.numeric(EiendomAreal))
+#Bolig_sf <- transform(Bolig_sf, BebygdAreal = as.numeric(BebygdAreal))
+#Bolig_Eksl_Bergen_sf <- transform(Bolig_Eksl_Bergen_sf, EiendomAreal = as.numeric(EiendomAreal))
+#Bolig_Eksl_Bergen_sf <- transform(Bolig_Eksl_Bergen_sf, BebygdAreal = as.numeric(BebygdAreal))
 Blokker_sf <- transform(Blokker_sf, EiendomAreal = as.numeric(EiendomAreal))
 Blokker_sf <- transform(Blokker_sf, BebygdAreal = as.numeric(BebygdAreal))
 Blokker_Eksl_Bergen_sf <- transform(Blokker_Eksl_Bergen_sf, EiendomAreal = as.numeric(EiendomAreal))
@@ -158,9 +158,269 @@ Blokker_sf <- Blokker_sf %>%
   relocate(Kommune, .before = Knr)
 ```
 
-# Lager vektmatriser
+# Fikser på data før vi lager vektmatriser
 
-```{r KNN naboer}
+```{r}
+# Inkonsistens i data. Eksakt samme posisjon har forskjellig
+# EiendomAdressegatenavn. EiendomAdressegatenavn er en variabel som 
+# kan brukes analogt til TOWN i Boston eksempel, men da må SAMME punkt ha
+# SAMME EiendomAdressegatenavn ellers får blocking rutinene problemer. Lager
+# en ny variabel EAG_Blocking der dette fikses
+# Lager også noen id-er for å identifisere de problematiske observasjonene
+all_point_coords <- st_coordinates(Analyse_sf)
+# Add id variabel made from coordinates before P in Analyse_sf
+Analyse_sf <- rowid_to_column(Analyse_sf, "id")
+Analyse_sf <- Analyse_sf  |> 
+  mutate(
+    id_adr = paste(
+      EiendomAdressegatenavn,
+      all_point_coords[,1], 
+      all_point_coords[,2], 
+      sep = "_"),
+    id_coords = paste(
+      all_point_coords[,1], 
+      all_point_coords[,2], 
+      sep = "_"),
+    EAG_Blocking = EiendomAdressegatenavn,
+    .before = "P"
+  )
+
+# Finner observasjonene som har SAMME koordinater, men forskjellig
+# EiendomAdressegatenavn
+Analyse_sf_ng <- st_drop_geometry(Analyse_sf)
+duplicates_coord <- setdiff(
+  Analyse_sf_ng[!duplicated(Analyse_sf_ng$id_adr),
+             c("id", "id_coords")],
+  Analyse_sf_ng[!duplicated(Analyse_sf_ng$id_coords),
+             c("id", "id_coords")]
+)
+
+prob_obs <- Analyse_sf |> 
+  filter(id_coords %in% duplicates_coord$id_coords) |> 
+  arrange(id_coords, EiendomAdressegatenavn)
+
+# I prob_obs ser vi hvilke obs. som skaper problemer
+# Fikser problemet i EiendomAdressegatenavn_Blocking
+Analyse_sf <- Analyse_sf |> 
+  mutate(
+    EAG_Blocking = case_when(
+      # Endrer nattlandsrinden til nordre nattlandsfjellet
+      id %in% c(82, 84, 86, 146) ~ "nordre nattlandsfjellet",
+      # Endrer vallaheiane til vallalia
+      id %in% c(227, 228, 233, 235) ~ "vallalia",
+      # endrer koren wibergs plass til wesenbergsmauet
+      id %in% c(56) ~ "wesenbergsmauet",
+      # endrer jens rolfsens gate til nye sandviksveien
+      id %in% c(1065) ~ "nye sandviksveien",
+      # endrer michael krohns gate til damsgårdsveien
+      id %in% c(435:441, 607:613) ~ "damsgårdsveien",
+      # endrer johan berentsens vei til kringsjåveien
+      id %in% c(865) ~ "kringsjåveien",
+      # resten er uforandret
+      TRUE ~ EAG_Blocking
+    ),
+    EAG_Blocking = paste(EAG_Blocking, id_coords, sep = "_")
+  )
+```
+
+# Lager to unike punkter
+
+## Punkt 1
+
+```{r Punkt_1}
+unike_punkt <- Analyse_sf |> 
+  select(EAG_Blocking) |> 
+  distinct()
+
+rel_graph <- relativeneigh(
+  coords = st_coordinates(unike_punkt),
+  # scaling factor for memory allocation, 15 seems to work
+  nnmult = 15
+)
+```
+
+## Punkt 2
+
+```{r Punkt_2}
+# punkt 2
+rel_nb <- graph2nb(
+  gob = rel_graph,
+  # områdenavnene, pull() for å gå fra tibbel med en var til vector
+  row.names = pull(st_drop_geometry(select(unike_punkt, EAG_Blocking))),
+  sym = TRUE
+)
+```
+
+## Plot
+
+```{r}
+plot(rel_nb, st_coordinates(unike_punkt))
+```
+
+# Lager Vektmatrise, hva. "nb2blocknb"-funksjon
+
+```{r}
+block.nb <- nb2blocknb(
+  rel_nb, 
+  # Nå alle verdier av EAG_Blocking, dvs. flere duplikater som «blocks opp»
+  ID = Analyse_sf$EAG_Blocking
+  )
+```
+
+```{r}
+block.nb
+```
+
+```{r}
+plot(block.nb, coords = st_coordinates(Analyse_sf));points(st_coordinates(unike_punkt))
+```
+
+```{r}
+Analyse_w <- nb2listw(block.nb, style = "W", zero.policy = TRUE)
+# Har vi spatial autocorrelation i prisene?
+moran.test(Analyse_sf$P, Analyse_w)
+```
+
+# Lager vektmatrise, hva. knearneigh
+
+## Knearneigh; K=3
+
+```{r K=3}
+# 3 nearest neighbours
+knn_3 <- knearneigh(st_coordinates(unike_punkt), k = 3)
+nb_knn3 <- knn2nb(
+  knn_3, 
+  row.names = pull(st_drop_geometry(select(unike_punkt, EAG_Blocking))),
+  sym = TRUE
+  )
+block.nb_knn3 <- nb2blocknb(
+  nb_knn3,
+  ID = Analyse_sf$EAG_Blocking
+  )
+Analyse_W3 <- nb2listw(block.nb_knn3, style = "W", zero.policy = TRUE)
+# Har vi spatial autocorrelation i prisene?
+moran.test(Analyse_sf$P, Analyse_W3)
+```
+
+```{r K=3_Block.nb}
+block.nb_knn3
+```
+
+```{r K=3, plot}
+plot(block.nb_knn3, coords = st_coordinates(Analyse_sf));points(st_coordinates(unike_punkt))
+```
+
+## Knearneigh; K=5
+
+```{r K=5}
+# 5 nearest neighbours
+knn_5 <- knearneigh(st_coordinates(unike_punkt), k = 5)
+nb_knn5 <- knn2nb(
+  knn_5, 
+  row.names = pull(st_drop_geometry(select(unike_punkt, EAG_Blocking))),
+  sym = TRUE
+  )
+block.nb_knn5 <- nb2blocknb(
+  nb_knn5,
+  ID = Analyse_sf$EAG_Blocking
+  )
+Analyse_W5 <- nb2listw(block.nb_knn5, style = "W", zero.policy = TRUE)
+# Har vi spatial autocorrelation i prisene?
+moran.test(Analyse_sf$P, Analyse_W5)
+```
+
+```{r K=5_Block.nb}
+block.nb_knn5
+```
+
+```{r K=5, plot}
+plot(block.nb_knn5, coords = st_coordinates(Analyse_sf));points(st_coordinates(unike_punkt))
+```
+
+## Knearneigh; K=7
+
+```{r K=5}
+# 7 nearest neighbours
+knn_7 <- knearneigh(st_coordinates(unike_punkt), k = 7)
+nb_knn7 <- knn2nb(
+  knn_7, 
+  row.names = pull(st_drop_geometry(select(unike_punkt, EAG_Blocking))),
+  sym = TRUE
+  )
+block.nb_knn7 <- nb2blocknb(
+  nb_knn7,
+  ID = Analyse_sf$EAG_Blocking
+  )
+Analyse_W7 <- nb2listw(block.nb_knn7, style = "W", zero.policy = TRUE)
+# Har vi spatial autocorrelation i prisene?
+moran.test(Analyse_sf$P, Analyse_W7)
+```
+
+```{r K=5_Block.nb}
+block.nb_knn7
+```
+
+```{r K=5, plot}
+plot(block.nb_knn7, coords = st_coordinates(Analyse_sf));points(st_coordinates(unike_punkt))
+```
+
+## Knearneigh; K=10
+
+```{r K=10}
+# 10 nearest neighbours
+knn_10 <- knearneigh(st_coordinates(unike_punkt), k = 10)
+nb_knn10 <- knn2nb(
+  knn_10, 
+  row.names = pull(st_drop_geometry(select(unike_punkt, EAG_Blocking))),
+  sym = TRUE
+  )
+block.nb_knn10 <- nb2blocknb(
+  nb_knn10,
+  ID = Analyse_sf$EAG_Blocking
+  )
+Analyse_W10 <- nb2listw(block.nb_knn10, style = "W", zero.policy = TRUE)
+# Har vi spatial autocorrelation i prisene?
+moran.test(Analyse_sf$P, Analyse_W10)
+```
+
+```{r K=10_Block.nb}
+block.nb_knn10
+```
+
+```{r K=10, plot}
+plot(block.nb_knn10, coords = st_coordinates(Analyse_sf));points(st_coordinates(unike_punkt))
+```
+
+## Knearneigh; K=15
+
+```{r K=15}
+# 15 nearest neighbours
+knn_15 <- knearneigh(st_coordinates(unike_punkt), k = 15)
+nb_knn15 <- knn2nb(
+  knn_15, 
+  row.names = pull(st_drop_geometry(select(unike_punkt, EAG_Blocking))),
+  sym = TRUE
+  )
+block.nb_knn15 <- nb2blocknb(
+  nb_knn15,
+  ID = Analyse_sf$EAG_Blocking
+  )
+Analyse_W15 <- nb2listw(block.nb_knn15, style = "W", zero.policy = TRUE)
+# Har vi spatial autocorrelation i prisene?
+moran.test(Analyse_sf$P, Analyse_W15)
+```
+
+```{r K=15_Block.nb}
+block.nb_knn15
+```
+
+```{r K=15, plot}
+plot(block.nb_knn15, coords = st_coordinates(Analyse_sf));points(st_coordinates(unike_punkt))
+```
+
+# Gammel kode, utgår. START
+
+```{r KNN naboer, eval=FALSE}
 #Kankje laga vektmatrisa på Analyse-datasettet. Må bli gjort på kart-datasettet "Analyse_sf"
 
 #Analyse_mat_nb3 <- knearneigh(Analyse, k = 3)
@@ -334,6 +594,10 @@ Verdier nær 1 indikerer positiv romlig autokorrelasjon, der lignende verdier er
 Det er viktig å merke seg at Moran's I-verdien avtar når antall naboer (k) øker. Dette kan skyldes at når flere naboer inkluderes i analysen, blir det mindre sannsynlig at hver enhet har naboer med lignende verdier.
 
 Tallene etter Moran's I-verdiene i resultatene (-0.0003374958 og 0.0001646533 for k = 3, osv.) er konstantleddet og koeffisienten for x i Moran's I-beregningen. Disse tallene brukes for å beregne Moran's I-verdien og er ikke av stor interesse for tolkningen av resultatene.
+
+## Gammel kode, utgår. SLUTT
+
+-
 
 # Korrelasjonsmatriser
 
