@@ -2381,18 +2381,6 @@ BIC(OLSBoligForslag)
 #OLS1 = lm(mod1, data = Analyse_sf)
 ```
 
-I OLS1 kan vi tolke; - *(Intercept)*: 2,872,115 er den estimerte gjennomsnittlige boligprisen når alle de uavhengige variablene er 0.
-
--   *EL.Kar*: For hver enhet økning i energikarakteren, øker den estimerte boligprisen med 34,119, gitt at de andre variablene holdes konstante.
-
--   *O.Karak_num*: For hver enhet økning i oppvarmingskarakteren, øker den estimerte boligprisen med 161,665, gitt at de andre variablene holdes konstante.
-
--   *MatValg_num*: For hver enhet økning i materialevalg for boligens konstruksjon, øker den estimerte boligprisen med 89,045, gitt at de andre variablene holdes konstante. Dette blir ikke helt riktig fordi en økning i materialevalg ikke gjenspeiler virkeligheten.
-
-I dette tilfellet er p-verdiene for alle variablene statistisk signifikante på 0,05-nivå, noe som betyr at det er bevis for at disse variablene har en effekt på boligprisen. Den minst signifikante variabelen er EL.Kar (p-verdi = 0,0457), mens de andre variablene har p-verdier som er mye lavere enn 0,05.
-
-Imidlertid er forklaringskraften i modellen ganske lav, noe som tyder på at det kan være andre faktorer som også påvirker boligprisene som ikke er inkludert i modellen.
-
 ```{r Summary OLS1}
 #summary(OLS1)
 ```
@@ -2465,8 +2453,6 @@ Punkt 2: Vi må finne ut kva variablar vi må ha "ln" framfor og kva variablar v
 #       note = "{stars}. T statistic in brackets.")
 ```
 
-I huxreg ser vi følgende; Resultatene for *OLS2* og *OLS3* viser svært høye R-kvadrat-verdier på 0,92, noe som tyder på at modellene forklarer 92% av variasjonen i boligprisene. Imidlertid er det verdt å merke seg at koeffisientene for de uavhengige variablene i disse modellene ikke er statistisk signifikante (p-verdiene \> 0,05). Dette betyr at vi ikke kan konkludere med at de uavhengige variablene har en signifikant effekt på boligprisene i disse modellene. - OLS2 og OLS3 har høyere *logLik*-verdier enn OLS1, noe som indikerer at de passer bedre til dataene. -OLS2 og OLS3 har lavere *AIC*-verdier enn OLS1, noe som tyder på at de gir en bedre balanse mellom tilpasning og kompleksitet.
-
 # Moran's Test
 
 ## Moran's - OLS1
@@ -2477,8 +2463,6 @@ lm.morantest(OLS1, Analyse_sf_W5)
 lm.morantest(OLS1, Analyse_sf_W10)
 ```
 
-For alle tre romlige vektmatrisene (k = 3, 5, 10) viser Moran's I-test betydelig romlig autokorrelasjon i residualene til OLS-modellen: *k = 3: Observed Moran I = 0.376, p-verdi \< 2.2e-16* *k = 5: Observed Moran I = 0.325, p-verdi \< 2.2e-16* *k = 10: Observed Moran I = 0.242, p-verdi \< 2.2e-16* Dette indikerer at det er romlige mønstre i modellens feil som ikke er fanget av de uavhengige variablene, og en romlig regresjonsmodell bør vurderes.
-
 ## Moran's - OLS2
 
 ```{r Morans test OLS2, eval=FALSE}
@@ -2486,8 +2470,6 @@ lm.morantest(OLS2, Analyse_sf_W3)
 lm.morantest(OLS2, Analyse_sf_W5)
 lm.morantest(OLS2, Analyse_sf_W10)
 ```
-
-For alle tre romlige vektmatrisene (k = 3, 5, 10) viser Moran's I-test for OLS2-modellen: *k = 3: Observed Moran I = -0.165, p-verdi = 0.9947* *k = 5: Observed Moran I = -0.122, p-verdi = 0.9898* *k = 10: Observed Moran I = -0.080, p-verdi = 1.0* I motsetning til OLS1, viser disse resultatene at det ikke er betydelig romlig autokorrelasjon i residualene til OLS2-modellen for de valgte romlige vektmatrisene. Dette indikerer at modellen fanger romlige mønstre i dataene bedre enn OLS1, og at en romlig regresjonsmodell kanskje ikke er nødvendig i dette tilfellet.
 
 ## Moran's - OLS3
 
@@ -2497,7 +2479,6 @@ lm.morantest(OLS3, Analyse_sf_W5)
 lm.morantest(OLS3, Analyse_sf_W10)
 ```
 
-*k = 3: Observed Moran I = -0.1653628, p-verdi = 0.9947* *k = 5: Observed Moran I = -0.1223350, p-verdi = 0.9947* *k = 10: Observed Moran I = -0.08005172, p-verdi = 0.9947* Alle p-verdiene er større enn 0.05, som indikerer at det ikke er statistisk signifikant romlig autokorrelasjon i modellen. De negative verdiene for Observed Moran I indikerer imidlertid en viss grad av romlig heterogenitet i modellen. Modellen har lavere romlig autokorrelasjon når vi øker antallet naboer fra 3 til 10. \## Moran's - OLS4
 
 ## Moran's - OLS4
 
@@ -2506,8 +2487,6 @@ lm.morantest(OLS4, Analyse_sf_W3)
 lm.morantest(OLS4, Analyse_sf_W5)
 lm.morantest(OLS4, Analyse_sf_W10)
 ```
-
-Her får vi 0.3864, 0.3309, og 0.2435 for k=3, k=5, og k=10, med p-verdier som er mindre enn 0,05-nivået. Dette indikerer at det er en romlig avhengighet mellom residualene, og at det er romlig autokorrelasjon i dataene. Dette betyr at det er en tendens til at boliger som ligger nær hverandre, har lignende residualer, og at det kan være en romlig struktur i dataene som ikke tas hensyn til i modellen.
 
 ## Moran's - OLS5
 
@@ -2519,56 +2498,26 @@ lm.morantest(OLS5, Analyse_sf_W10)
 
 # Kevins romlige modeller
 
-Denne første chunken feiler, men vil beholde den i dokumentet for eventuell inspirasjon. Kanskje vi klarer å fikse den
-
-```{r Kevins modell}
-# Konverter Analyse_sf til en pdata.frame for romlig regresjon
-# analyse_sf_pdata <- pdata.frame(Analyse_sf)
-
-# Definer modellformel
-# Kev_model <- "P ~ Alder + EL.Kar + Bruksareal.Enhet + dist_cbd_km"
-
-# Utfør romlig regresjon (lagmodell) for k = 3, k = 5 og k = 10
-# lag_model_3 <- lagsarlm(Kev_model, data = Analyse_sf, listw = Analyse_sf_W3)
-# lag_model_5 <- lagsarlm(Kev_model, data = Analyse_sf, listw = Analyse_sf_W5)
-# lag_model_10 <- lagsarlm(Kev_model, data = Analyse_sf, listw = Analyse_sf_W10)
-
-# Vis resultater fra modellene
-# summary(lag_model_3)
-# summary(lag_model_5)
-# summary(lag_model_10)
-```
-
 Før vi kan kjøre de romlige modellene, må vi sjekke for multikollinearitet.
 
 ```{r}
-linear_model <- lm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + Etasje + dist_cbd_km,
-                   data = Analyse_sf)
+vif_model <- lm(pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + Kommune + dist_cbd_km, data = Analyse_sf)
 ```
 
 ```{r}
-vif_values <- vif(linear_model)
+vif_values <- vif(vif_model)
 print(vif_values)
 ```
 
 ## SAR (Spatial Autoregressiv)
 
 ```{r eval=FALSE}
-# sar_model <- lagsarlm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + Etasje_num + dist_cbd_km, data = Analyse_sf, listw = Analyse_sf_W3, zero.policy = TRUE)
-
-# SAR model med høyere tol.solve-verdi og færre variabler
-sar_model <- lagsarlm(P ~ O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + Etasje + dist_cbd_km,
-                      data = Analyse_sf,
-                      listw = Analyse_W3,
-                      tol.solve = 1e-10)
-```
-
-```{r eval=FALSE}
 modBlokkForslag
 ```
 
 ```{r}
-Analyse_sf$Kommune <- relevel(Analyse_sf$Kommune, ref = "Bergen")
+Analyse_sf$Kommune <- as.factor(Analyse_sf$Kommune) # Character -> Factor
+Analyse_sf$Kommune <- relevel(Analyse_sf$Kommune, ref = "Bergen") # Referanseverdi
 ```
 
 ```{r}
@@ -2576,7 +2525,7 @@ Modell_SAR <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg +
 ```
 
 ```{r}
-sar_model <- lagsarlm(Modell_SAR + relevel(Analyse_sf$Kommune, ref = "Bergen"),
+sar_model <- lagsarlm(Modell_SAR,
                       data = Analyse_sf,
                       listw = Analyse_W3,
                       tol.solve = 1e-10)
@@ -2587,35 +2536,46 @@ cat("Summary for SAR model:\n")
 print(summary(sar_model))
 ```
 
-
-
 ## SEM (Spatial Error Model)
+
 modBlokkForslag
 
-SEM <- errorsarlm(mod3, data = Seattle_3333, listw = Seattle_3333_W3, Durbin = as.formula(~ bedrooms + bathrooms + sqft_living + sqft_lot + floors + grade + yr_built + dist_cbd_km + EHD_percen + high))
+SEM \<- errorsarlm(mod3, data = Seattle_3333, listw = Seattle_3333_W3, Durbin = as.formula(\~ bedrooms + bathrooms + sqft_living + sqft_lot + floors + grade + yr_built + dist_cbd_km + EHD_percen + high))
+
 
 ```{r}
-sem_model <- errorsarlm(modBlokkForslag, P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + Etasje + dist_cbd_km, data = Analyse_sf, listw = Analyse_sf_W3, zero.policy = TRUE)
+sem_model <- errorsarlm(Modell_SAR,
+                      data = Analyse_sf,
+                      listw = Analyse_W3,
+                      tol.solve = 1e-10)
 ```
 
 ## SAC (Spatial Simultaneous Autoregressiv)
-
 ```{r}
-sac_model <- sacsarlm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + Etasje + dist_cbd_km, data = Analyse_sf, listw = Analyse_sf_W3, zero.policy = TRUE)
+sac_model <- sacsarlm(Modell_SAR,
+                      data = Analyse_sf,
+                      listw = Analyse_W3,
+                      tol.solve = 1e-10)
 ```
 
-## SDM (Spatial Dubin Model)
-
+## SLX (Spatial lag of X-model)
 ```{r}
+slx_model <- lagsarlm(SDM,
+                                 data = Analyse_sf,
+                                 listw = Analyse_W3,
+                                 type = "mixed")
+```
+
+```{r, eval=FALSE}
 # Lager romlige laggede uavhengige variabler
-X_lag <- lag.listw(Analyse_sf_W3, as.matrix(Analyse_sf[, c("Alder", "EL.Kar", "O.Karak_num", "BLEnergikWh", "MatValg_num", "AntEiendom", "EiendomAreal", "BRA.Bolig", "Etasje", "dist_cbd_km")]))
+X_lag <- lag.listw(Analyse_W3, as.matrix(Analyse_sf[, c("EL.Kar.Original", "Alder", "O.Karak", "BLEnergikWh", "MatValg", "Bruksareal.Enhet", "AntallRom", "AntallBad", "AntallWC", "HarHeis", "YearQuarter", "Kommune", "dist_cbd_km")]))
 
 # Legger til romlige laggede uavhengige variabler i mitt datasett
 Analyse_sf <- cbind(Analyse_sf, X_lag)
 names(Analyse_sf)[(ncol(Analyse_sf) - ncol(X_lag) + 1):ncol(Analyse_sf)] <- paste0("W_", names(X_lag))
 
 # Formulerer Spatial Durbin model med lagsarlm() med type = "mixed"
-durbin_model <- lagsarlm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + BRA.Bolig + Etasje + dist_cbd_km + Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + BRA.Bolig + Etasje + dist_cbd_km, data = Analyse_sf, listw = Analyse_sf_W3, type = "mixed")
+durbin_model <- lagsarlm(pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + Kommune + dist_cbd_km, data = Analyse_sf, listw = Analyse_W3, type = "mixed")
 summary(durbin_model)
 
 ```
@@ -2632,8 +2592,8 @@ print(summary(sem_model))
 cat("\nSummary for SAC model:\n")
 print(summary(sac_model))
 
-cat("\nSummary for Spatial Durbin model:\n")
-print(summary(durbin_model))
+# cat("\nSummary for Spatial Durbin model:\n")
+# print(summary(durbin_model))
 ```
 
 ```{r}
