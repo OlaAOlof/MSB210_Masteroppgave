@@ -88,6 +88,28 @@ Blokker_Eksl_Bergen_sf <- transform(Blokker_Eksl_Bergen_sf, BebygdAreal = as.num
 #Blokker_Eksl_Bergen <- read.csv("Blokker_Ekskludert_Bergen.csv")
 ```
 
+# Fjerner SNR = 0
+
+```{r SNR>0}
+Analyse <- Analyse %>% 
+  filter(Snr > 0)
+
+Analyse_sf <- Analyse_sf %>% 
+  filter(Snr > 0)
+
+Blokker_sf <- Blokker_sf %>% 
+  filter(Snr > 0)
+
+#Bolig_sf <- Bolig_sf %>% 
+#  filter(Snr > 0)
+
+Blokker_Eksl_Bergen_sf <- Blokker_Eksl_Bergen_sf %>% 
+  filter(Snr > 0)
+
+#Bolig_Eksl_Bergen_sf <- Bolig_Eksl_Bergen_sf %>% 
+#  filter(Snr > 0)
+```
+
 # Summary av datasettene
 
 ```{r Summary Analyse}
@@ -478,7 +500,6 @@ Analyse_sf_W3 <- nb2listw(Analyse_sf_nb3, style = "W")
 #Analyse_sf_W3 <- nb2listw(Analyse_sf_nb3, style = "W")
 ```
 
-
 ```{r KNN 3}
 # Hent ut x- og y-koordinater fra geometrikolonnen
 #coords <- suppressWarnings(st_coordinates(st_centroid(Analyse_sf)))
@@ -597,7 +618,7 @@ Tallene etter Moran's I-verdiene i resultatene (-0.0003374958 og 0.0001646533 fo
 
 ## Gammel kode, utgår. SLUTT
 
--
+-   
 
 # Korrelasjonsmatriser
 
@@ -718,12 +739,11 @@ FG <- Analyse_sf %>%
   filter(Snr == 0)
 ```
 
-
 # Fjerner Snr = 0 Observasjoner
 
 **Ut ifra tilbakemeldinger fra veileder, så fjerner vi observasjoner som har Snr = 0, da disse er med fellesgjeld, og ikke hadde noe signifikant utslag i våres analyse. Vi må gjøre dette på på grunnleggende datasettene, samt på alle datasett som vi bruker i analysen**
 
-```{r}
+```{r SNR_0, eval=FALSE}
 Analyse <- Analyse %>% 
   filter(Snr > 0)
 
@@ -1443,7 +1463,7 @@ BIC(OLSBlokkEnergi)
 
 # VarImplot
 
-*Link til side med mal: https://koalaverse.github.io/vip/articles/vip.html *
+*Link til side med mal: https://koalaverse.github.io/vip/articles/vip.html*
 
 ```{r rfo_pris}
 rfo_pris <- ranger(pm2 ~ 
@@ -2308,15 +2328,11 @@ modBlokkForslag <- "I(log(pm2)) ~
   log(BLEnergikWh) + 
   MatValg + 
   I(log(Bruksareal.Enhet)) + 
-  EtasjeSeksjon + 
-  VannkantGL + 
-  RegKulturByg + 
   I(log(AntallRom)) + 
   I(log(AntallBad)) + 
   I(log(AntallWC)) + 
   HarHeis + 
   BolType + 
-  Kjokken + 
   YearQuarter +
   Kommune + 
   I(log(dist_cbd_km))"
@@ -2537,20 +2553,49 @@ print(vif_values)
 
 ## SAR (Spatial Autoregressiv)
 
-```{r}
+```{r eval=FALSE}
 # sar_model <- lagsarlm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + Etasje_num + dist_cbd_km, data = Analyse_sf, listw = Analyse_sf_W3, zero.policy = TRUE)
 
 # SAR model med høyere tol.solve-verdi og færre variabler
 sar_model <- lagsarlm(P ~ O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + Etasje + dist_cbd_km,
                       data = Analyse_sf,
-                      listw = Analyse_sf_W3,
+                      listw = Analyse_W3,
                       tol.solve = 1e-10)
 ```
 
-## SEM (Spatial Error Model)
+```{r eval=FALSE}
+modBlokkForslag
+```
 
 ```{r}
-sem_model <- errorsarlm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + Etasje + dist_cbd_km, data = Analyse_sf, listw = Analyse_sf_W3, zero.policy = TRUE)
+Analyse_sf$Kommune <- relevel(Analyse_sf$Kommune, ref = "Bergen")
+```
+
+```{r}
+Modell_SAR <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + Kommune + dist_cbd_km"
+```
+
+```{r}
+sar_model <- lagsarlm(Modell_SAR + relevel(Analyse_sf$Kommune, ref = "Bergen"),
+                      data = Analyse_sf,
+                      listw = Analyse_W3,
+                      tol.solve = 1e-10)
+```
+
+```{r}
+cat("Summary for SAR model:\n")
+print(summary(sar_model))
+```
+
+
+
+## SEM (Spatial Error Model)
+modBlokkForslag
+
+SEM <- errorsarlm(mod3, data = Seattle_3333, listw = Seattle_3333_W3, Durbin = as.formula(~ bedrooms + bathrooms + sqft_living + sqft_lot + floors + grade + yr_built + dist_cbd_km + EHD_percen + high))
+
+```{r}
+sem_model <- errorsarlm(modBlokkForslag, P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + Etasje + dist_cbd_km, data = Analyse_sf, listw = Analyse_sf_W3, zero.policy = TRUE)
 ```
 
 ## SAC (Spatial Simultaneous Autoregressiv)
