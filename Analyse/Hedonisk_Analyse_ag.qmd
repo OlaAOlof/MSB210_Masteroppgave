@@ -195,12 +195,9 @@ Blokker_sf <- Blokker_sf %>%
 
 ### Tester K-nærmeste-naboer-metoden
 
-Her bruker vi den k-nærmeste naboer-metoden, som baserer seg på avstanden mellom punktene.
-Queen- og Rook-kriteriene brukes for å definere naboer i polygondata.
-Queen-kriteriet sier at polygoner er naboer hvis de deler minst ett punkt (hjørne eller kant), mens Rook-kriteriet sier at polygoner er naboer hvis de deler minst en kant.
+Her bruker vi den k-nærmeste naboer-metoden, som baserer seg på avstanden mellom punktene. Queen- og Rook-kriteriene brukes for å definere naboer i polygondata. Queen-kriteriet sier at polygoner er naboer hvis de deler minst ett punkt (hjørne eller kant), mens Rook-kriteriet sier at polygoner er naboer hvis de deler minst en kant.
 
-K-nærmeste naboer-metoden som brukes fremvoer fungerer for punktdata og definerer naboer basert på avstanden mellom punktene.
-For hver observasjon finner den k nærmeste naboene, der k er en forhåndsbestemt verdi (k = 3, k = 5 og k = 10).
+K-nærmeste naboer-metoden som brukes fremvoer fungerer for punktdata og definerer naboer basert på avstanden mellom punktene. For hver observasjon finner den k nærmeste naboene, der k er en forhåndsbestemt verdi (k = 3, k = 5 og k = 10).
 
 #### Vektmatrise, K = 3
 
@@ -306,21 +303,15 @@ Analyse_sf_ag <- Analyse_sf_ag |>
 
 ## Naboer generert vha `relativeneigh()` og `graph2nb()`
 
-Punktene som har flere observasjoner vil her trolig representere en eller annen form for sameie (bloligbyggerlag etc.).
-Punktet kan da tenkes på som en representant for et område.
-Vi kan da benytte teknikken fra eksemplet for nb2block() funksjonen i Help.
-Vi lager her en nabostruktur analogt til figur 9.4 d) i @bivand2008.
-For detaljer se *Details* i `help(relativeneigh)`.
+Punktene som har flere observasjoner vil her trolig representere en eller annen form for sameie (bloligbyggerlag etc.). Punktet kan da tenkes på som en representant for et område. Vi kan da benytte teknikken fra eksemplet for nb2block() funksjonen i Help. Vi lager her en nabostruktur analogt til figur 9.4 d) i @bivand2008. For detaljer se *Details* i `help(relativeneigh)`.
 
 Fra eksemplet til kommandoen `nbblocknb()` i help ser en at prosssen med å «blocke opp» er følgende:
 
-1.  Starter med `relativeneigh()` som trenger koordinater som matrise (n rekker, to kolonner) Koordinatene må være for *hvert unikt punkt* hvor vi har obs..
-    . Returnerer et graph-objekt som kan brukes som input til `graph2nb()`.
+1.  Starter med `relativeneigh()` som trenger koordinater som matrise (n rekker, to kolonner) Koordinatene må være for *hvert unikt punkt* hvor vi har obs.. . Returnerer et graph-objekt som kan brukes som input til `graph2nb()`.
 
     -   rel_graph \<- relativeneigh(coord_mat, unike_områdenavn)
 
-2.  `graph2nb()` trenger et graph-objekt og tilhørende unike_områdenavn som input for å returnere et nabo-objekt.
-    sym = TRUE sikrer symmetri.
+2.  `graph2nb()` trenger et graph-objekt og tilhørende unike_områdenavn som input for å returnere et nabo-objekt. sym = TRUE sikrer symmetri.
 
     -   rel_nb \<- graph2nb(rel_graph, unike_områdenavn, sym = TRUE)
 
@@ -328,10 +319,7 @@ Fra eksemplet til kommandoen `nbblocknb()` i help ser en at prosssen med å «bl
 
     -   rel_nb_blocked \<- nb2blocknb(rel_nb, områdenavn)
 
-4.  `nb2listw()` trenger et nabo-objekt for å returnere en nabomatrise.
-    Type matrise bestemmes vha.
-    opsjoner.
-    Vi kan også sette zero.policy.
+4.  `nb2listw()` trenger et nabo-objekt for å returnere en nabomatrise. Type matrise bestemmes vha. opsjoner. Vi kan også sette zero.policy.
 
     -   nb2listw(rel_nb_blocked, style = "W", zero.policy = TRUE)
 
@@ -374,9 +362,7 @@ Fra help(nb2blocknb)
 
 Betrakt en utvalgt observasjon; «vår observasjon».
 
-Assume that there is a list of unique locations (**våre unike punkt, med en eller flere observasjoner**), then a neighbour list can build for that, to create an input neighbour list.
-This needs to be "unfolded", so that observations belonging to each unique location are observation neighbours (**alle observasjoner med samme koordinater som «vår observasjon» er naboer**), and observations belonging to the location neighbours of the unique location in question are also observation neighbours (**observasjoner i nabo-punktene til «vår observasjon» er også naboer**), finally removing the observation itself (because it should not be its own neighbour) (**må fjerne «vår observasjon» fra nabo-listen siden vi per def. ikke kan være nabo med oss selv)**.
-This scenario also arises when say only post codes are available, and some post codes contain multiple observations, where all that is known is that they belong to a specific post code, not where they are located within it (given that the post code locations are known).
+Assume that there is a list of unique locations (**våre unike punkt, med en eller flere observasjoner**), then a neighbour list can build for that, to create an input neighbour list. This needs to be "unfolded", so that observations belonging to each unique location are observation neighbours (**alle observasjoner med samme koordinater som «vår observasjon» er naboer**), and observations belonging to the location neighbours of the unique location in question are also observation neighbours (**observasjoner i nabo-punktene til «vår observasjon» er også naboer**), finally removing the observation itself (because it should not be its own neighbour) (**må fjerne «vår observasjon» fra nabo-listen siden vi per def. ikke kan være nabo med oss selv)**. This scenario also arises when say only post codes are available, and some post codes contain multiple observations, where all that is known is that they belong to a specific post code, not where they are located within it (given that the post code locations are known).
 
 ```{r}
 block.nb
@@ -394,9 +380,7 @@ moran.test(Analyse_sf_ag$P, Analyse_w)
 
 ## Naboer generert vha. `knearneigh()`
 
-Her finner vi de k nærmeste naboene til hvert unike punkt.
-Har vi mange duplikater på et punkt og i nærliggende punkt kan vi få svært mange naboer for noen observasjoner.
-Det springende punkt for å få ting til å virke blir som ovenfor at områdenavn (row.names =) samsvarer med punktene og at områdenavnene (med duplikater) som vi bruker når vi «blokker opp» samsvarer med de unike navnene vi benyttet i `knn2nb()`.
+Her finner vi de k nærmeste naboene til hvert unike punkt. Har vi mange duplikater på et punkt og i nærliggende punkt kan vi få svært mange naboer for noen observasjoner. Det springende punkt for å få ting til å virke blir som ovenfor at områdenavn (row.names =) samsvarer med punktene og at områdenavnene (med duplikater) som vi bruker når vi «blokker opp» samsvarer med de unike navnene vi benyttet i `knn2nb()`.
 
 ```{r}
 # 3 nearest neighbours
