@@ -1,0 +1,453 @@
+---
+title: "Masteroppgave"
+author: 
+  Kevin Ha
+  Ola Andre Olofsson
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: inline
+bibliography: references.bib
+---
+
+# Setup Chunk
+
+```{r setup_base}
+library(readr)
+library(tidyverse)
+library(dplyr)
+library(lubridate)
+#library(zoo)
+library(sf)
+library(sp)
+library(spdep)
+library(tmap)
+library(spatialreg)
+#library(magrittr)
+#library(measurements)
+library(tibble)
+library(ggcorrplot)
+library(huxtable)
+library(plm)
+library(car)
+library(lmtest)
+library(magick)
+library(olsrr)
+library(vip)
+library(xgboost)
+library(ranger)
+library(rpart)
+options(paged.print = FALSE)
+```
+
+# Leser inn datasettene for analyse
+
+```{r Innlesing av data}
+Analyse <- suppressWarnings(read_csv("Datasett_Analyse.csv")) %>% 
+  select(-...1)
+Analyse_sf <- suppressWarnings(st_read("Datasett_Analyse_sf.gpkg"))
+Analyse_Shape <- suppressWarnings(read_sf("Analyse_Shape.shp"))
+```
+
+```{r Navngir shp}
+shp <- "Analyse_Shape.shp"
+class(st_geometry(st_read(shp, quiet = TRUE, type = 3)))
+```
+
+```{r Gjør variabler numerisk}
+Analyse_sf <- transform(Analyse_sf, EiendomAreal = as.numeric(EiendomAreal))
+Analyse_sf <- transform(Analyse_sf, BRA.Bolig = as.numeric(BRA.Bolig))
+Analyse_sf <- transform(Analyse_sf, BRA.Tot = as.numeric(BRA.Tot))
+Analyse_sf <- transform(Analyse_sf, BebygdAreal = as.numeric(BebygdAreal))
+Analyse_sf <- transform(Analyse_sf, Bruksareal.Enhet = as.numeric(Bruksareal.Enhet))
+```
+
+Analyse_sf \<- suppressWarnings(st_read("Datasett_Analyse_sf.gpkg"))
+
+```{r}
+Bolig_sf <- suppressWarnings(st_read("Bolig_Inkludert_Bergen.gpkg"))
+Bolig_Eksl_Bergen_sf <- suppressWarnings(st_read("Bolig_Ekskludert_Bergen.gpkg"))
+Blokker_sf <- suppressWarnings(st_read("Blokker_Inkludert_Bergen.gpkg"))
+Blokker_Eksl_Bergen_sf <- suppressWarnings(st_read("Blokker_Ekskludert_Bergen.gpkg"))
+```
+
+```{r}
+Bolig_sf <- transform(Bolig_sf, EiendomAreal = as.numeric(EiendomAreal))
+Bolig_sf <- transform(Bolig_sf, BebygdAreal = as.numeric(BebygdAreal))
+Bolig_Eksl_Bergen_sf <- transform(Bolig_Eksl_Bergen_sf, EiendomAreal = as.numeric(EiendomAreal))
+Bolig_Eksl_Bergen_sf <- transform(Bolig_Eksl_Bergen_sf, BebygdAreal = as.numeric(BebygdAreal))
+Blokker_sf <- transform(Blokker_sf, EiendomAreal = as.numeric(EiendomAreal))
+Blokker_sf <- transform(Blokker_sf, BebygdAreal = as.numeric(BebygdAreal))
+Blokker_Eksl_Bergen_sf <- transform(Blokker_Eksl_Bergen_sf, EiendomAreal = as.numeric(EiendomAreal))
+Blokker_Eksl_Bergen_sf <- transform(Blokker_Eksl_Bergen_sf, BebygdAreal = as.numeric(BebygdAreal))
+```
+
+```{r}
+#Bolig <- read.csv("Bolig_Inkludert_Bergen.csv")
+#Bolig_Eksl_Bergen <- read.csv("Bolig_Ekskludert_Bergen.csv")
+#Blokker <- read.csv("Blokker_Inkludert_Bergen.csv")
+#Blokker_Eksl_Bergen <- read.csv("Blokker_Ekskludert_Bergen.csv")
+```
+
+# Summary av datasettene
+
+```{r Summary Analyse}
+#summary(Analyse)
+#summary(Analyse_sf)
+```
+
+# Lager en kolonne med kommune navn
+
+```{r Mutater_Kommuner, eval=FALSE}
+Analyse_sf <- Analyse_sf %>% 
+  mutate(Kommune = recode(Knr,
+                          4601 = "Bergen",
+                          4624 = "Bjornafjorden",
+                          4626 = "Oygarden",
+                          4627 = "Askoy",
+                          4628 = "Vaksdal",
+                          4630 = "Osteroy",
+                          4631 = "Alver",
+                          4632 = "Austrheim"))
+```
+
+```{r}
+Analyse_sf <- Analyse_sf %>%
+  mutate(Kommune = case_when(
+    Knr == 4601 ~ "Bergen",
+    Knr == 4624 ~ "Bjornafjorden",
+    Knr == 4626 ~ "Oygarden",
+    Knr == 4627 ~ "Askoy",
+    Knr == 4628 ~ "Vaksdal",
+    Knr == 4630 ~ "Osteroy",
+    Knr == 4631 ~ "Alver",
+    Knr == 4632 ~ "Austrheim",
+    TRUE ~ "Unknown"
+  )) %>%
+  relocate(Kommune, .before = Knr)
+```
+
+```{r}
+Analyse <- Analyse %>%
+  mutate(Kommune = case_when(
+    Knr == 4601 ~ "Bergen",
+    Knr == 4624 ~ "Bjornafjorden",
+    Knr == 4626 ~ "Oygarden",
+    Knr == 4627 ~ "Askoy",
+    Knr == 4628 ~ "Vaksdal",
+    Knr == 4630 ~ "Osteroy",
+    Knr == 4631 ~ "Alver",
+    Knr == 4632 ~ "Austrheim",
+    TRUE ~ "Unknown"
+  )) %>%
+  relocate(Kommune, .before = Knr)
+```
+
+```{r}
+Blokker_sf <- Blokker_sf %>%
+  mutate(Kommune = case_when(
+    Knr == 4601 ~ "Bergen",
+    Knr == 4624 ~ "Bjornafjorden",
+    Knr == 4626 ~ "Oygarden",
+    Knr == 4627 ~ "Askoy",
+    Knr == 4628 ~ "Vaksdal",
+    Knr == 4630 ~ "Osteroy",
+    Knr == 4631 ~ "Alver",
+    Knr == 4632 ~ "Austrheim",
+    TRUE ~ "Unknown"
+  )) %>%
+  relocate(Kommune, .before = Knr)
+```
+
+# Lager vektmatriser
+
+```{r KNN naboer}
+#Kankje laga vektmatrisa på Analyse-datasettet. Må bli gjort på kart-datasettet "Analyse_sf"
+
+#Analyse_mat_nb3 <- knearneigh(Analyse, k = 3)
+#Analyse_nb3 <- knn2nb(Analyse_mat_nb3)
+#Analyse_W3 <- nb2listw(Analyse_nb3, style = "W")
+```
+
+## Vektmatrise for Analyse_sf
+
+### Tester Queen- og Rook
+
+```{r Queen, eval=FALSE}
+#queen.nb = poly2nb(Analyse_Shape)
+```
+
+```{r Queen list, eval=FALSE}
+#queen.listw = nb2listw(queen.nb)
+```
+
+```{r Rook, eval=FALSE}
+#rook.nb = poly2nb(Analyse_Shape, queen = FALSE)
+```
+
+```{r Rook list, eval=FALSE}
+#rook.listw = nb2listw(rook.nb)
+```
+
+```{r List W, eval=FALSE}
+#listw1 = queen.listw
+```
+
+### Tester K-nærmeste-naboer-metoden
+
+Her bruker vi den k-nærmeste naboer-metoden, som baserer seg på avstanden mellom punktene.
+Queen- og Rook-kriteriene brukes for å definere naboer i polygondata.
+Queen-kriteriet sier at polygoner er naboer hvis de deler minst ett punkt (hjørne eller kant), mens Rook-kriteriet sier at polygoner er naboer hvis de deler minst en kant.
+
+K-nærmeste naboer-metoden som brukes fremvoer fungerer for punktdata og definerer naboer basert på avstanden mellom punktene.
+For hver observasjon finner den k nærmeste naboene, der k er en forhåndsbestemt verdi (k = 3, k = 5 og k = 10).
+
+#### Vektmatrise, K = 3
+
+Oppretter romlige vektmatriser for k-nærmeste naboer med k = 3
+
+nb2blocknb
+
+```{r KNN 3, eval=FALSE}
+Analyse_sf_mat_nb3 <- knearneigh(Analyse_sf, k = 3)
+Analyse_sf_nb3 <- knn2nb(Analyse_sf_mat_nb3)
+Analyse_sf_W3 <- nb2listw(Analyse_sf_nb3, style = "W")
+```
+
+# Forsøk på ny matrise etter ny funksjon fra Arnstein
+
+```{r, eval=FALSE}
+Analyse_sf_nb3 <- knn2nb(knearneigh(Analyse_sf, k = 3))
+```
+
+```{r}
+# uni_coord <- st_coordinates(
+#   Analyse_sf[-unlist(st_equals(
+#     Analyse_sf, 
+#     retain_unique = TRUE
+#     )
+#     ),]
+#   )
+# uni_places <- unique(
+#     Analyse_sf[
+#       -unlist(st_equals(
+#         Analyse_sf, 
+#         retain_unique = TRUE
+#         )
+#         )
+#       ,]$GateAdresse
+#     )
+```
+
+## Fikser data
+
+```{r}
+# Inkonsistens i data. Eksakt samme posisjon har forskjellig
+# EiendomAdressegatenavn. EiendomAdressegatenavn er en variabel som 
+# kan brukes analogt til TOWN i Boston eksempel, men da må SAMME punkt ha
+# SAMME EiendomAdressegatenavn ellers får blocking rutinene problemer. Lager
+# en ny variabel EAG_Blocking der dette fikses
+# Lager også noen id-er for å identifisere de problematiske observasjonene
+all_point_coords <- st_coordinates(Analyse_sf)
+# Add id variabel made from coordinates before P in Analyse_sf
+Analyse_sf_ag <- rowid_to_column(Analyse_sf, "id")
+Analyse_sf_ag <- Analyse_sf_ag  |> 
+  mutate(
+    id_adr = paste(
+      EiendomAdressegatenavn,
+      all_point_coords[,1], 
+      all_point_coords[,2], 
+      sep = "_"),
+    id_coords = paste(
+      all_point_coords[,1], 
+      all_point_coords[,2], 
+      sep = "_"),
+    EAG_Blocking = EiendomAdressegatenavn,
+    .before = "P"
+  )
+
+# Finner observasjonene som har SAMME koordinater, men forskjellig
+# EiendomAdressegatenavn
+Analyse_sf_ag_ng <- st_drop_geometry(Analyse_sf_ag)
+duplicates_coord <- setdiff(
+  Analyse_sf_ag_ng[!duplicated(Analyse_sf_ag_ng$id_adr),
+             c("id", "id_coords")],
+  Analyse_sf_ag_ng[!duplicated(Analyse_sf_ag_ng$id_coords),
+             c("id", "id_coords")]
+)
+
+prob_obs <- Analyse_sf_ag |> 
+  filter(id_coords %in% duplicates_coord$id_coords) |> 
+  arrange(id_coords, EiendomAdressegatenavn)
+
+# I prob_obs ser vi hvilke obs. som skaper problemer
+# Fikser problemet i EiendomAdressegatenavn_Blocking
+Analyse_sf_ag <- Analyse_sf_ag |> 
+  mutate(
+    EAG_Blocking = case_when(
+      # Endrer nattlandsrinden til nordre nattlandsfjellet
+      id %in% c(82, 84, 86, 146) ~ "nordre nattlandsfjellet",
+      # Endrer vallaheiane til vallalia
+      id %in% c(227, 228, 233, 235) ~ "vallalia",
+      # endrer koren wibergs plass til wesenbergsmauet
+      id %in% c(56) ~ "wesenbergsmauet",
+      # endrer jens rolfsens gate til nye sandviksveien
+      id %in% c(1065) ~ "nye sandviksveien",
+      # endrer michael krohns gate til damsgårdsveien
+      id %in% c(435:441, 607:613) ~ "damsgårdsveien",
+      # endrer johan berentsens vei til kringsjåveien
+      id %in% c(865) ~ "kringsjåveien",
+      # resten er uforandret
+      TRUE ~ EAG_Blocking
+    ),
+    EAG_Blocking = paste(EAG_Blocking, id_coords, sep = "_")
+  )
+```
+
+## Naboer generert vha `relativeneigh()` og `graph2nb()`
+
+Punktene som har flere observasjoner vil her trolig representere en eller annen form for sameie (bloligbyggerlag etc.).
+Punktet kan da tenkes på som en representant for et område.
+Vi kan da benytte teknikken fra eksemplet for nb2block() funksjonen i Help.
+Vi lager her en nabostruktur analogt til figur 9.4 d) i @bivand2008.
+For detaljer se *Details* i `help(relativeneigh)`.
+
+Fra eksemplet til kommandoen `nbblocknb()` i help ser en at prosssen med å «blocke opp» er følgende:
+
+1.  Starter med `relativeneigh()` som trenger koordinater som matrise (n rekker, to kolonner) Koordinatene må være for *hvert unikt punkt* hvor vi har obs..
+    . Returnerer et graph-objekt som kan brukes som input til `graph2nb()`.
+
+    -   rel_graph \<- relativeneigh(coord_mat, unike_områdenavn)
+
+2.  `graph2nb()` trenger et graph-objekt og tilhørende unike_områdenavn som input for å returnere et nabo-objekt.
+    sym = TRUE sikrer symmetri.
+
+    -   rel_nb \<- graph2nb(rel_graph, unike_områdenavn, sym = TRUE)
+
+3.  `nb2blocknb()` trenger et nabo-objekt (rel_nb) og tilhørende liste av områdenavn for alle observasjoner (her kan vi ha flere obs. med samme områdenavn. Det er disse som skal «blockes opp».).
+
+    -   rel_nb_blocked \<- nb2blocknb(rel_nb, områdenavn)
+
+4.  `nb2listw()` trenger et nabo-objekt for å returnere en nabomatrise.
+    Type matrise bestemmes vha.
+    opsjoner.
+    Vi kan også sette zero.policy.
+
+    -   nb2listw(rel_nb_blocked, style = "W", zero.policy = TRUE)
+
+```{r}
+# punkt 1
+unike_punkt <- Analyse_sf_ag |> 
+  select(EAG_Blocking) |> 
+  distinct()
+
+rel_graph <- relativeneigh(
+  coords = st_coordinates(unike_punkt),
+  # scaling factor for memory allocation, 15 seems to work
+  nnmult = 15
+)
+```
+
+```{r}
+# punkt 2
+rel_nb <- graph2nb(
+  gob = rel_graph,
+  # områdenavnene, pull() for å gå fra tibbel med en var til vector
+  row.names = pull(st_drop_geometry(select(unike_punkt, EAG_Blocking))),
+  sym = TRUE
+)
+```
+
+```{r}
+plot(rel_nb, st_coordinates(unike_punkt))
+```
+
+```{r}
+block.nb <- nb2blocknb(
+  rel_nb, 
+  # Nå alle verdier av EAG_Blocking, dvs. flere duplikater som «blocks opp»
+  ID = Analyse_sf_ag$EAG_Blocking
+  )
+```
+
+Fra help(nb2blocknb)
+
+Betrakt en utvalgt observasjon; «vår observasjon».
+
+Assume that there is a list of unique locations (**våre unike punkt, med en eller flere observasjoner**), then a neighbour list can build for that, to create an input neighbour list.
+This needs to be "unfolded", so that observations belonging to each unique location are observation neighbours (**alle observasjoner med samme koordinater som «vår observasjon» er naboer**), and observations belonging to the location neighbours of the unique location in question are also observation neighbours (**observasjoner i nabo-punktene til «vår observasjon» er også naboer**), finally removing the observation itself (because it should not be its own neighbour) (**må fjerne «vår observasjon» fra nabo-listen siden vi per def. ikke kan være nabo med oss selv)**.
+This scenario also arises when say only post codes are available, and some post codes contain multiple observations, where all that is known is that they belong to a specific post code, not where they are located within it (given that the post code locations are known).
+
+```{r}
+block.nb
+```
+
+```{r}
+plot(block.nb, coords = st_coordinates(Analyse_sf_ag));points(st_coordinates(unike_punkt))
+```
+
+```{r}
+Analyse_w <- nb2listw(block.nb, style = "W", zero.policy = TRUE)
+# Har vi spatial autocorrelation i prisene?
+moran.test(Analyse_sf_ag$P, Analyse_w)
+```
+
+## Naboer generert vha. `knearneigh()`
+
+Her finner vi de k nærmeste naboene til hvert unike punkt.
+Har vi mange duplikater på et punkt og i nærliggende punkt kan vi få svært mange naboer for noen observasjoner.
+Det springende punkt for å få ting til å virke blir som ovenfor at områdenavn (row.names =) samsvarer med punktene og at områdenavnene (med duplikater) som vi bruker når vi «blokker opp» samsvarer med de unike navnene vi benyttet i `knn2nb()`.
+
+```{r}
+# 3 nearest neighbours
+knn_3 <- knearneigh(st_coordinates(unike_punkt), k = 3)
+nb_knn3 <- knn2nb(
+  knn_3, 
+  row.names = pull(st_drop_geometry(select(unike_punkt, EAG_Blocking))),
+  sym = TRUE
+  )
+block.nb_knn3 <- nb2blocknb(
+  nb_knn3,
+  ID = Analyse_sf_ag$EAG_Blocking
+  )
+Analyse_w_knn3 <- nb2listw(block.nb_knn3, style = "W", zero.policy = TRUE)
+# Har vi spatial autocorrelation i prisene?
+moran.test(Analyse_sf_ag$P, Analyse_w_knn3)
+```
+
+```{r}
+block.nb_knn3
+```
+
+```{r}
+plot(block.nb_knn3, coords = st_coordinates(Analyse_sf_ag));points(st_coordinates(unike_punkt))
+```
+
+```{r}
+# 10 nearest neighbours
+knn_10 <- knearneigh(st_coordinates(unike_punkt), k = 10)
+nb_knn10 <- knn2nb(
+  knn_10, 
+  row.names = pull(st_drop_geometry(select(unike_punkt, EAG_Blocking))),
+  sym = TRUE
+  )
+block.nb_knn10 <- nb2blocknb(
+  nb_knn10,
+  ID = Analyse_sf_ag$EAG_Blocking
+  )
+Analyse_w_knn10 <- nb2listw(block.nb_knn10, style = "W", zero.policy = TRUE)
+# Har vi spatial autocorrelation i prisene?
+moran.test(Analyse_sf_ag$P, Analyse_w_knn10)
+```
+
+```{r}
+block.nb_knn10
+```
+
+```{r}
+plot(block.nb_knn10, coords = st_coordinates(Analyse_sf_ag));points(st_coordinates(unike_punkt))
+```
+
+Andre alternativer tror jeg dere greit skal kunne generere selv nå.
+
+## Referanser
