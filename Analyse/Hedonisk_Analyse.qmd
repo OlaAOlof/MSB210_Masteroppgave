@@ -2518,6 +2518,9 @@ modBlokkForslag
 ```{r}
 Analyse_sf$Kommune <- as.factor(Analyse_sf$Kommune) # Character -> Factor
 Analyse_sf$Kommune <- relevel(Analyse_sf$Kommune, ref = "Bergen") # Referanseverdi
+
+Analyse_sf$EL.Kar.Original <- as.factor(Analyse_sf$EL.Kar.Original) # Character -> Factor
+Analyse_sf$EL.Kar.Original <- relevel(Analyse_sf$EL.Kar.Original, ref = "F") # Referanseverdi
 ```
 
 ```{r}
@@ -2627,3 +2630,4 @@ lrtest_sac_vs_durbin <- lrtest(sac_model, durbin_model)
 cat("\nLR test for SAC vs. Spatial Durbin:\n")
 print(lrtest_sac_vs_durbin)
 ```
+
