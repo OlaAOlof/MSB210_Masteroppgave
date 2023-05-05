@@ -255,7 +255,6 @@ temp_andel <- Ambita_Oppdatert %>%
   select(Andelsnr, Kommunenr, Gardsnr, Bruksnr, EiendomNordSor, EiendomOstVest, InternIdBruksenhet, Bygningsnr, Dokumentnr)
 ```
 
-
 ## Tar vekk kolonner som ikke er relevante for oss
 
 ### Hovedvariabler som ikke er nødvendige
@@ -847,9 +846,7 @@ rm(Ambita_Oppdatert,
    Temp)
 ```
 
-
 # Splitter matrikkel i Analyse-datasettet
-
 
 ```{r}
 Analyse <- Analyse %>% 
@@ -1133,7 +1130,6 @@ Analyse <- Analyse %>%
 ```{r}
 Analyse_sf <- transform(Analyse_sf, Bruksareal.Enhet = as.numeric(Bruksareal.Enhet))
 ```
-
 
 ```{r}
 Analyse_sf$Bruksareal.Enhet[(876)] <- 79

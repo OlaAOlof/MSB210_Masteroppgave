@@ -2517,24 +2517,55 @@ modBlokkForslag
 
 ```{r}
 Analyse_sf$Kommune <- as.factor(Analyse_sf$Kommune) # Character -> Factor
-Analyse_sf$Kommune <- relevel(Analyse_sf$Kommune, ref = "Bergen") # Referanseverdi
+Analyse_sf$Kommune <- relevel(Analyse_sf$Kommune, ref = "Alver") # Referanseverdi
+```
 
+```{r}
 Analyse_sf$EL.Kar.Original <- as.factor(Analyse_sf$EL.Kar.Original) # Character -> Factor
-Analyse_sf$EL.Kar.Original <- relevel(Analyse_sf$EL.Kar.Original, ref = "F") # Referanseverdi
+Analyse_sf$EL.Kar.Original <- relevel(Analyse_sf$EL.Kar.Original, ref = "G") # Referanseverdi
+
+Analyse_sf$O.Karak <- as.factor(Analyse_sf$O.Karak) # Character -> Factor
+Analyse_sf$O.Karak <- relevel(Analyse_sf$O.Karak, ref = "Red") # Referanseverdi
+```
+
+
+```{r}
+Modell_Kommuner <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + Kommune + dist_cbd_km"
 ```
 
 ```{r}
-Modell_SAR <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + Kommune + dist_cbd_km"
+Modell_Generell <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km"
 ```
 
 ```{r}
-sar_model <- lagsarlm(Modell_SAR,
+sar_model_kommuner_k3 <- lagsarlm(Modell_Kommuner,
                       data = Analyse_sf,
                       listw = Analyse_W3,
                       tol.solve = 1e-10)
 ```
 
 ```{r}
+sar_model_generell_k3 <- lagsarlm(Modell_Generell,
+                      data = Analyse_sf,
+                      listw = Analyse_W3,
+                      tol.solve = 1e-10)
+```
+
+```{r}
+sar_model_kommuner_k10 <- lagsarlm(Modell_Kommuner,
+                      data = Analyse_sf,
+                      listw = Analyse_W10,
+                      tol.solve = 1e-10)
+```
+
+```{r}
+sar_model_generell_k10 <- lagsarlm(Modell_Generell,
+                      data = Analyse_sf,
+                      listw = Analyse_W10,
+                      tol.solve = 1e-10)
+```
+
+```{r eval=FALSE}
 cat("Summary for SAR model:\n")
 print(summary(sar_model))
 ```
