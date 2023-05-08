@@ -1745,19 +1745,43 @@ Blokker_sf$O.Karak <- as.factor(Blokker_sf$O.Karak) # Character -> Factor
 Blokker_sf$O.Karak <- relevel(Blokker_sf$O.Karak, ref = "Red") # Referanseverdi
 ```
 
-## Lager periode-basert datasett
+## Lager datasett for strømpriskrise
 
-```{r}
+```{r, eval=FALSE}
 Blokker_sf_Pre_Krise <- Blokker_sf %>% 
   filter(YearQuarter < "2021Q4")
 ```
 
-```{r}
+```{r, eval=FALSE}
 Blokker_sf_Etter_Krise <- Blokker_sf %>% 
   filter(YearQuarter >= "2021Q4")
 ```
 
+## Lager årlige datasett
+
+```{r, eval=FALSE}
+Blokker_sf_2019 <- Blokker_sf %>% 
+  filter(DokumentAr == 2019)
+```
+
+```{r, eval=FALSE}
+Blokker_sf_2020 <- Blokker_sf %>% 
+  filter(DokumentAr == 2020)
+```
+
+```{r, eval=FALSE}
+Blokker_sf_2021 <- Blokker_sf %>% 
+  filter(DokumentAr == 2021)
+```
+
+```{r, eval=FALSE}
+Blokker_sf_2022 <- Blokker_sf %>% 
+  filter(DokumentAr == 2022)
+```
+
 ## Forslag, Modell
+
+### Full Modell
 
 ```{r Modell_Done}
 options(scipen = 999)
@@ -1781,6 +1805,110 @@ summary(OLSBlokk)
 AIC(OLSBlokk)
 BIC(OLSBlokk)
 ```
+
+### Full Modell - Uten Oppvarmingskarakterer
+
+### Modell, 2019
+
+```{r Modell_Blokk_2019, eval=FALSE}
+options(scipen = 999)
+modBlokk_2019 <- "pm2 ~ 
+  EL.Kar.Original + 
+  (Alder) + 
+  O.Karak + 
+  BLEnergikWh + 
+  MatValg + 
+  Bruksareal.Enhet + 
+  (AntallRom) + 
+  (AntallBad) + 
+  (AntallWC) + 
+  HarHeis + 
+  BolType + 
+  YearQuarter +
+  Kommune + 
+  (dist_cbd_km)"
+OLSBlokk_2019 <- lm(modBlokk_2019, data = Blokker_sf_2019)
+summary(OLSBlokk_2019)
+AIC(OLSBlokk_2019)
+BIC(OLSBlokk_2019)
+```
+
+### Modell, 2020
+
+```{r Modell_Blokk_2020, eval=FALSE}
+options(scipen = 999)
+modBlokk_2020 <- "pm2 ~ 
+  EL.Kar.Original + 
+  (Alder) + 
+  O.Karak + 
+  BLEnergikWh + 
+  MatValg + 
+  Bruksareal.Enhet + 
+  (AntallRom) + 
+  (AntallBad) + 
+  (AntallWC) + 
+  HarHeis + 
+  BolType + 
+  YearQuarter +
+  Kommune + 
+  (dist_cbd_km)"
+OLSBlokk_2020 <- lm(modBlokk_2020, data = Blokker_sf_2020)
+summary(OLSBlokk_2020)
+AIC(OLSBlokk_2020)
+BIC(OLSBlokk_2020)
+```
+
+### Modell, 2021
+
+```{r Modell_Blokk_2021, eval=FALSE}
+options(scipen = 999)
+modBlokk_2021 <- "pm2 ~ 
+  EL.Kar.Original + 
+  (Alder) + 
+  O.Karak + 
+  BLEnergikWh + 
+  MatValg + 
+  Bruksareal.Enhet + 
+  (AntallRom) + 
+  (AntallBad) + 
+  (AntallWC) + 
+  HarHeis + 
+  BolType + 
+  YearQuarter +
+  Kommune + 
+  (dist_cbd_km)"
+OLSBlokk_2021 <- lm(modBlokk_2021, data = Blokker_sf_2021)
+summary(OLSBlokk_2021)
+AIC(OLSBlokk_2021)
+BIC(OLSBlokk_2021)
+```
+
+### Modell, 2022
+
+```{r Modell_Blokk_2022, eval=FALSE}
+options(scipen = 999)
+modBlokk_2022 <- "pm2 ~ 
+  EL.Kar.Original + 
+  (Alder) + 
+  O.Karak + 
+  BLEnergikWh + 
+  MatValg + 
+  Bruksareal.Enhet + 
+  (AntallRom) + 
+  (AntallBad) + 
+  (AntallWC) + 
+  HarHeis + 
+  BolType + 
+  YearQuarter +
+  Kommune + 
+  (dist_cbd_km)"
+OLSBlokk_2022 <- lm(modBlokk_2022, data = Blokker_sf_2022)
+summary(OLSBlokk_2022)
+AIC(OLSBlokk_2022)
+BIC(OLSBlokk_2022)
+```
+
+### Modell, Strømpriskrise
 
 ```{r Modell_Done_Pre_Krise, eval=FALSE}
 options(scipen = 999)
