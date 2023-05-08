@@ -138,6 +138,16 @@ Blokker_Eksl_Bergen_sf <- Blokker_Eksl_Bergen_sf %>%
 #  filter(Snr > 0)
 ```
 
+# Fjerner uteligger 1616
+
+```{r}
+Analyse_sf <- Analyse_sf[-1616,]
+```
+
+```{r}
+Analyse <- Analyse[-1616,]
+```
+
 # Summary av datasettene
 
 ```{r Summary Analyse}
