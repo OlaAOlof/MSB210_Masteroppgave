@@ -679,7 +679,7 @@ ggcorrplot(cor_matrix)
 
 ## Sjekker multikollinearitet
 
-```{r lager lineær modell1}
+```{r lager lineær modell1, eval=FALSE}
 linear_model_1 <- lm(P ~ Alder + EL.Kar + O.Karak_num + BLEnergikWh + MatValg_num + AntEiendom + EiendomAreal + BRA.Bolig + Bruksareal.Enhet + Etasje + VannkantGL + VegkantGL + BebygdAreal + RegLBE + RegGrunnforur + RegKulturEiendom + RegGrunnerverv + TotBoliger + RegKulturByg + AntallRom + AntallBad + AntallWC + PrivatEid + HarHeis + VannKode + AvlopsKode + BolType + Kjokken + YearQuarter, data = Analyse)
 ```
 
@@ -692,7 +692,7 @@ Vi ønsker GVIF verdier så nærme 1 som mulig. Verdier mindre enn 5 er akseptab
 
 **GVIF-Verdier på 1.02 til 1.6. Dette er variabler vi kan bruke**
 
-```{r lager lineær modell2}
+```{r lager lineær modell2, eval=FALSE}
 linear_model_2 <- lm(P ~ EiendomAreal + dist_cbd_km, data = Analyse_sf)
 ```
 
@@ -701,7 +701,7 @@ vif_values_2 <- vif(linear_model_2)
 print(vif_values_2)
 ```
 
-```{r lager lineær modell3}
+```{r lager lineær modell3, eval=FALSE}
 linear_model_3 <- lm(P ~ BRA.Bolig + dist_cbd_km, data = Analyse_sf)
 ```
 
@@ -710,13 +710,37 @@ vif_values_3 <- vif(linear_model_3)
 print(vif_values_3)
 ```
 
-```{r lager lineær modell4}
+```{r lager lineær modell4, eval=FALSE}
 linear_model_4 <- lm(P ~ Bruksareal.Enhet + dist_cbd_km, data = Analyse_sf)
 ```
 
 ```{r Sjekker multikollinearitet i lm4, eval=FALSE}
 vif_values_4 <- vif(linear_model_4)
 print(vif_values_4)
+```
+
+## VIF for modellene våres
+
+### VIF, Full Modell
+
+```{r lager lineær modell5}
+linear_model_5 <- lm(pm2 ~ Alder + EL.Kar.Original + O.Karak + BLEnergikWh + MatValg + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + HarHeis + BolType + YearQuarter, data = Analyse_sf)
+```
+
+```{r Sjekker multikollinearitet i lm5}
+vif_values_5 <- vif(linear_model_5)
+print(vif_values_5)
+```
+
+### VIF, Rein Energi
+
+```{r lager lineær modell6}
+linear_model_6 <- lm(pm2 ~ Alder + EL.Kar.Original + O.Karak + BLEnergikWh + MatValg + Bruksareal.Enhet, data = Analyse_sf)
+```
+
+```{r Sjekker multikollinearitet i lm6}
+vif_values_6 <- vif(linear_model_6)
+print(vif_values_6)
 ```
 
 En GVIF-verdi på mindre enn 5 regnes som akseptabelt for å unngå signifikant multikollinearitet. Her har BRA.Bolig og BebygdAreal en GVIF-verdi på henholdsvis 2.03 og 1.87, som indikerer at det ikke er noen signifikant multikollinearitet mellom dem. Bruksareal.Enhet har også en lav GVIF-verdi på 1.75, selv om antallet koeffisienter i modellen er høyt (220), som kan tyde på at det ikke er noen signifikant multikollinearitet mellom denne variabelen og de andre variablene i modellen. Dermed er det sannsynlig at disse variablene kan brukes sammen i en regresjonsmodell uten å påvirke modellens prediktive kraft eller nøyaktighet negativt på grunn av multikollinearitet.
@@ -765,6 +789,24 @@ print(correlation)
 ```{r Korrelasjon i .sf-fil, eval=FALSE}
 cor_matrix <- cor(Analyse_sf[c("P", "EL.Kar", "Alder", "Etasje", "AntallRom")])
 ggcorrplot(cor_matrix, type = "lower", hc.order = TRUE, lab = TRUE)
+```
+
+## Korrelasjonsmatrise, Full Modell
+
+```{r Korrelasjonsmatrise_Full_Modell}
+cor_matrix_Full_Modell <- cor(Analyse[c("pm2", "Alder", "EL.Kar", "O.Karak_num", "BLEnergikWh", "MatValg_num", "Bruksareal.Enhet", "AntallRom", "AntallBad", "AntallWC", "HarHeis")])
+ggcorrplot(cor_matrix_Full_Modell) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8.5)) +
+  theme(axis.text.y = element_text(angle = 0, hjust = 1, size = 8.5))
+```
+
+## Korrelasjonsmatrise, Rein Energi
+
+```{r Korrelasjonsmatrise_Rein_Energi}
+cor_matrix_Rein_Energi <- cor(Analyse[c("pm2", "Alder", "EL.Kar", "O.Karak_num", "BLEnergikWh", "MatValg_num", "Bruksareal.Enhet")])
+ggcorrplot(cor_matrix_Rein_Energi) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8.5)) +
+  theme(axis.text.y = element_text(angle = 0, hjust = 1, size = 8.5))
 ```
 
 # Lager modeller
@@ -1811,7 +1853,7 @@ BIC(OLSBlokk)
 ```{r Modell Blokk_Energi}
 options(scipen = 999)
 
-modBlokkEnergi <- "pm2 ~ EL.Kar.Original + O.Karak + BLEnergikWh + MatValg + Alder+ + Bruksareal.Enhet"
+modBlokkEnergi <- "pm2 ~ EL.Kar.Original + O.Karak + BLEnergikWh + MatValg + Alder + Bruksareal.Enhet"
 OLSBlokkEnergi <- lm(modBlokkEnergi, data = Blokker_sf)
 summary(OLSBlokkEnergi)
 AIC(OLSBlokkEnergi)
