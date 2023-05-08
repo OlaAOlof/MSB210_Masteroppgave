@@ -457,7 +457,7 @@ plot(block.nb_knn10, coords = st_coordinates(Analyse_sf));points(st_coordinates(
 
 ## Knearneigh; K=15
 
-```{r K=15}
+```{r K=15, eval=FALSE}
 # 15 nearest neighbours
 knn_15 <- knearneigh(st_coordinates(unike_punkt), k = 15)
 nb_knn15 <- knn2nb(
@@ -474,11 +474,11 @@ Analyse_W15 <- nb2listw(block.nb_knn15, style = "W", zero.policy = TRUE)
 moran.test(Analyse_sf$P, Analyse_W15)
 ```
 
-```{r K=15_Block.nb}
+```{r K=15_Block.nb, eval=FALSE}
 block.nb_knn15
 ```
 
-```{r K=15, plot}
+```{r K=15, plot, eval=FALSE}
 plot(block.nb_knn15, coords = st_coordinates(Analyse_sf));points(st_coordinates(unike_punkt))
 ```
 
@@ -1623,7 +1623,7 @@ ggplot(var_imp_df_energi, aes(x = reorder(variable, importance), y = importance,
 
 ## BRA.Bolig
 
-```{r Modell Bolig}
+```{r Modell Bolig, eval=FALSE}
 options(scipen = 999)
 
 modBolig <- "I(log(pm2)) ~ BRA.Bolig"
@@ -1635,7 +1635,7 @@ BIC(OLSBolig)
 
 ## BRA.Tot
 
-```{r Modell Tot}
+```{r Modell Tot, eval=FALSE}
 options(scipen = 999)
 
 modTOT <- "I(log(pm2)) ~ BRA.Tot"
@@ -1647,7 +1647,7 @@ BIC(OLSTOT)
 
 ## Bruksareal.Enhet
 
-```{r Modell Boligenhet}
+```{r Modell Boligenhet, eval=FALSE}
 options(scipen = 999)
 
 modEnhet <- "I(log(pm2)) ~ Bruksareal.Enhet"
@@ -1806,7 +1806,17 @@ AIC(OLSBlokk)
 BIC(OLSBlokk)
 ```
 
-### Full Modell - Uten Oppvarmingskarakterer
+### Modell - Kun Energi Karakteristika
+
+```{r Modell Blokk_Energi}
+options(scipen = 999)
+
+modBlokkEnergi <- "pm2 ~ EL.Kar.Original + O.Karak + BLEnergikWh + MatValg + Alder+ + Bruksareal.Enhet"
+OLSBlokkEnergi <- lm(modBlokkEnergi, data = Blokker_sf)
+summary(OLSBlokkEnergi)
+AIC(OLSBlokkEnergi)
+BIC(OLSBlokkEnergi)
+```
 
 ### Modell, 2019
 
