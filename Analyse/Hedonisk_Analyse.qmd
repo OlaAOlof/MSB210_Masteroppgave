@@ -2501,22 +2501,22 @@ SDM_modell_Generell_K10 <- lagsarlm(Modell_Generell,
 ### Summary av SDM-modellene
 
 ```{r eval=FALSE}
-cat("Summary for SLX Model - Kommune, K3:\n")
+cat("Summary for SDM Model - Kommune, K3:\n")
 summary(SDM_modell_Kommuner_K3)
 ```
 
 ```{r eval=FALSE}
-cat("Summary for SLX Model - Kommune, K10:\n")
+cat("Summary for SDM Model - Kommune, K10:\n")
 summary(SDM_modell_Kommuner_K10)
 ```
 
 ```{r eval=FALSE}
-cat("Summary for SLX Model - Generell, K3:\n")
+cat("Summary for SDM Model - Generell, K3:\n")
 summary(SDM_modell_Generell_K3)
 ```
 
 ```{r eval=FALSE}
-cat("Summary for SLX Model - Generell, K10:\n")
+cat("Summary for SDM Model - Generell, K10:\n")
 summary(SDM_modell_Generell_K10)
 ```
 
