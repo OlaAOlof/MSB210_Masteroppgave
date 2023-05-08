@@ -148,6 +148,10 @@ Analyse_sf <- Analyse_sf[-1616,]
 Analyse <- Analyse[-1616,]
 ```
 
+```{r}
+Blokker_sf <- Blokker_sf[-1616,]
+```
+
 # Summary av datasettene
 
 ```{r Summary Analyse}
@@ -2255,7 +2259,7 @@ lm.morantest(slx_model_kommuner_k3,
              )
 ```
 
-```{r eval=FALSE}
+```{r}
 moran.plot(residuals(slx_model_kommuner_k3), listw = Analyse_W3)
 ```
 
@@ -2274,7 +2278,7 @@ lm.morantest(slx_model_generell_k10,
              )
 ```
 
-```{r eval=FALSE}
+```{r}
 moran.plot(residuals(slx_model_kommuner_k10), listw = Analyse_W10)
 ```
 
@@ -2293,7 +2297,7 @@ lm.morantest(slx_model_generell_k3,
              )
 ```
 
-```{r eval=FALSE}
+```{r}
 moran.plot(residuals(slx_model_generell_k3), listw = Analyse_W3)
 ```
 
@@ -2312,7 +2316,7 @@ lm.morantest(slx_model_kommuner_k10,
              )
 ```
 
-```{r eval=FALSE}
+```{r}
 moran.plot(residuals(slx_model_generell_k10), listw = Analyse_W10)
 ```
 
