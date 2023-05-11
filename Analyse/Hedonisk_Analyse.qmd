@@ -151,13 +151,6 @@ Analyse <- Analyse[-1616,]
 Blokker_sf <- Blokker_sf[-1616,]
 ```
 
-# Lager reint Bergen Datasett
-
-```{r}
-Bergen_sf <- Analyse_sf %>% 
-  filter(Knr == 4601)
-```
-
 # Summary av datasettene
 
 ```{r Summary Analyse}
@@ -293,9 +286,18 @@ Analyse_sf <- Analyse_sf |>
   )
 ```
 
+# Lager reint Bergen Datasett
+
+```{r}
+Bergen_sf <- Analyse_sf %>% 
+  filter(Knr == 4601)
+```
+
 # Lager to unike punkter
 
-## Punkt 1
+## Fullstendig
+
+### Punkt 1
 
 ```{r Punkt_1}
 unike_punkt <- Analyse_sf |> 
@@ -309,7 +311,7 @@ rel_graph <- relativeneigh(
 )
 ```
 
-## Punkt 2
+### Punkt 2
 
 ```{r Punkt_2}
 # punkt 2
@@ -321,13 +323,51 @@ rel_nb <- graph2nb(
 )
 ```
 
+## Bergen Ekslusivt
+
+### Punkt 1
+
+```{r Punkt_1}
+unike_punkt_red <- Bergen_sf |> 
+  select(EAG_Blocking) |> 
+  distinct()
+
+rel_graph_red <- relativeneigh(
+  coords = st_coordinates(unike_punkt_red),
+  # scaling factor for memory allocation, 15 seems to work
+  nnmult = 15
+)
+```
+
+### Punkt 2
+
+```{r Punkt_2}
+# punkt 2
+rel_nb_red <- graph2nb(
+  gob = rel_graph_red,
+  # områdenavnene, pull() for å gå fra tibbel med en var til vector
+  row.names = pull(st_drop_geometry(select(unike_punkt_red, EAG_Blocking))),
+  sym = TRUE
+)
+```
+
 ## Plot
+
+### Fullstendig
 
 ```{r}
 plot(rel_nb, st_coordinates(unike_punkt))
 ```
 
+### Bergen
+
+```{r}
+plot(rel_nb_red, st_coordinates(unike_punkt_red))
+```
+
 # Lager Vektmatrise, hva. "nb2blocknb"-funksjon
+
+## Fullstendig
 
 ```{r}
 block.nb <- nb2blocknb(
@@ -351,15 +391,35 @@ Analyse_w <- nb2listw(block.nb, style = "W", zero.policy = TRUE)
 moran.test(Analyse_sf$P, Analyse_w)
 ```
 
-# Lager vektmatrise, hva. knearneigh
+## Bergen
 
 ```{r}
-telling <- Analyse_sf %>% 
-  filter(Knr == 4631)
+block.nb_red <- nb2blocknb(
+  rel_nb_red, 
+  # Nå alle verdier av EAG_Blocking, dvs. flere duplikater som «blocks opp»
+  ID = Bergen_sf$EAG_Blocking
+  )
 ```
 
+```{r}
+block.nb_red
+```
 
-## Knearneigh; K=3
+```{r}
+plot(block.nb_red, coords = st_coordinates(Bergen_sf));points(st_coordinates(unike_punkt_red))
+```
+
+```{r}
+Analyse_w_red <- nb2listw(block.nb_red, style = "W", zero.policy = TRUE)
+# Har vi spatial autocorrelation i prisene?
+moran.test(Bergen_sf$P, Analyse_w_red)
+```
+
+# Lager vektmatrise, hva. knearneigh
+
+## Fullstendig
+
+### Knearneigh; K=3
 
 ```{r K=3}
 # 3 nearest neighbours
@@ -386,7 +446,7 @@ block.nb_knn3
 plot(block.nb_knn3, coords = st_coordinates(Analyse_sf));points(st_coordinates(unike_punkt))
 ```
 
-## Knearneigh; K=5
+### Knearneigh; K=5
 
 ```{r K=5}
 # 5 nearest neighbours
@@ -413,7 +473,7 @@ block.nb_knn5
 plot(block.nb_knn5, coords = st_coordinates(Analyse_sf));points(st_coordinates(unike_punkt))
 ```
 
-## Knearneigh; K=7
+### Knearneigh; K=7
 
 ```{r K=5}
 # 7 nearest neighbours
@@ -440,7 +500,7 @@ block.nb_knn7
 plot(block.nb_knn7, coords = st_coordinates(Analyse_sf));points(st_coordinates(unike_punkt))
 ```
 
-## Knearneigh; K=10
+### Knearneigh; K=10
 
 ```{r K=10}
 # 10 nearest neighbours
@@ -467,7 +527,7 @@ block.nb_knn10
 plot(block.nb_knn10, coords = st_coordinates(Analyse_sf));points(st_coordinates(unike_punkt))
 ```
 
-## Knearneigh; K=15
+### Knearneigh; K=15
 
 ```{r K=15, eval=FALSE}
 # 15 nearest neighbours
@@ -494,104 +554,65 @@ block.nb_knn15
 plot(block.nb_knn15, coords = st_coordinates(Analyse_sf));points(st_coordinates(unike_punkt))
 ```
 
+## Bergen
+
+### Knearneigh; K=3
+
+```{r K=3}
+# 3 nearest neighbours
+knn_3_red <- knearneigh(st_coordinates(unike_punkt_red), k = 3)
+nb_knn3_red <- knn2nb(
+  knn_3_red, 
+  row.names = pull(st_drop_geometry(select(unike_punkt_red, EAG_Blocking))),
+  sym = TRUE
+  )
+block.nb_knn3_red <- nb2blocknb(
+  nb_knn3_red,
+  ID = Bergen_sf$EAG_Blocking
+  )
+Analyse_W3_red <- nb2listw(block.nb_knn3_red, style = "W", zero.policy = TRUE)
+# Har vi spatial autocorrelation i prisene?
+moran.test(Bergen_sf$P, Analyse_W3_red)
+```
+
+```{r K=3_Block.nb}
+block.nb_knn3_red
+```
+
+```{r K=3, plot}
+plot(block.nb_knn3_red, coords = st_coordinates(Bergen_sf));points(st_coordinates(unike_punkt_red))
+```
+
+### Knearneigh; K=10
+
+```{r K=3}
+# 10 nearest neighbours
+knn_10_red <- knearneigh(st_coordinates(unike_punkt_red), k = 10)
+nb_knn10_red <- knn2nb(
+  knn_10_red, 
+  row.names = pull(st_drop_geometry(select(unike_punkt_red, EAG_Blocking))),
+  sym = TRUE
+  )
+block.nb_knn10_red <- nb2blocknb(
+  nb_knn10_red,
+  ID = Bergen_sf$EAG_Blocking
+  )
+Analyse_W10_red <- nb2listw(block.nb_knn10_red, style = "W", zero.policy = TRUE)
+# Har vi spatial autocorrelation i prisene?
+moran.test(Bergen_sf$P, Analyse_W10_red)
+```
+
+```{r K=3_Block.nb}
+block.nb_knn10_red
+```
+
+```{r K=3, plot}
+plot(block.nb_knn10_red, coords = st_coordinates(Bergen_sf));points(st_coordinates(unike_punkt_red))
+```
+
 # Gammel kode, utgår. START
 
-```{r KNN naboer, eval=FALSE}
-#Kankje laga vektmatrisa på Analyse-datasettet. Må bli gjort på kart-datasettet "Analyse_sf"
-
-#Analyse_mat_nb3 <- knearneigh(Analyse, k = 3)
-#Analyse_nb3 <- knn2nb(Analyse_mat_nb3)
-#Analyse_W3 <- nb2listw(Analyse_nb3, style = "W")
-```
-
-## Vektmatrise for Analyse_sf
-
-### Tester Queen- og Rook
-
-```{r Queen, eval=FALSE}
-#queen.nb = poly2nb(Analyse_Shape)
-```
-
-```{r Queen list, eval=FALSE}
-#queen.listw = nb2listw(queen.nb)
-```
-
-```{r Rook, eval=FALSE}
-#rook.nb = poly2nb(Analyse_Shape, queen = FALSE)
-```
-
-```{r Rook list, eval=FALSE}
-#rook.listw = nb2listw(rook.nb)
-```
-
-```{r List W, eval=FALSE}
-#listw1 = queen.listw
-```
-
-### Tester K-nærmeste-naboer-metoden
-
-Her bruker vi den k-nærmeste naboer-metoden, som baserer seg på avstanden mellom punktene. Queen- og Rook-kriteriene brukes for å definere naboer i polygondata. Queen-kriteriet sier at polygoner er naboer hvis de deler minst ett punkt (hjørne eller kant), mens Rook-kriteriet sier at polygoner er naboer hvis de deler minst en kant.
-
-K-nærmeste naboer-metoden som brukes fremvoer fungerer for punktdata og definerer naboer basert på avstanden mellom punktene. For hver observasjon finner den k nærmeste naboene, der k er en forhåndsbestemt verdi (k = 3, k = 5 og k = 10).
-
-#### Vektmatrise, K = 3
-
-Oppretter romlige vektmatriser for k-nærmeste naboer med k = 3
-
-nb2blocknb
-
-```{r KNN 3, eval=FALSE}
-Analyse_sf_mat_nb3 <- knearneigh(Analyse_sf, k = 3)
-Analyse_sf_nb3 <- knn2nb(Analyse_sf_mat_nb3)
-Analyse_sf_W3 <- nb2listw(Analyse_sf_nb3, style = "W")
-```
-
-# Forsøk på ny matrise etter ny funksjon fra Arnstein
-
-```{r KNN 3, eval=FALSE}
-#Analyse_sf_mat_nb3 <- knearneigh(Analyse_sf, k = 3)
-#Analyse_sf_nb3 <- nb2blocknb(Analyse_sf_mat_nb3)
-#Analyse_sf_W3 <- nb2listw(Analyse_sf_nb3, style = "W")
-```
-
-```{r KNN 3}
-# Hent ut x- og y-koordinater fra geometrikolonnen
-#coords <- suppressWarnings(st_coordinates(st_centroid(Analyse_sf)))
-
-# Opprett relativeneigh-objektet med en økt nnmult-verdi
-#Analyse_sf_mat_nb3 <- knearneigh(Analyse_sf, k = 3)
-
-# Konverterer knearneigh til en naboliste
-#Analyse_sf_nb3 <- knn2nb(Analyse_sf_mat_nb3)
-
-# Bruker funksjonen nb2blocknb
-#Analyse_sf_block_nb3 <- nb2blocknb(Analyse_sf_nb3, ID = as.character(Analyse_sf$Dokumentnr))
-
-# Opprett den romlige vektmatrisen for blokknaboene
-#Analyse_sf_W3 <- nb2listw(Analyse_sf_block_nb3, style = "W")
-```
-
-#### Vektmatrise, K = 5
-
-Oppretter romlige vektmatriser for k-nærmeste naboer med k = 5
-
-```{r KNN 5, eval=FALSE}}
-Analyse_sf_mat_nb5 <- knearneigh(Analyse_sf, k = 5)
-Analyse_sf_nb5 <- knn2nb(Analyse_sf_mat_nb5)
-Analyse_sf_W5 <- nb2listw(Analyse_sf_nb5, style = "W")
-```
-
-#### Vektmatrise, K = 10
-
-Oppretter romlige vektmatriser for k-nærmeste naboer med k = 10
-
-```{r KNN 10, eval=FALSE}}
-Analyse_sf_mat_nb10 <- knearneigh(Analyse_sf, k = 10)
-Analyse_sf_nb10 <- knn2nb(Analyse_sf_mat_nb10)
-Analyse_sf_W10 <- nb2listw(Analyse_sf_nb10, style = "W")
-```
-
-# Kontroll av nabolagsmatrise - Kevin
+## Kontroll av nabolagsmatrise - Kevin (Gammel)
 
 ```{r Nabomatrise, eval=FALSE}}
 # Funksjonen returnerer en matrise med indeksene til punktene som tilhører settet av de k nærmeste naboene til hverandre.
@@ -622,7 +643,7 @@ legend("bottomright", legend = c("Points", "Selected point", "Naboer (k = 10)"),
        col = c("blue", "red", "green"), pch = 19, cex = 0.8)
 ```
 
-## Norgeskart med våre salg - Kevin
+## Norgeskart med våre salg - Kevin (Gammel)
 
 ```{r Norgeskart, eval=FALSE}
 Analyse_Shape <- st_read("Analyse_Shape.shp")
@@ -645,21 +666,6 @@ ggplot() +
 
 # Morans I - Kevin
 
-```{r Kevins Moran, eval=FALSE}
-# Definer en variabel for romlig analyse
-Pris <- Analyse_sf$P
-
-# Beregn Global Moran's I for k = 3, k = 5 og k = 10
-moran_3 <- moran.test(Pris, Analyse_sf_W3)
-moran_5 <- moran.test(Pris, Analyse_sf_W5)
-moran_10 <- moran.test(Pris, Analyse_sf_W10)
-
-# Vis resultater
-cat("Global Moran's I (k = 3):", moran_3$estimate, "\n")
-cat("Global Moran's I (k = 5):", moran_5$estimate, "\n")
-cat("Global Moran's I (k = 10):", moran_10$estimate, "\n")
-```
-
 Disse resultatene viser Global Moran's I-verdier for k = 3, k = 5 og k = 10. Global Moran's I er et mål på romlig autokorrelasjon som gir en indikasjon på hvordan en variabel (i dette tilfellet "Pris") er korrelert med seg selv i rommet. I dette tilfellet er variabelen "Pris" korrelert med sine nærmeste naboer.
 
 Resultatene viser følgende: Global Moran's I (k = 3): 0.3930968 Global Moran's I (k = 5): 0.3361125 Global Moran's I (k = 10): 0.2473997 Global Moran's I-verdier varierer mellom -1 og 1:
@@ -672,7 +678,7 @@ Tallene etter Moran's I-verdiene i resultatene (-0.0003374958 og 0.0001646533 fo
 
 ## Gammel kode, utgår. SLUTT
 
--   
+-
 
 # Korrelasjonsmatriser
 
@@ -952,21 +958,7 @@ AIC(OLSBlokk6)
 BIC(OLSBlokk6)
 ```
 
-### Modell 7 (UTGÅR)
-
-**OLA: Denna utgår. Sio me no har splitta da i 2, eit for leilighetar og eit for boligar, så e da ikkje relevant å bruka BRA.Bolig variabelen her.**
-
-```{r, eval=FALSE}
-#options(scipen = 999)
-
-#mod7 <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + EiendomAreal + BRA.Bolig"
-#OLS7 <- lm(mod7, data = Blokker_sf)
-#summary(OLS7)
-#AIC(OLS7)
-#BIC(OLS7)
-```
-
-### Modell 7 (FORTSETTELSE)
+### Modell 7
 
 ```{r Modell Blokk_7}
 options(scipen = 999)
@@ -1761,11 +1753,33 @@ forward$anova
 forward$coefficients
 ```
 
-
-
 # Forslag til modeller for videre modellkjøring, litt utifra Liv's tilbakemeldinger (Midlertidig, Åpen for forslag/endring)
 
 **OLA: Detta e eksludert kommune. Da tar eg etter me blir enig om finalisert modell**
+
+
+
+## Lager datasett for strømpriskrise
+
+```{r}
+Blokker_sf_Pre_Krise <- Blokker_sf %>% 
+  filter(YearQuarter < "2021Q4")
+```
+
+```{r}
+Blokker_sf_Etter_Krise <- Blokker_sf %>% 
+  filter(YearQuarter >= "2021Q4")
+```
+
+```{r}
+Bergen_sf_Pre_Krise <- Bergen_sf %>% 
+  filter(YearQuarter < "2021Q4")
+```
+
+```{r}
+Bergen_sf_Etter_Krise <- Bergen_sf %>% 
+  filter(YearQuarter >= "2021Q4")
+```
 
 ## Setter refferanseverdier
 
@@ -1781,7 +1795,12 @@ Analyse_sf$EL.Kar.Original <- relevel(Analyse_sf$EL.Kar.Original, ref = "A") # R
 
 ```{r}
 Analyse_sf$O.Karak <- as.factor(Analyse_sf$O.Karak) # Character -> Factor
-Analyse_sf$O.Karak <- relevel(Analyse_sf$O.Karak, ref = "Red") # Referanseverdi
+Analyse_sf$O.Karak <- relevel(Analyse_sf$O.Karak, ref = "Green") # Referanseverdi
+```
+
+```{r}
+Analyse_sf$YearQuarter <- as.factor(Analyse_sf$YearQuarter) # Character -> Factor
+Analyse_sf$YearQuarter <- relevel(Analyse_sf$YearQuarter, ref = "2022Q4") # Referanseverdi
 ```
 
 ```{r eval=FALSE}
@@ -1796,41 +1815,42 @@ Blokker_sf$EL.Kar.Original <- relevel(Blokker_sf$EL.Kar.Original, ref = "A") # R
 
 ```{r}
 Blokker_sf$O.Karak <- as.factor(Blokker_sf$O.Karak) # Character -> Factor
-Blokker_sf$O.Karak <- relevel(Blokker_sf$O.Karak, ref = "Red") # Referanseverdi
+Blokker_sf$O.Karak <- relevel(Blokker_sf$O.Karak, ref = "Green") # Referanseverdi
 ```
 
-## Lager datasett for strømpriskrise
-
-```{r, eval=FALSE}
-Blokker_sf_Pre_Krise <- Blokker_sf %>% 
-  filter(YearQuarter < "2021Q4")
+```{r}
+Blokker_sf$YearQuarter <- as.factor(Blokker_sf$YearQuarter) # Character -> Factor
+Blokker_sf$YearQuarter <- relevel(Blokker_sf$YearQuarter, ref = "2022Q4") # Referanseverdi
 ```
 
-```{r, eval=FALSE}
-Blokker_sf_Etter_Krise <- Blokker_sf %>% 
-  filter(YearQuarter >= "2021Q4")
+```{r}
+Blokker_sf_Pre_Krise$EL.Kar.Original <- as.factor(Blokker_sf_Pre_Krise$EL.Kar.Original) # Character -> Factor
+Blokker_sf_Pre_Krise$EL.Kar.Original <- relevel(Blokker_sf_Pre_Krise$EL.Kar.Original, ref = "A") # Referanseverdi
 ```
 
-## Lager årlige datasett
-
-```{r, eval=FALSE}
-Blokker_sf_2019 <- Blokker_sf %>% 
-  filter(DokumentAr == 2019)
+```{r}
+Blokker_sf_Pre_Krise$O.Karak <- as.factor(Blokker_sf_Pre_Krise$O.Karak) # Character -> Factor
+Blokker_sf_Pre_Krise$O.Karak <- relevel(Blokker_sf_Pre_Krise$O.Karak, ref = "Green") # Referanseverdi
 ```
 
-```{r, eval=FALSE}
-Blokker_sf_2020 <- Blokker_sf %>% 
-  filter(DokumentAr == 2020)
+```{r}
+Blokker_sf_Pre_Krise$YearQuarter <- as.factor(Blokker_sf_Pre_Krise$YearQuarter) # Character -> Factor
+Blokker_sf_Pre_Krise$YearQuarter <- relevel(Blokker_sf_Pre_Krise$YearQuarter, ref = "2021Q3") # Referanseverdi
 ```
 
-```{r, eval=FALSE}
-Blokker_sf_2021 <- Blokker_sf %>% 
-  filter(DokumentAr == 2021)
+```{r}
+Blokker_sf_Etter_Krise$EL.Kar.Original <- as.factor(Blokker_sf_Etter_Krise$EL.Kar.Original) # Character -> Factor
+Blokker_sf_Etter_Krise$EL.Kar.Original <- relevel(Blokker_sf_Etter_Krise$EL.Kar.Original, ref = "A") # Referanseverdi
 ```
 
-```{r, eval=FALSE}
-Blokker_sf_2022 <- Blokker_sf %>% 
-  filter(DokumentAr == 2022)
+```{r}
+Blokker_sf_Etter_Krise$O.Karak <- as.factor(Blokker_sf_Etter_Krise$O.Karak) # Character -> Factor
+Blokker_sf_Etter_Krise$O.Karak <- relevel(Blokker_sf_Etter_Krise$O.Karak, ref = "Green") # Referanseverdi
+```
+
+```{r}
+Blokker_sf_Etter_Krise$YearQuarter <- as.factor(Blokker_sf_Etter_Krise$YearQuarter) # Character -> Factor
+Blokker_sf_Etter_Krise$YearQuarter <- relevel(Blokker_sf_Etter_Krise$YearQuarter, ref = "2022Q4") # Referanseverdi
 ```
 
 ## Forslag, Modell
@@ -1845,7 +1865,6 @@ modBlokk <- "pm2 ~
   O.Karak + 
   BLEnergikWh + 
   MatValg + 
-  Bruksareal.Enhet + 
   (AntallRom) + 
   (AntallBad) + 
   (AntallWC) + 
@@ -1862,119 +1881,35 @@ BIC(OLSBlokk)
 
 ### Modell - Kun Energi Karakteristika
 
-```{r Modell Blokk_Energi}
+#### Hele Regionen
+
+```{r Modell Blokk_Energi_Perioden}
 options(scipen = 999)
 
-modBlokkEnergi <- "pm2 ~ EL.Kar.Original + O.Karak + BLEnergikWh + MatValg + Alder + Bruksareal.Enhet"
+modBlokkEnergi <- "pm2 ~ EL.Kar.Original + O.Karak + BLEnergikWh + MatValg + Alder + YearQuarter"
 OLSBlokkEnergi <- lm(modBlokkEnergi, data = Blokker_sf)
 summary(OLSBlokkEnergi)
 AIC(OLSBlokkEnergi)
 BIC(OLSBlokkEnergi)
 ```
 
-### Modell, 2019
+#### Bergen
 
-```{r Modell_Blokk_2019, eval=FALSE}
+```{r Modell Bergen_Energi_Perioden}
 options(scipen = 999)
-modBlokk_2019 <- "pm2 ~ 
-  EL.Kar.Original + 
-  (Alder) + 
-  O.Karak + 
-  BLEnergikWh + 
-  MatValg + 
-  Bruksareal.Enhet + 
-  (AntallRom) + 
-  (AntallBad) + 
-  (AntallWC) + 
-  HarHeis + 
-  BolType + 
-  YearQuarter +
-  Kommune + 
-  (dist_cbd_km)"
-OLSBlokk_2019 <- lm(modBlokk_2019, data = Blokker_sf_2019)
-summary(OLSBlokk_2019)
-AIC(OLSBlokk_2019)
-BIC(OLSBlokk_2019)
+
+BergenEnergi <- "pm2 ~ EL.Kar.Original + O.Karak + BLEnergikWh + MatValg + Alder + YearQuarter"
+OLSBergenEnergi <- lm(BergenEnergi, data = Bergen_sf)
+summary(OLSBergenEnergi)
+AIC(OLSBergenEnergi)
+BIC(OLSBergenEnergi)
 ```
 
-### Modell, 2020
+# Strømpriskrise
 
-```{r Modell_Blokk_2020, eval=FALSE}
-options(scipen = 999)
-modBlokk_2020 <- "pm2 ~ 
-  EL.Kar.Original + 
-  (Alder) + 
-  O.Karak + 
-  BLEnergikWh + 
-  MatValg + 
-  Bruksareal.Enhet + 
-  (AntallRom) + 
-  (AntallBad) + 
-  (AntallWC) + 
-  HarHeis + 
-  BolType + 
-  YearQuarter +
-  Kommune + 
-  (dist_cbd_km)"
-OLSBlokk_2020 <- lm(modBlokk_2020, data = Blokker_sf_2020)
-summary(OLSBlokk_2020)
-AIC(OLSBlokk_2020)
-BIC(OLSBlokk_2020)
-```
+## Før Strømpriskrise - Generell
 
-### Modell, 2021
-
-```{r Modell_Blokk_2021, eval=FALSE}
-options(scipen = 999)
-modBlokk_2021 <- "pm2 ~ 
-  EL.Kar.Original + 
-  (Alder) + 
-  O.Karak + 
-  BLEnergikWh + 
-  MatValg + 
-  Bruksareal.Enhet + 
-  (AntallRom) + 
-  (AntallBad) + 
-  (AntallWC) + 
-  HarHeis + 
-  BolType + 
-  YearQuarter +
-  Kommune + 
-  (dist_cbd_km)"
-OLSBlokk_2021 <- lm(modBlokk_2021, data = Blokker_sf_2021)
-summary(OLSBlokk_2021)
-AIC(OLSBlokk_2021)
-BIC(OLSBlokk_2021)
-```
-
-### Modell, 2022
-
-```{r Modell_Blokk_2022, eval=FALSE}
-options(scipen = 999)
-modBlokk_2022 <- "pm2 ~ 
-  EL.Kar.Original + 
-  (Alder) + 
-  O.Karak + 
-  BLEnergikWh + 
-  MatValg + 
-  Bruksareal.Enhet + 
-  (AntallRom) + 
-  (AntallBad) + 
-  (AntallWC) + 
-  HarHeis + 
-  BolType + 
-  YearQuarter +
-  Kommune + 
-  (dist_cbd_km)"
-OLSBlokk_2022 <- lm(modBlokk_2022, data = Blokker_sf_2022)
-summary(OLSBlokk_2022)
-AIC(OLSBlokk_2022)
-BIC(OLSBlokk_2022)
-```
-
-### Modell, Strømpriskrise
-
-```{r Modell_Done_Pre_Krise, eval=FALSE}
+```{r Modell_Done_Pre_Krise}
 options(scipen = 999)
 modBlokk_Pre_Krise <- "pm2 ~ 
   EL.Kar.Original + 
@@ -1982,14 +1917,12 @@ modBlokk_Pre_Krise <- "pm2 ~
   O.Karak + 
   BLEnergikWh + 
   MatValg + 
-  Bruksareal.Enhet + 
   (AntallRom) + 
   (AntallBad) + 
   (AntallWC) + 
   HarHeis + 
   BolType + 
   YearQuarter +
-  Kommune + 
   (dist_cbd_km)"
 OLSBlokk_Pre_Krise <- lm(modBlokk_Pre_Krise, data = Blokker_sf_Pre_Krise)
 summary(OLSBlokk_Pre_Krise)
@@ -1997,7 +1930,9 @@ AIC(OLSBlokk_Pre_Krise)
 BIC(OLSBlokk_Pre_Krise)
 ```
 
-```{r Modell_Done_Etter_Krise, eval=FALSE}
+## Etter Strømpriskrise - Generell
+
+```{r Modell_Done_Etter_Krise}
 options(scipen = 999)
 modBlokk_Etter_Krise <- "pm2 ~ 
   EL.Kar.Original + 
@@ -2005,19 +1940,63 @@ modBlokk_Etter_Krise <- "pm2 ~
   O.Karak + 
   BLEnergikWh + 
   MatValg + 
-  Bruksareal.Enhet + 
   (AntallRom) + 
   (AntallBad) + 
   (AntallWC) + 
   HarHeis + 
   BolType + 
   YearQuarter +
-  Kommune + 
   (dist_cbd_km)"
 OLSBlokk_Etter_Krise <- lm(modBlokk_Etter_Krise, data = Blokker_sf_Etter_Krise)
 summary(OLSBlokk_Etter_Krise)
 AIC(OLSBlokk_Etter_Krise)
 BIC(OLSBlokk_Etter_Krise)
+```
+
+## Før Strømpriskrise - Bergen
+
+```{r Modell_Done_Pre_Krise}
+options(scipen = 999)
+Bergen_Pre_Krise <- "pm2 ~ 
+  EL.Kar.Original + 
+  (Alder) + 
+  O.Karak + 
+  BLEnergikWh + 
+  MatValg + 
+  (AntallRom) + 
+  (AntallBad) + 
+  (AntallWC) + 
+  HarHeis + 
+  BolType + 
+  YearQuarter +
+  (dist_cbd_km)"
+OLSBergen_Pre_Krise <- lm(Bergen_Pre_Krise, data = Bergen_sf_Pre_Krise)
+summary(OLSBergen_Pre_Krise)
+AIC(OLSBergen_Pre_Krise)
+BIC(OLSBergen_Pre_Krise)
+```
+
+## Etter Strømpriskrise - Bergen
+
+```{r Modell_Done_Etter_Krise}
+options(scipen = 999)
+Bergen_Etter_Krise <- "pm2 ~ 
+  EL.Kar.Original + 
+  (Alder) + 
+  O.Karak + 
+  BLEnergikWh + 
+  MatValg + 
+  (AntallRom) + 
+  (AntallBad) + 
+  (AntallWC) + 
+  HarHeis + 
+  BolType + 
+  YearQuarter +
+  (dist_cbd_km)"
+OLSBergen_Etter_Krise <- lm(Bergen_Etter_Krise, data = Bergen_sf_Etter_Krise)
+summary(OLSBergen_Etter_Krise)
+AIC(OLSBergen_Etter_Krise)
+BIC(OLSBergen_Etter_Krise)
 ```
 
 # HuxReg av OLS-modeller
@@ -2091,14 +2070,13 @@ print(vif_values)
 
 **Har satt  eval=FALSE på alle modeller, grunna vanvittig tid og arbeid som trengs å kjøra gjennom heila dokumentet samla**
 
-
 ## SAR (Spatial Autoregressiv)
 
 ```{r}
 Modell_Bergen <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km"
 ```
 
-```{r}
+```{r eval=FALSE}
 Modell_Kommuner <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + Kommune + dist_cbd_km"
 ```
 
@@ -2109,17 +2087,17 @@ Modell_Generell <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatV
 ### SAR-Modellene
 
 ```{r}
-sar_model_kommuner_k3 <- lagsarlm(Modell_Kommuner,
-                      data = Analyse_sf,
-                      listw = Analyse_W3,
+sar_model_Bergen_k3 <- lagsarlm(Modell_Bergen,
+                      data = Bergen_sf,
+                      listw = Analyse_W3_red,
                       Durbin = FALSE,
                       tol.solve = 1e-10)
 ```
 
 ```{r}
-sar_model_kommuner_k10 <- lagsarlm(Modell_Kommuner,
-                      data = Analyse_sf,
-                      listw = Analyse_W10,
+sar_model_Bergen_k10 <- lagsarlm(Modell_Bergen,
+                      data = Bergen_sf,
+                      listw = Analyse_W10_red,
                       Durbin = FALSE,
                       tol.solve = 1e-10)
 ```
@@ -2143,13 +2121,13 @@ sar_model_generell_k10 <- lagsarlm(Modell_Generell,
 ### Summary av SAR-modellen
 
 ```{r}
-cat("Summary for SAR Model - Kommuner, K3:\n")
-print(summary(sar_model_kommuner_k3))
+cat("Summary for SAR Model - Bergen, K3:\n")
+print(summary(sar_model_Bergen_k3))
 ```
 
 ```{r}
-cat("Summary for SAR Model - Kommuner, K10:\n")
-print(summary(sar_model_kommuner_k10))
+cat("Summary for SAR Model - Bergen, K10:\n")
+print(summary(sar_model_Bergen_k10))
 ```
 
 ```{r}
@@ -2169,17 +2147,17 @@ print(summary(sar_model_generell_k10))
 **OLA: Trur da e Durbin = False her. Men eg finne ikkje noke konkret på Arnsteins slida, så ekje 100% sikker**
 
 ```{r}
-sac_model_Kommuner_K3 <- sacsarlm(Modell_Kommuner,
-                      data = Analyse_sf,
-                      listw = Analyse_W3,
+sac_model_Bergen_K3 <- sacsarlm(Modell_Bergen,
+                      data = Bergen_sf,
+                      listw = Analyse_W3_red,
                       Durbin = FALSE,
                       tol.solve = 1e-10)
 ```
 
 ```{r}
-sac_model_Kommuner_K10 <- sacsarlm(Modell_Kommuner,
-                      data = Analyse_sf,
-                      listw = Analyse_W10,
+sac_model_Bergen_K10 <- sacsarlm(Modell_Bergen,
+                      data = Bergen_sf,
+                      listw = Analyse_W10_red,
                       Durbin = FALSE,
                       tol.solve = 1e-10)
 ```
@@ -2202,12 +2180,12 @@ sac_model_Generell_K10 <- sacsarlm(Modell_Generell,
 
 ```{r}
 cat("Summary for SAC Model - Kommuner, K3:\n")
-print(summary(sac_model_Kommuner_K3))
+print(summary(sac_model_Bergen_K3))
 ```
 
 ```{r}
 cat("Summary for SAC Model - Kommuner, K10:\n")
-print(summary(sac_model_Kommuner_K10))
+print(summary(sac_model_Bergen_K10))
 ```
 
 ```{r}
@@ -2233,17 +2211,17 @@ https://msb205.netlify.app/spatmetrics/spatreg/#/sem-model
 ### SEM-Modellene
 
 ```{r}
-sem_model_Kommuner_k3 <- errorsarlm(Modell_Kommuner,
-                      data = Analyse_sf,
-                      listw = Analyse_W3,
+sem_model_Bergen_k3 <- errorsarlm(Modell_Bergen,
+                      data = Bergen_sf,
+                      listw = Analyse_W3_red,
                       Durbin = FALSE,
                       tol.solve = 1e-10)
 ```
 
 ```{r}
-sem_model_Kommuner_k10 <- errorsarlm(Modell_Kommuner,
-                      data = Analyse_sf,
-                      listw = Analyse_W10,
+sem_model_Bergen_k10 <- errorsarlm(Modell_Bergen,
+                      data = Bergen_sf,
+                      listw = Analyse_W10_red,
                       Durbin = FALSE,
                       tol.solve = 1e-10)
 ```
@@ -2267,13 +2245,13 @@ sem_model_Generell_k10 <- errorsarlm(Modell_Generell,
 ### Summary av SEM-modeller
 
 ```{r}
-cat("Summary for SEM Model - Kommuner, K3:\n")
-print(summary(sem_model_Kommuner_k3))
+cat("Summary for SEM Model - Bergen, K3:\n")
+print(summary(sem_model_Bergen_k3))
 ```
 
 ```{r}
-cat("Summary for SEM Model - Kommuner, K10:\n")
-print(summary(sem_model_Kommuner_k10))
+cat("Summary for SEM Model - Bergen, K10:\n")
+print(summary(sem_model_Bergen_k10))
 ```
 
 ```{r}
@@ -2292,8 +2270,8 @@ print(summary(sem_model_Generell_k10))
 
 ```{r eval=FALSE}
 moran.plot(
-  x = residuals(sem_model_Kommuner_k3),
-  listw = Analyse_W3
+  x = residuals(sem_model_Bergen_k3),
+  listw = Analyse_W3_red
 )
 ```
 
@@ -2301,8 +2279,8 @@ moran.plot(
 
 ```{r eval=FALSE}
 moran.plot(
-  x = residuals(sem_model_Kommuner_k10),
-  listw = Analyse_W10
+  x = residuals(sem_model_Bergen_k10),
+  listw = Analyse_W10_red
 )
 ```
 
@@ -2320,7 +2298,7 @@ moran.plot(
 ```{r eval=FALSE}
 moran.plot(
   x = residuals(sem_model_Generell_k10),
-  listw = Analyse_W3
+  listw = Analyse_W10
 )
 ```
 
@@ -2329,7 +2307,47 @@ moran.plot(
 ### SLX-Modellene
 
 ```{r}
-slx_model_kommuner_k3 <- lmSLX(Modell_Kommuner,
+slx_model_Bergen_k3 <- lmSLX(Modell_Bergen,
+                                 data = Bergen_sf,
+                                 listw = Analyse_W3_red,
+                                 Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km)
+                               )
+```
+
+```{r}
+log_likelihood <- function(slx_model_Bergen_k3) {
+  n <- length(slx_model_Bergen_k3$residuals)
+  sigma2 <- sum(slx_model_Bergen_k3$residuals^2) / n
+  log_likelihood <- -0.5 * n * (log(2 * pi) + log(sigma2) + 1)
+  return(log_likelihood)
+}
+
+ll_value <- log_likelihood(slx_model_Bergen_k3)
+print(ll_value)
+```
+
+```{r}
+slx_model_Bergen_k10 <- lmSLX(Modell_Bergen,
+                                 data = Bergen_sf,
+                                 listw = Analyse_W10_red,
+                                 Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km)
+                               )
+```
+
+```{r}
+log_likelihood <- function(slx_model_Bergen_k10) {
+  n <- length(slx_model_Bergen_k10$residuals)
+  sigma2 <- sum(slx_model_Bergen_k10$residuals^2) / n
+  log_likelihood <- -0.5 * n * (log(2 * pi) + log(sigma2) + 1)
+  return(log_likelihood)
+}
+
+ll_value <- log_likelihood(slx_model_Bergen_k10)
+print(ll_value)
+```
+
+```{r}
+slx_model_Generell_k3 <- lmSLX(Modell_Generell,
                                  data = Analyse_sf,
                                  listw = Analyse_W3,
                                  Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km)
@@ -2337,19 +2355,19 @@ slx_model_kommuner_k3 <- lmSLX(Modell_Kommuner,
 ```
 
 ```{r}
-log_likelihood <- function(slx_model_kommuner_k3) {
-  n <- length(slx_model_kommuner_k3$residuals)
-  sigma2 <- sum(slx_model_kommuner_k3$residuals^2) / n
+log_likelihood <- function(slx_model_Generell_k3) {
+  n <- length(slx_model_Generell_k3$residuals)
+  sigma2 <- sum(slx_model_Generell_k3$residuals^2) / n
   log_likelihood <- -0.5 * n * (log(2 * pi) + log(sigma2) + 1)
   return(log_likelihood)
 }
 
-ll_value <- log_likelihood(slx_model_kommuner_k3)
+ll_value <- log_likelihood(slx_model_Generell_k3)
 print(ll_value)
 ```
 
 ```{r}
-slx_model_kommuner_k10 <- lmSLX(Modell_Kommuner,
+slx_model_Generell_k10 <- lmSLX(Modell_Generell,
                                  data = Analyse_sf,
                                  listw = Analyse_W10,
                                  Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km)
@@ -2357,135 +2375,95 @@ slx_model_kommuner_k10 <- lmSLX(Modell_Kommuner,
 ```
 
 ```{r}
-log_likelihood <- function(slx_model_kommuner_k10) {
-  n <- length(slx_model_kommuner_k10$residuals)
-  sigma2 <- sum(slx_model_kommuner_k10$residuals^2) / n
+log_likelihood <- function(slx_model_Generell_k10) {
+  n <- length(slx_model_Generell_k10$residuals)
+  sigma2 <- sum(slx_model_Generell_k10$residuals^2) / n
   log_likelihood <- -0.5 * n * (log(2 * pi) + log(sigma2) + 1)
   return(log_likelihood)
 }
 
-ll_value <- log_likelihood(slx_model_kommuner_k10)
-print(ll_value)
-```
-
-```{r}
-slx_model_generell_k3 <- lmSLX(Modell_Generell,
-                                 data = Analyse_sf,
-                                 listw = Analyse_W3,
-                                 Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km)
-                               )
-```
-
-```{r}
-log_likelihood <- function(slx_model_generell_k3) {
-  n <- length(slx_model_generell_k3$residuals)
-  sigma2 <- sum(slx_model_generell_k3$residuals^2) / n
-  log_likelihood <- -0.5 * n * (log(2 * pi) + log(sigma2) + 1)
-  return(log_likelihood)
-}
-
-ll_value <- log_likelihood(slx_model_generell_k3)
-print(ll_value)
-```
-
-```{r}
-slx_model_generell_k10 <- lmSLX(Modell_Generell,
-                                 data = Analyse_sf,
-                                 listw = Analyse_W10,
-                                 Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km)
-                               )
-```
-
-```{r}
-log_likelihood <- function(slx_model_generell_k10) {
-  n <- length(slx_model_generell_k10$residuals)
-  sigma2 <- sum(slx_model_generell_k10$residuals^2) / n
-  log_likelihood <- -0.5 * n * (log(2 * pi) + log(sigma2) + 1)
-  return(log_likelihood)
-}
-
-ll_value <- log_likelihood(slx_model_generell_k10)
+ll_value <- log_likelihood(slx_model_Generell_k10)
 print(ll_value)
 ```
 
 ### Summary av SLX-modeller
 
 ```{r}
-cat("Summary for SLX Model - Kommuner, K3:\n")
-summary(slx_model_kommuner_k3)
-AIC(slx_model_kommuner_k3)
-BIC(slx_model_kommuner_k3)
+cat("Summary for SLX Model - Bergen, K3:\n")
+summary(slx_model_Bergen_k3)
+AIC(slx_model_Bergen_k3)
+BIC(slx_model_Bergen_k3)
 ```
 
 ```{r}
-cat("Summary for SLX Model - Kommuner, K10:\n")
-summary(slx_model_kommuner_k10)
-AIC(slx_model_kommuner_k10)
-BIC(slx_model_kommuner_k10)
+cat("Summary for SLX Model - Bergen, K10:\n")
+summary(slx_model_Bergen_k10)
+AIC(slx_model_Bergen_k10)
+BIC(slx_model_Bergen_k10)
 ```
 
 ```{r}
 cat("Summary for SLX Model - Generell, K3:\n")
-summary(slx_model_generell_k3)
-AIC(slx_model_generell_k3)
-BIC(slx_model_generell_k3)
+summary(slx_model_Generell_k3)
+AIC(slx_model_Generell_k3)
+BIC(slx_model_Generell_k3)
 ```
 
 ```{r}
 cat("Summary for SLX Model - Generell, K10:\n")
-summary(slx_model_generell_k10)
-AIC(slx_model_generell_k10)
-BIC(slx_model_generell_k10)
+summary(slx_model_Generell_k10)
+AIC(slx_model_Generell_k10)
+BIC(slx_model_Generell_k10)
 ```
 
 ### Impacts, Morantest & Plot av SLX-modeller
 
-#### SLX, Kommune, K3
+#### SLX, Bergen, K3
 
 ```{r}
-summary(impacts(slx_model_kommuner_k3), z.values = TRUE)
+summary(impacts(slx_model_Bergen_k3), z.values = TRUE)
 ```
 
 ```{r}
-lm.morantest(slx_model_kommuner_k3,
-             listw = Analyse_W3,
+lm.morantest(slx_model_Bergen_k3,
+             listw = Analyse_W3_red,
              alternative = "greater",
              resfun = residuals,
              naSubset = TRUE
              )
 ```
 
-```{r}
-moran.plot(residuals(slx_model_kommuner_k3), listw = Analyse_W3)
+```{r eval=FALSE}
+moran.plot(residuals(slx_model_Bergen_k3), listw = Analyse_W3_red)
 ```
 
-#### SLX, Kommune, K10
+#### SLX, Bergen, K10
 
 ```{r}
-summary(impacts(slx_model_kommuner_k10), z.values = TRUE)
+summary(impacts(slx_model_Bergen_k10), z.values = TRUE)
 ```
 
 ```{r}
-lm.morantest(slx_model_generell_k10,
-             listw = Analyse_W10,
+lm.morantest(slx_model_Bergen_k10,
+             listw = Analyse_W10_red,
              alternative = "greater",
              resfun = residuals,
              naSubset = TRUE
              )
 ```
 
-```{r}
-moran.plot(residuals(slx_model_kommuner_k10), listw = Analyse_W10)
+```{r eval=FALSE}
+moran.plot(residuals(slx_model_Bergen_k10), listw = Analyse_W10_red)
 ```
 
 #### SLX, Generell, K3
 
 ```{r}
-summary(impacts(slx_model_generell_k3), z.values = TRUE)
+summary(impacts(slx_model_Generell_k3), z.values = TRUE)
 ```
 
 ```{r}
-lm.morantest(slx_model_generell_k3,
+lm.morantest(slx_model_Generell_k3,
              listw = Analyse_W3,
              alternative = "greater",
              resfun = residuals,
@@ -2493,18 +2471,18 @@ lm.morantest(slx_model_generell_k3,
              )
 ```
 
-```{r}
-moran.plot(residuals(slx_model_generell_k3), listw = Analyse_W3)
+```{r eval=FALSE}
+moran.plot(residuals(slx_model_Generell_k3), listw = Analyse_W3)
 ```
 
 #### SLX, Generell, K10
 
 ```{r}
-summary(impacts(slx_model_generell_k10), z.values = TRUE)
+summary(impacts(slx_model_Generell_k10), z.values = TRUE)
 ```
 
 ```{r}
-lm.morantest(slx_model_kommuner_k10,
+lm.morantest(slx_model_Generell_k10,
              listw = Analyse_W10,
              alternative = "greater",
              resfun = residuals,
@@ -2512,22 +2490,8 @@ lm.morantest(slx_model_kommuner_k10,
              )
 ```
 
-```{r}
-moran.plot(residuals(slx_model_generell_k10), listw = Analyse_W10)
-```
-
-```{r, eval=FALSE}
-# Lager romlige laggede uavhengige variabler
-X_lag <- lag.listw(Analyse_W3, as.matrix(Analyse_sf[, c("EL.Kar.Original", "Alder", "O.Karak", "BLEnergikWh", "MatValg", "Bruksareal.Enhet", "AntallRom", "AntallBad", "AntallWC", "HarHeis", "YearQuarter", "Kommune", "dist_cbd_km")]))
-
-# Legger til romlige laggede uavhengige variabler i mitt datasett
-Analyse_sf <- cbind(Analyse_sf, X_lag)
-names(Analyse_sf)[(ncol(Analyse_sf) - ncol(X_lag) + 1):ncol(Analyse_sf)] <- paste0("W_", names(X_lag))
-
-# Formulerer Spatial Durbin model med lagsarlm() med type = "mixed"
-durbin_model <- lagsarlm(pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + Kommune + dist_cbd_km, data = Analyse_sf, listw = Analyse_W3, type = "mixed")
-summary(durbin_model)
-
+```{r eval=FALSE}
+moran.plot(residuals(slx_model_Generell_k10), listw = Analyse_W10)
 ```
 
 ## SDM (Spatial Durbin Modell)
@@ -2535,17 +2499,17 @@ summary(durbin_model)
 ### SDM-Modellene
 
 ```{r}
-SDM_modell_Kommuner_K3 <- lagsarlm(Modell_Kommuner,
-                                   data = Analyse_sf,
-                                   listw = Analyse_W3,
+SDM_modell_Bergen_K3 <- lagsarlm(Modell_Bergen,
+                                   data = Bergen_sf,
+                                   listw = Analyse_W3_red,
                                    Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km),
                                    type = "mixed")
 ```
 
 ```{r}
-SDM_modell_Kommuner_K10 <- lagsarlm(Modell_Kommuner,
-                                   data = Analyse_sf,
-                                   listw = Analyse_W10,
+SDM_modell_Bergen_K10 <- lagsarlm(Modell_Bergen,
+                                   data = Bergen_sf,
+                                   listw = Analyse_W10_red,
                                    Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km),
                                    type = "mixed")
 ```
@@ -2569,13 +2533,13 @@ SDM_modell_Generell_K10 <- lagsarlm(Modell_Generell,
 ### Summary av SDM-modellene
 
 ```{r}
-cat("Summary for SDM Model - Kommune, K3:\n")
-summary(SDM_modell_Kommuner_K3)
+cat("Summary for SDM Model - Bergen, K3:\n")
+summary(SDM_modell_Bergen_K3)
 ```
 
 ```{r}
-cat("Summary for SDM Model - Kommune, K10:\n")
-summary(SDM_modell_Kommuner_K10)
+cat("Summary for SDM Model - Bergen, K10:\n")
+summary(SDM_modell_Bergen_K3)
 ```
 
 ```{r}
@@ -2588,52 +2552,36 @@ cat("Summary for SDM Model - Generell, K10:\n")
 summary(SDM_modell_Generell_K10)
 ```
 
-# Resultater (SAR/SEM/SAC/SDM)
-
-```{r eval=FALSE}
-cat("Summary for SAR model:\n")
-print(summary(sar_model))
-
-cat("\nSummary for SEM model:\n")
-print(summary(sem_model))
-
-cat("\nSummary for SAC model:\n")
-print(summary(sac_model))
-
-# cat("\nSummary for Spatial Durbin model:\n")
-# print(summary(durbin_model))
-```
-
 # Tester modellene, for å finne hvilken som er mest aktuell
 
-## Tester Kommune, K3
+## Tester Bergen, K3
 
 ```{r}
-lmtest::lrtest(sar_model_kommuner_k3, sac_model_Kommuner_K3, sem_model_Kommuner_k3, slx_model_kommuner_k3, SDM_modell_Kommuner_K3)
+lmtest::lrtest(sar_model_Bergen_k3, sac_model_Bergen_K3, sem_model_Bergen_k3, slx_model_Bergen_k3, SDM_modell_Bergen_K3)
 ```
 
-## Tester Kommune, K10
+## Tester Bergen, K10
 
 ```{r}
-lmtest::lrtest(sar_model_kommuner_k10, sac_model_Kommuner_K10, sem_model_Kommuner_k10, slx_model_kommuner_k10, SDM_modell_Kommuner_K10)
+lmtest::lrtest(sar_model_Bergen_k10, sac_model_Bergen_K10, sem_model_Bergen_k10, slx_model_Bergen_k10, SDM_modell_Bergen_K10)
 ```
 
 ## Tester Generell, K3
 
 ```{r}
-lmtest::lrtest(sar_model_generell_k3, sac_model_Generell_K3, sem_model_Generell_k3, slx_model_generell_k3, SDM_modell_Generell_K3)
+lmtest::lrtest(sar_model_generell_k3, sac_model_Generell_K3, sem_model_Generell_k3, slx_model_Generell_k3, SDM_modell_Generell_K3)
 ```
 
 ## Tester Generell, K10
 
 ```{r}
-lmtest::lrtest(sar_model_generell_k10, sac_model_Generell_K10, sem_model_Generell_k10, slx_model_generell_k10, SDM_modell_Generell_K10)
+lmtest::lrtest(sar_model_generell_k10, sac_model_Generell_K10, sem_model_Generell_k10, slx_model_Generell_k10, SDM_modell_Generell_K10)
 ```
 
 # Temp Slutt
 
 
-```{r}
+```{r eval=FALSE}
 # Sammenligner SAR model med SEM model
 lrtest_sar_vs_sem <- lrtest(sar_model, sem_model)
 cat("\nLR test for SAR vs. SEM:\n")
