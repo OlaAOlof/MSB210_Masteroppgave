@@ -115,7 +115,6 @@ Analyse_sf <- Analyse_sf %>%
   select(DokumentAr, everything())
 ```
 
-
 # Fjerner SNR = 0
 
 ```{r SNR>0}
@@ -150,6 +149,13 @@ Analyse <- Analyse[-1616,]
 
 ```{r}
 Blokker_sf <- Blokker_sf[-1616,]
+```
+
+# Lager reint Bergen Datasett
+
+```{r}
+Bergen_sf <- Analyse_sf %>% 
+  filter(Knr == 4601)
 ```
 
 # Summary av datasettene
@@ -346,6 +352,12 @@ moran.test(Analyse_sf$P, Analyse_w)
 ```
 
 # Lager vektmatrise, hva. knearneigh
+
+```{r}
+telling <- Analyse_sf %>% 
+  filter(Knr == 4631)
+```
+
 
 ## Knearneigh; K=3
 
@@ -1759,7 +1771,7 @@ forward$coefficients
 
 ```{r eval=FALSE}
 Analyse_sf$Kommune <- as.factor(Analyse_sf$Kommune) # Character -> Factor
-Analyse_sf$Kommune <- relevel(Analyse_sf$Kommune, ref = "Alver") # Referanseverdi
+Analyse_sf$Kommune <- relevel(Analyse_sf$Kommune, ref = "Bergen") # Referanseverdi
 ```
 
 ```{r}
@@ -1774,7 +1786,7 @@ Analyse_sf$O.Karak <- relevel(Analyse_sf$O.Karak, ref = "Red") # Referanseverdi
 
 ```{r eval=FALSE}
 Blokker_sf$Kommune <- as.factor(Blokker_sf$Kommune) # Character -> Factor
-Blokker_sf$Kommune <- relevel(Blokker_sf$Kommune, ref = "Alver") # Referanseverdi
+Blokker_sf$Kommune <- relevel(Blokker_sf$Kommune, ref = "Bergen") # Referanseverdi
 ```
 
 ```{r}
@@ -2083,16 +2095,20 @@ print(vif_values)
 ## SAR (Spatial Autoregressiv)
 
 ```{r}
-Modell_Kommuner <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + Kommune + dist_cbd_km"
+Modell_Bergen <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km"
 ```
 
 ```{r}
-Modell_Generell <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km"
+Modell_Kommuner <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + Kommune + dist_cbd_km"
+```
+
+```{r}
+Modell_Generell <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km"
 ```
 
 ### SAR-Modellene
 
-```{r eval=FALSE}
+```{r}
 sar_model_kommuner_k3 <- lagsarlm(Modell_Kommuner,
                       data = Analyse_sf,
                       listw = Analyse_W3,
@@ -2100,7 +2116,7 @@ sar_model_kommuner_k3 <- lagsarlm(Modell_Kommuner,
                       tol.solve = 1e-10)
 ```
 
-```{r eval=FALSE}
+```{r}
 sar_model_kommuner_k10 <- lagsarlm(Modell_Kommuner,
                       data = Analyse_sf,
                       listw = Analyse_W10,
@@ -2108,7 +2124,7 @@ sar_model_kommuner_k10 <- lagsarlm(Modell_Kommuner,
                       tol.solve = 1e-10)
 ```
 
-```{r eval=FALSE}
+```{r}
 sar_model_generell_k3 <- lagsarlm(Modell_Generell,
                       data = Analyse_sf,
                       listw = Analyse_W3,
@@ -2116,7 +2132,7 @@ sar_model_generell_k3 <- lagsarlm(Modell_Generell,
                       tol.solve = 1e-10)
 ```
 
-```{r eval=FALSE}
+```{r}
 sar_model_generell_k10 <- lagsarlm(Modell_Generell,
                       data = Analyse_sf,
                       listw = Analyse_W10,
@@ -2126,22 +2142,22 @@ sar_model_generell_k10 <- lagsarlm(Modell_Generell,
 
 ### Summary av SAR-modellen
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SAR Model - Kommuner, K3:\n")
 print(summary(sar_model_kommuner_k3))
 ```
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SAR Model - Kommuner, K10:\n")
 print(summary(sar_model_kommuner_k10))
 ```
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SAR Model - Generell, K3:\n")
 print(summary(sar_model_generell_k3))
 ```
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SAR Model - Generell, K10:\n")
 print(summary(sar_model_generell_k10))
 ```
@@ -2152,7 +2168,7 @@ print(summary(sar_model_generell_k10))
 
 **OLA: Trur da e Durbin = False her. Men eg finne ikkje noke konkret på Arnsteins slida, så ekje 100% sikker**
 
-```{r eval=FALSE}
+```{r}
 sac_model_Kommuner_K3 <- sacsarlm(Modell_Kommuner,
                       data = Analyse_sf,
                       listw = Analyse_W3,
@@ -2160,7 +2176,7 @@ sac_model_Kommuner_K3 <- sacsarlm(Modell_Kommuner,
                       tol.solve = 1e-10)
 ```
 
-```{r eval=FALSE}
+```{r}
 sac_model_Kommuner_K10 <- sacsarlm(Modell_Kommuner,
                       data = Analyse_sf,
                       listw = Analyse_W10,
@@ -2168,7 +2184,7 @@ sac_model_Kommuner_K10 <- sacsarlm(Modell_Kommuner,
                       tol.solve = 1e-10)
 ```
 
-```{r eval=FALSE}
+```{r}
 sac_model_Generell_K3 <- sacsarlm(Modell_Generell,
                       data = Analyse_sf,
                       listw = Analyse_W3,
@@ -2176,7 +2192,7 @@ sac_model_Generell_K3 <- sacsarlm(Modell_Generell,
                       tol.solve = 1e-10)
 ```
 
-```{r eval=FALSE}
+```{r}
 sac_model_Generell_K10 <- sacsarlm(Modell_Generell,
                       data = Analyse_sf,
                       listw = Analyse_W10,
@@ -2184,22 +2200,22 @@ sac_model_Generell_K10 <- sacsarlm(Modell_Generell,
                       tol.solve = 1e-10)
 ```
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SAC Model - Kommuner, K3:\n")
 print(summary(sac_model_Kommuner_K3))
 ```
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SAC Model - Kommuner, K10:\n")
 print(summary(sac_model_Kommuner_K10))
 ```
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SAC Model - Generell, K3:\n")
 print(summary(sac_model_Generell_K3))
 ```
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SAC Model - Generell, K10:\n")
 print(summary(sac_model_Generell_K10))
 ```
@@ -2216,7 +2232,7 @@ https://msb205.netlify.app/spatmetrics/spatreg/#/sem-model
 
 ### SEM-Modellene
 
-```{r eval=FALSE}
+```{r}
 sem_model_Kommuner_k3 <- errorsarlm(Modell_Kommuner,
                       data = Analyse_sf,
                       listw = Analyse_W3,
@@ -2224,7 +2240,7 @@ sem_model_Kommuner_k3 <- errorsarlm(Modell_Kommuner,
                       tol.solve = 1e-10)
 ```
 
-```{r eval=FALSE}
+```{r}
 sem_model_Kommuner_k10 <- errorsarlm(Modell_Kommuner,
                       data = Analyse_sf,
                       listw = Analyse_W10,
@@ -2232,7 +2248,7 @@ sem_model_Kommuner_k10 <- errorsarlm(Modell_Kommuner,
                       tol.solve = 1e-10)
 ```
 
-```{r eval=FALSE}
+```{r}
 sem_model_Generell_k3 <- errorsarlm(Modell_Generell,
                       data = Analyse_sf,
                       listw = Analyse_W3,
@@ -2240,7 +2256,7 @@ sem_model_Generell_k3 <- errorsarlm(Modell_Generell,
                       tol.solve = 1e-10)
 ```
 
-```{r eval=FALSE}
+```{r}
 sem_model_Generell_k10 <- errorsarlm(Modell_Generell,
                       data = Analyse_sf,
                       listw = Analyse_W10,
@@ -2250,22 +2266,22 @@ sem_model_Generell_k10 <- errorsarlm(Modell_Generell,
 
 ### Summary av SEM-modeller
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SEM Model - Kommuner, K3:\n")
 print(summary(sem_model_Kommuner_k3))
 ```
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SEM Model - Kommuner, K10:\n")
 print(summary(sem_model_Kommuner_k10))
 ```
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SEM Model - Generell, K3:\n")
 print(summary(sem_model_Generell_k3))
 ```
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SEM Model - Generell, K10:\n")
 print(summary(sem_model_Generell_k10))
 ```
@@ -2316,7 +2332,7 @@ moran.plot(
 slx_model_kommuner_k3 <- lmSLX(Modell_Kommuner,
                                  data = Analyse_sf,
                                  listw = Analyse_W3,
-                                 Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km)
+                                 Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km)
                                )
 ```
 
@@ -2336,7 +2352,7 @@ print(ll_value)
 slx_model_kommuner_k10 <- lmSLX(Modell_Kommuner,
                                  data = Analyse_sf,
                                  listw = Analyse_W10,
-                                 Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km)
+                                 Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km)
                                )
 ```
 
@@ -2356,7 +2372,7 @@ print(ll_value)
 slx_model_generell_k3 <- lmSLX(Modell_Generell,
                                  data = Analyse_sf,
                                  listw = Analyse_W3,
-                                 Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km)
+                                 Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km)
                                )
 ```
 
@@ -2376,7 +2392,7 @@ print(ll_value)
 slx_model_generell_k10 <- lmSLX(Modell_Generell,
                                  data = Analyse_sf,
                                  listw = Analyse_W10,
-                                 Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km)
+                                 Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km)
                                )
 ```
 
@@ -2518,56 +2534,56 @@ summary(durbin_model)
 
 ### SDM-Modellene
 
-```{r eval=FALSE}
+```{r}
 SDM_modell_Kommuner_K3 <- lagsarlm(Modell_Kommuner,
                                    data = Analyse_sf,
                                    listw = Analyse_W3,
-                                   Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km),
+                                   Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km),
                                    type = "mixed")
 ```
 
-```{r eval=FALSE}
+```{r}
 SDM_modell_Kommuner_K10 <- lagsarlm(Modell_Kommuner,
                                    data = Analyse_sf,
                                    listw = Analyse_W10,
-                                   Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km),
+                                   Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km),
                                    type = "mixed")
 ```
 
-```{r eval=FALSE}
+```{r}
 SDM_modell_Generell_K3 <- lagsarlm(Modell_Generell,
                                    data = Analyse_sf,
                                    listw = Analyse_W3,
-                                   Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km),
+                                   Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km),
                                    type = "mixed")
 ```
 
-```{r eval=FALSE}
+```{r}
 SDM_modell_Generell_K10 <- lagsarlm(Modell_Generell,
                                    data = Analyse_sf,
                                    listw = Analyse_W10,
-                                   Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + Bruksareal.Enhet + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km),
+                                   Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km),
                                    type = "mixed")
 ```
 
 ### Summary av SDM-modellene
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SDM Model - Kommune, K3:\n")
 summary(SDM_modell_Kommuner_K3)
 ```
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SDM Model - Kommune, K10:\n")
 summary(SDM_modell_Kommuner_K10)
 ```
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SDM Model - Generell, K3:\n")
 summary(SDM_modell_Generell_K3)
 ```
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SDM Model - Generell, K10:\n")
 summary(SDM_modell_Generell_K10)
 ```
@@ -2592,25 +2608,25 @@ print(summary(sac_model))
 
 ## Tester Kommune, K3
 
-```{r eval=FALSE}
+```{r}
 lmtest::lrtest(sar_model_kommuner_k3, sac_model_Kommuner_K3, sem_model_Kommuner_k3, slx_model_kommuner_k3, SDM_modell_Kommuner_K3)
 ```
 
 ## Tester Kommune, K10
 
-```{r eval=FALSE}
+```{r}
 lmtest::lrtest(sar_model_kommuner_k10, sac_model_Kommuner_K10, sem_model_Kommuner_k10, slx_model_kommuner_k10, SDM_modell_Kommuner_K10)
 ```
 
 ## Tester Generell, K3
 
-```{r eval=FALSE}
+```{r}
 lmtest::lrtest(sar_model_generell_k3, sac_model_Generell_K3, sem_model_Generell_k3, slx_model_generell_k3, SDM_modell_Generell_K3)
 ```
 
 ## Tester Generell, K10
 
-```{r eval=FALSE}
+```{r}
 lmtest::lrtest(sar_model_generell_k10, sac_model_Generell_K10, sem_model_Generell_k10, slx_model_generell_k10, SDM_modell_Generell_K10)
 ```
 

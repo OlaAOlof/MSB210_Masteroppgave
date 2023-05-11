@@ -99,6 +99,11 @@ ENOVA_Vestland <- rbind(
     -HarEnergiVurdering)
 ```
 
+```{r eval=FALSE}
+telling <- ENOVA_Vestland %>% 
+  filter(Knr == 4626)
+```
+
 ## Fjerner rekker observasjoner med organisasjonsnummer
 
 Vi velger å fjerne rekkene med organisasjonsnummer da dette er boliger eid og kjøpt av næringer. Vi er i denne oppgaven interesert i hvordan det i hovedsak påvirker private, og boliger med organisasjonsnummer blir dermed en verdi vi ikke har behov for.
@@ -246,6 +251,24 @@ Ambita_Oppdatert <- read_excel("data/Ambita_Delvis_Oppdatert.xlsx")
 
 ```{r}
 Ambita <- Ambita[Ambita$DokumentAr %in% c(2019, 2020, 2021, 2022), ]
+```
+
+```{r eval=FALSE}
+tmp <- Ambita_Oppdatert %>% 
+  filter(Kommunenr == 4628)
+```
+
+```{r eval=FALSE}
+tmp <- tmp[!duplicated(tmp$InternidDokument), ]
+```
+
+```{r eval=FALSE}
+tmp2 <- Ambita %>% 
+  filter(Bygningsnr == 175830898)
+```
+
+```{r eval=FALSE}
+tmp2 <- tmp2[!duplicated(tmp2$InternidDokument), ]
 ```
 
 ## Lager et temp-datasett for andelsnummer
@@ -1136,6 +1159,11 @@ Analyse_sf$Bruksareal.Enhet[(876)] <- 79
 Analyse_sf$Bruksareal.Enhet[(877)] <- 62
 Analyse_sf$Bruksareal.Enhet[(878)] <- 81
 Analyse_sf$Bruksareal.Enhet[(879)] <- 60
+```
+
+```{r}
+aisdjad <- Analyse_sf %>% 
+  filter(Bruksareal.Enhet == 0)
 ```
 
 ```{r}
