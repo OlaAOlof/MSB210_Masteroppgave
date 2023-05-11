@@ -610,6 +610,33 @@ block.nb_knn10_red
 plot(block.nb_knn10_red, coords = st_coordinates(Bergen_sf));points(st_coordinates(unike_punkt_red))
 ```
 
+### Knearneigh; K=15
+
+```{r K=3}
+# 15 nearest neighbours
+knn_15_red <- knearneigh(st_coordinates(unike_punkt_red), k = 15)
+nb_knn15_red <- knn2nb(
+  knn_15_red, 
+  row.names = pull(st_drop_geometry(select(unike_punkt_red, EAG_Blocking))),
+  sym = TRUE
+  )
+block.nb_knn15_red <- nb2blocknb(
+  nb_knn15_red,
+  ID = Bergen_sf$EAG_Blocking
+  )
+Analyse_W15_red <- nb2listw(block.nb_knn15_red, style = "W", zero.policy = TRUE)
+# Har vi spatial autocorrelation i prisene?
+moran.test(Bergen_sf$P, Analyse_W15_red)
+```
+
+```{r K=3_Block.nb}
+block.nb_knn15_red
+```
+
+```{r K=3, plot}
+plot(block.nb_knn15_red, coords = st_coordinates(Bergen_sf));points(st_coordinates(unike_punkt_red))
+```
+
 # Gammel kode, utgår. START
 
 ## Kontroll av nabolagsmatrise - Kevin (Gammel)
@@ -1757,8 +1784,6 @@ forward$coefficients
 
 **OLA: Detta e eksludert kommune. Da tar eg etter me blir enig om finalisert modell**
 
-
-
 ## Lager datasett for strømpriskrise
 
 ```{r}
@@ -1853,11 +1878,11 @@ Blokker_sf_Etter_Krise$YearQuarter <- as.factor(Blokker_sf_Etter_Krise$YearQuart
 Blokker_sf_Etter_Krise$YearQuarter <- relevel(Blokker_sf_Etter_Krise$YearQuarter, ref = "2022Q4") # Referanseverdi
 ```
 
-## Forslag, Modell
+## Forslag, OLS-Modell
 
 ### Full Modell
 
-```{r Modell_Done}
+```{r Modell_Kommuner}
 options(scipen = 999)
 modBlokk <- "pm2 ~ 
   EL.Kar.Original + 
@@ -1879,6 +1904,52 @@ AIC(OLSBlokk)
 BIC(OLSBlokk)
 ```
 
+### Bergen
+
+```{r Modell_Bergen}
+options(scipen = 999)
+modBergen <- "pm2 ~ 
+  EL.Kar.Original + 
+  (Alder) + 
+  O.Karak + 
+  BLEnergikWh + 
+  MatValg + 
+  (AntallRom) + 
+  (AntallBad) + 
+  (AntallWC) + 
+  HarHeis + 
+  BolType + 
+  YearQuarter +
+  (dist_cbd_km)"
+OLSBergen <- lm(modBergen, data = Bergen_sf)
+summary(OLSBergen)
+AIC(OLSBergen)
+BIC(OLSBergen)
+```
+
+### Generell
+
+```{r Modell_Generell}
+options(scipen = 999)
+modGenerell <- "pm2 ~ 
+  EL.Kar.Original + 
+  (Alder) + 
+  O.Karak + 
+  BLEnergikWh + 
+  MatValg + 
+  (AntallRom) + 
+  (AntallBad) + 
+  (AntallWC) + 
+  HarHeis + 
+  BolType + 
+  YearQuarter +
+  (dist_cbd_km)"
+OLSGenerell <- lm(modGenerell, data = Blokker_sf)
+summary(OLSGenerell)
+AIC(OLSGenerell)
+BIC(OLSGenerell)
+```
+
 ### Modell - Kun Energi Karakteristika
 
 #### Hele Regionen
@@ -1886,7 +1957,19 @@ BIC(OLSBlokk)
 ```{r Modell Blokk_Energi_Perioden}
 options(scipen = 999)
 
-modBlokkEnergi <- "pm2 ~ EL.Kar.Original + O.Karak + BLEnergikWh + MatValg + Alder + YearQuarter"
+modBlokkEnergi <- "pm2 ~ EL.Kar.Original + O.Karak + BLEnergikWh + MatValg + Alder + YearQuarter + Kommune"
+OLSBlokkEnergi <- lm(modBlokkEnergi, data = Blokker_sf)
+summary(OLSBlokkEnergi)
+AIC(OLSBlokkEnergi)
+BIC(OLSBlokkEnergi)
+```
+
+#### Hele Regionen - Kommuner
+
+```{r Modell Blokk_Energi_Perioden}
+options(scipen = 999)
+
+modBlokkEnergi <- "pm2 ~ EL.Kar.Original + O.Karak + BLEnergikWh + MatValg + Alder + YearQuarter + Kommune"
 OLSBlokkEnergi <- lm(modBlokkEnergi, data = Blokker_sf)
 summary(OLSBlokkEnergi)
 AIC(OLSBlokkEnergi)
@@ -2178,13 +2261,15 @@ sac_model_Generell_K10 <- sacsarlm(Modell_Generell,
                       tol.solve = 1e-10)
 ```
 
+### Summary av SAC-modellene
+
 ```{r}
-cat("Summary for SAC Model - Kommuner, K3:\n")
+cat("Summary for SAC Model - Bergen, K3:\n")
 print(summary(sac_model_Bergen_K3))
 ```
 
 ```{r}
-cat("Summary for SAC Model - Kommuner, K10:\n")
+cat("Summary for SAC Model - Bergen, K10:\n")
 print(summary(sac_model_Bergen_K10))
 ```
 
@@ -2242,6 +2327,14 @@ sem_model_Generell_k10 <- errorsarlm(Modell_Generell,
                       tol.solve = 1e-10)
 ```
 
+```{r eval=FALSE}
+sem_model_Generell_k15 <- errorsarlm(Modell_Generell,
+                      data = Analyse_sf,
+                      listw = Analyse_W15,
+                      Durbin = FALSE,
+                      tol.solve = 1e-10)
+```
+
 ### Summary av SEM-modeller
 
 ```{r}
@@ -2262,6 +2355,11 @@ print(summary(sem_model_Generell_k3))
 ```{r}
 cat("Summary for SEM Model - Generell, K10:\n")
 print(summary(sem_model_Generell_k10))
+```
+
+```{r eval=FALSE}
+cat("Summary for SEM Model - Generell, K15:\n")
+print(summary(sem_model_Generell_k15))
 ```
 
 ### Plot av SEM-modell
@@ -2515,6 +2613,14 @@ SDM_modell_Bergen_K10 <- lagsarlm(Modell_Bergen,
 ```
 
 ```{r}
+SDM_modell_Bergen_K15 <- lagsarlm(Modell_Bergen,
+                                   data = Bergen_sf,
+                                   listw = Analyse_W15_red,
+                                   Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km),
+                                   type = "mixed")
+```
+
+```{r}
 SDM_modell_Generell_K3 <- lagsarlm(Modell_Generell,
                                    data = Analyse_sf,
                                    listw = Analyse_W3,
@@ -2530,6 +2636,14 @@ SDM_modell_Generell_K10 <- lagsarlm(Modell_Generell,
                                    type = "mixed")
 ```
 
+```{r eval=FALSE}
+SDM_modell_Generell_K15 <- lagsarlm(Modell_Generell,
+                                   data = Analyse_sf,
+                                   listw = Analyse_W15,
+                                   Durbin = as.formula(~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km),
+                                   type = "mixed")
+```
+
 ### Summary av SDM-modellene
 
 ```{r}
@@ -2539,7 +2653,12 @@ summary(SDM_modell_Bergen_K3)
 
 ```{r}
 cat("Summary for SDM Model - Bergen, K10:\n")
-summary(SDM_modell_Bergen_K3)
+summary(SDM_modell_Bergen_K10)
+```
+
+```{r}
+cat("Summary for SDM Model - Bergen, K15:\n")
+summary(SDM_modell_Bergen_K15)
 ```
 
 ```{r}
@@ -2550,6 +2669,11 @@ summary(SDM_modell_Generell_K3)
 ```{r}
 cat("Summary for SDM Model - Generell, K10:\n")
 summary(SDM_modell_Generell_K10)
+```
+
+```{r eval=FALSE}
+cat("Summary for SDM Model - Generell, K15:\n")
+summary(SDM_modell_Generell_K15)
 ```
 
 # Tester modellene, for å finne hvilken som er mest aktuell
@@ -2578,8 +2702,8 @@ lmtest::lrtest(sar_model_generell_k3, sac_model_Generell_K3, sem_model_Generell_
 lmtest::lrtest(sar_model_generell_k10, sac_model_Generell_K10, sem_model_Generell_k10, slx_model_Generell_k10, SDM_modell_Generell_K10)
 ```
 
-# Temp Slutt
 
+# Temp Slutt
 
 ```{r eval=FALSE}
 # Sammenligner SAR model med SEM model
