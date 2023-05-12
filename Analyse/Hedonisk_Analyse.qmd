@@ -36,6 +36,7 @@ library(vip)
 library(xgboost)
 library(ranger)
 library(rpart)
+library(lavaan)
 options(paged.print = FALSE)
 ```
 
@@ -1957,7 +1958,7 @@ BIC(OLSGenerell)
 ```{r Modell Blokk_Energi_Perioden}
 options(scipen = 999)
 
-modBlokkEnergi <- "pm2 ~ EL.Kar.Original + O.Karak + BLEnergikWh + MatValg + Alder + YearQuarter + Kommune"
+modBlokkEnergi <- "pm2 ~ EL.Kar.Original + O.Karak + BLEnergikWh + MatValg + Alder + YearQuarter"
 OLSBlokkEnergi <- lm(modBlokkEnergi, data = Blokker_sf)
 summary(OLSBlokkEnergi)
 AIC(OLSBlokkEnergi)
@@ -2361,6 +2362,41 @@ print(summary(sem_model_Generell_k10))
 cat("Summary for SEM Model - Generell, K15:\n")
 print(summary(sem_model_Generell_k15))
 ```
+
+### R2 For SEM-Modeller
+
+#### R2, SEM, Bergen, K3
+
+```{r}
+R2_SEM_Bergen_K3 <- sem(Modell_Bergen,
+                        data = Bergen_sf)
+```
+
+```{r}
+R2_SEM_Bergen_K3 <- sem(Modell_Bergen,
+                        listw = Analyse_W3_red,
+                        data = Bergen_sf)
+```
+
+```{r}
+summary(R2_SEM_Bergen_K3, rsq = TRUE, fit.measures = TRUE, standardized = TRUE)
+```
+
+#### R2, SEM, Bergen, K10
+
+```{r}
+R2_SEM_Bergen_K3 <- sem(Modell_Bergen, data = Bergen_sf)
+```
+
+```{r}
+summary(test_sem, rsq = TRUE, fit.measures = TRUE, standardized = TRUE)
+```
+
+### Morans I av SEM-modell (Prøver å finne ut av)
+
+#### SEM, Kommune, K3
+
+-
 
 ### Plot av SEM-modell
 
