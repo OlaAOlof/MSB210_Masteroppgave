@@ -2170,7 +2170,7 @@ Modell_Generell <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatV
 
 ### SAR-Modellene
 
-```{r}
+```{r eval=FALSE}
 sar_model_Bergen_k3 <- lagsarlm(Modell_Bergen,
                       data = Bergen_sf,
                       listw = Analyse_W3_red,
@@ -2178,7 +2178,7 @@ sar_model_Bergen_k3 <- lagsarlm(Modell_Bergen,
                       tol.solve = 1e-10)
 ```
 
-```{r}
+```{r eval=FALSE}
 sar_model_Bergen_k10 <- lagsarlm(Modell_Bergen,
                       data = Bergen_sf,
                       listw = Analyse_W10_red,
@@ -2186,7 +2186,7 @@ sar_model_Bergen_k10 <- lagsarlm(Modell_Bergen,
                       tol.solve = 1e-10)
 ```
 
-```{r}
+```{r eval=FALSE}
 sar_model_generell_k3 <- lagsarlm(Modell_Generell,
                       data = Analyse_sf,
                       listw = Analyse_W3,
@@ -2194,7 +2194,7 @@ sar_model_generell_k3 <- lagsarlm(Modell_Generell,
                       tol.solve = 1e-10)
 ```
 
-```{r}
+```{r eval=FALSE}
 sar_model_generell_k10 <- lagsarlm(Modell_Generell,
                       data = Analyse_sf,
                       listw = Analyse_W10,
@@ -2204,22 +2204,22 @@ sar_model_generell_k10 <- lagsarlm(Modell_Generell,
 
 ### Summary av SAR-modellen
 
-```{r}
+```{r eval=FALSE}
 cat("Summary for SAR Model - Bergen, K3:\n")
 print(summary(sar_model_Bergen_k3))
 ```
 
-```{r}
+```{r eval=FALSE}
 cat("Summary for SAR Model - Bergen, K10:\n")
 print(summary(sar_model_Bergen_k10))
 ```
 
-```{r}
+```{r eval=FALSE}
 cat("Summary for SAR Model - Generell, K3:\n")
 print(summary(sar_model_generell_k3))
 ```
 
-```{r}
+```{r eval=FALSE}
 cat("Summary for SAR Model - Generell, K10:\n")
 print(summary(sar_model_generell_k10))
 ```
@@ -2230,7 +2230,7 @@ print(summary(sar_model_generell_k10))
 
 **OLA: Trur da e Durbin = False her. Men eg finne ikkje noke konkret på Arnsteins slida, så ekje 100% sikker**
 
-```{r}
+```{r eval=FALSE}
 sac_model_Bergen_K3 <- sacsarlm(Modell_Bergen,
                       data = Bergen_sf,
                       listw = Analyse_W3_red,
@@ -2238,7 +2238,7 @@ sac_model_Bergen_K3 <- sacsarlm(Modell_Bergen,
                       tol.solve = 1e-10)
 ```
 
-```{r}
+```{r eval=FALSE}
 sac_model_Bergen_K10 <- sacsarlm(Modell_Bergen,
                       data = Bergen_sf,
                       listw = Analyse_W10_red,
@@ -2246,7 +2246,7 @@ sac_model_Bergen_K10 <- sacsarlm(Modell_Bergen,
                       tol.solve = 1e-10)
 ```
 
-```{r}
+```{r eval=FALSE}
 sac_model_Generell_K3 <- sacsarlm(Modell_Generell,
                       data = Analyse_sf,
                       listw = Analyse_W3,
@@ -2254,7 +2254,7 @@ sac_model_Generell_K3 <- sacsarlm(Modell_Generell,
                       tol.solve = 1e-10)
 ```
 
-```{r}
+```{r eval=FALSE}
 sac_model_Generell_K10 <- sacsarlm(Modell_Generell,
                       data = Analyse_sf,
                       listw = Analyse_W10,
@@ -2264,22 +2264,22 @@ sac_model_Generell_K10 <- sacsarlm(Modell_Generell,
 
 ### Summary av SAC-modellene
 
-```{r}
+```{r eval=FALSE}
 cat("Summary for SAC Model - Bergen, K3:\n")
 print(summary(sac_model_Bergen_K3))
 ```
 
-```{r}
+```{r eval=FALSE}
 cat("Summary for SAC Model - Bergen, K10:\n")
 print(summary(sac_model_Bergen_K10))
 ```
 
-```{r}
+```{r eval=FALSE}
 cat("Summary for SAC Model - Generell, K3:\n")
 print(summary(sac_model_Generell_K3))
 ```
 
-```{r}
+```{r eval=FALSE}
 cat("Summary for SAC Model - Generell, K10:\n")
 print(summary(sac_model_Generell_K10))
 ```
@@ -2373,13 +2373,12 @@ R2_SEM_Bergen_K3 <- sem(Modell_Bergen,
 ```
 
 ```{r}
-R2_SEM_Bergen_K3 <- sem(Modell_Bergen,
-                        listw = Analyse_W3_red,
+R2_SEM_Bergen_K3 <- sem(sem_model_Bergen_k3,
                         data = Bergen_sf)
 ```
 
 ```{r}
-summary(R2_SEM_Bergen_K3, rsq = TRUE, fit.measures = TRUE, standardized = TRUE)
+summary(sem_model_Bergen_k3, rsq = TRUE, fit.measures = TRUE, standardized = TRUE)
 ```
 
 #### R2, SEM, Bergen, K10
@@ -2632,7 +2631,7 @@ moran.plot(residuals(slx_model_Generell_k10), listw = Analyse_W10)
 
 ### SDM-Modellene
 
-```{r}
+```{r eval=FALSE}
 SDM_modell_Bergen_K3 <- lagsarlm(Modell_Bergen,
                                    data = Bergen_sf,
                                    listw = Analyse_W3_red,
@@ -2640,7 +2639,7 @@ SDM_modell_Bergen_K3 <- lagsarlm(Modell_Bergen,
                                    type = "mixed")
 ```
 
-```{r}
+```{r eval=FALSE}
 SDM_modell_Bergen_K10 <- lagsarlm(Modell_Bergen,
                                    data = Bergen_sf,
                                    listw = Analyse_W10_red,
@@ -2648,7 +2647,7 @@ SDM_modell_Bergen_K10 <- lagsarlm(Modell_Bergen,
                                    type = "mixed")
 ```
 
-```{r}
+```{r eval=FALSE}
 SDM_modell_Bergen_K15 <- lagsarlm(Modell_Bergen,
                                    data = Bergen_sf,
                                    listw = Analyse_W15_red,
@@ -2656,7 +2655,7 @@ SDM_modell_Bergen_K15 <- lagsarlm(Modell_Bergen,
                                    type = "mixed")
 ```
 
-```{r}
+```{r eval=FALSE}
 SDM_modell_Generell_K3 <- lagsarlm(Modell_Generell,
                                    data = Analyse_sf,
                                    listw = Analyse_W3,
@@ -2664,7 +2663,7 @@ SDM_modell_Generell_K3 <- lagsarlm(Modell_Generell,
                                    type = "mixed")
 ```
 
-```{r}
+```{r eval=FALSE}
 SDM_modell_Generell_K10 <- lagsarlm(Modell_Generell,
                                    data = Analyse_sf,
                                    listw = Analyse_W10,
@@ -2682,27 +2681,27 @@ SDM_modell_Generell_K15 <- lagsarlm(Modell_Generell,
 
 ### Summary av SDM-modellene
 
-```{r}
+```{r eval=FALSE}
 cat("Summary for SDM Model - Bergen, K3:\n")
 summary(SDM_modell_Bergen_K3)
 ```
 
-```{r}
+```{r eval=FALSE}
 cat("Summary for SDM Model - Bergen, K10:\n")
 summary(SDM_modell_Bergen_K10)
 ```
 
-```{r}
+```{r eval=FALSE}
 cat("Summary for SDM Model - Bergen, K15:\n")
 summary(SDM_modell_Bergen_K15)
 ```
 
-```{r}
+```{r eval=FALSE}
 cat("Summary for SDM Model - Generell, K3:\n")
 summary(SDM_modell_Generell_K3)
 ```
 
-```{r}
+```{r eval=FALSE}
 cat("Summary for SDM Model - Generell, K10:\n")
 summary(SDM_modell_Generell_K10)
 ```
@@ -2716,25 +2715,25 @@ summary(SDM_modell_Generell_K15)
 
 ## Tester Bergen, K3
 
-```{r}
+```{r eval=FALSE}
 lmtest::lrtest(sar_model_Bergen_k3, sac_model_Bergen_K3, sem_model_Bergen_k3, slx_model_Bergen_k3, SDM_modell_Bergen_K3)
 ```
 
 ## Tester Bergen, K10
 
-```{r}
+```{r eval=FALSE}
 lmtest::lrtest(sar_model_Bergen_k10, sac_model_Bergen_K10, sem_model_Bergen_k10, slx_model_Bergen_k10, SDM_modell_Bergen_K10)
 ```
 
 ## Tester Generell, K3
 
-```{r}
+```{r eval=FALSE}
 lmtest::lrtest(sar_model_generell_k3, sac_model_Generell_K3, sem_model_Generell_k3, slx_model_Generell_k3, SDM_modell_Generell_K3)
 ```
 
 ## Tester Generell, K10
 
-```{r}
+```{r eval=FALSE}
 lmtest::lrtest(sar_model_generell_k10, sac_model_Generell_K10, sem_model_Generell_k10, slx_model_Generell_k10, SDM_modell_Generell_K10)
 ```
 
