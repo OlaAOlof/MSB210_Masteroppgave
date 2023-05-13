@@ -2157,7 +2157,7 @@ print(vif_values)
 ## SAR (Spatial Autoregressiv)
 
 ```{r}
-Modell_Bergen <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km"
+Modell_Bergen <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + Bruksareal.Enhet + dist_cbd_km"
 ```
 
 ```{r eval=FALSE}
@@ -2165,7 +2165,7 @@ Modell_Kommuner <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatV
 ```
 
 ```{r}
-Modell_Generell <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + dist_cbd_km"
+Modell_Generell <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + Bruksareal.Enhet + dist_cbd_km"
 ```
 
 ### SAR-Modellene
@@ -2296,7 +2296,7 @@ https://msb205.netlify.app/spatmetrics/spatreg/#/sem-model
 
 ### SEM-Modellene
 
-```{r}
+```{r eval=FALSE}
 sem_model_Bergen_k3 <- errorsarlm(Modell_Bergen,
                       data = Bergen_sf,
                       listw = Analyse_W3_red,
@@ -2304,7 +2304,7 @@ sem_model_Bergen_k3 <- errorsarlm(Modell_Bergen,
                       tol.solve = 1e-10)
 ```
 
-```{r}
+```{r eval=FALSE}
 sem_model_Bergen_k10 <- errorsarlm(Modell_Bergen,
                       data = Bergen_sf,
                       listw = Analyse_W10_red,
@@ -2312,7 +2312,7 @@ sem_model_Bergen_k10 <- errorsarlm(Modell_Bergen,
                       tol.solve = 1e-10)
 ```
 
-```{r}
+```{r eval=FALSE}
 sem_model_Generell_k3 <- errorsarlm(Modell_Generell,
                       data = Analyse_sf,
                       listw = Analyse_W3,
@@ -2320,7 +2320,7 @@ sem_model_Generell_k3 <- errorsarlm(Modell_Generell,
                       tol.solve = 1e-10)
 ```
 
-```{r}
+```{r eval=FALSE}
 sem_model_Generell_k10 <- errorsarlm(Modell_Generell,
                       data = Analyse_sf,
                       listw = Analyse_W10,
@@ -2338,22 +2338,22 @@ sem_model_Generell_k15 <- errorsarlm(Modell_Generell,
 
 ### Summary av SEM-modeller
 
-```{r}
+```{r eval=FALSE}
 cat("Summary for SEM Model - Bergen, K3:\n")
 print(summary(sem_model_Bergen_k3))
 ```
 
-```{r}
+```{r eval=FALSE}
 cat("Summary for SEM Model - Bergen, K10:\n")
 print(summary(sem_model_Bergen_k10))
 ```
 
-```{r}
+```{r eval=FALSE}
 cat("Summary for SEM Model - Generell, K3:\n")
 print(summary(sem_model_Generell_k3))
 ```
 
-```{r}
+```{r eval=FALSE}
 cat("Summary for SEM Model - Generell, K10:\n")
 print(summary(sem_model_Generell_k10))
 ```
@@ -2367,35 +2367,83 @@ print(summary(sem_model_Generell_k15))
 
 #### R2, SEM, Bergen, K3
 
-```{r}
-R2_SEM_Bergen_K3 <- sem(Modell_Bergen,
-                        data = Bergen_sf)
-```
-
-```{r}
-R2_SEM_Bergen_K3 <- sem(sem_model_Bergen_k3,
-                        data = Bergen_sf)
-```
-
-```{r}
-summary(sem_model_Bergen_k3, rsq = TRUE, fit.measures = TRUE, standardized = TRUE)
+```{r eval=FALSE}
+RSS <- sum(residuals(sem_model_Bergen_k3)^2)
+TSS <- sum((Bergen_sf$pm2 - mean(Bergen_sf$pm2))^2)
+n <- nrow(Bergen_sf)
+p <- length(coefficients(sem_model_Bergen_k3)) - 1
+R2 <- 1 - (RSS / TSS)
+AdjR2 <- 1 - (1 - R2) * ((n - 1) / (n - p - 1))
+AdjR2
 ```
 
 #### R2, SEM, Bergen, K10
 
-```{r}
-R2_SEM_Bergen_K3 <- sem(Modell_Bergen, data = Bergen_sf)
+```{r eval=FALSE}
+RSS <- sum(residuals(sem_model_Bergen_k10)^2)
+TSS <- sum((Bergen_sf$pm2 - mean(Bergen_sf$pm2))^2)
+n <- nrow(Bergen_sf)
+p <- length(coefficients(sem_model_Bergen_k10)) - 1
+R2 <- 1 - (RSS / TSS)
+AdjR2 <- 1 - (1 - R2) * ((n - 1) / (n - p - 1))
+AdjR2
 ```
 
-```{r}
-summary(test_sem, rsq = TRUE, fit.measures = TRUE, standardized = TRUE)
+#### R2, SEM, Generell, K3
+
+```{r eval=FALSE}
+RSS <- sum(residuals(sem_model_Generell_k3)^2)
+TSS <- sum((Analyse_sf$pm2 - mean(Analyse_sf$pm2))^2)
+n <- nrow(Analyse_sf)
+p <- length(coefficients(sem_model_Generell_k3)) - 1
+R2 <- 1 - (RSS / TSS)
+AdjR2 <- 1 - (1 - R2) * ((n - 1) / (n - p - 1))
+AdjR2
 ```
+
+
+#### R2, SEM, Generell, K10
+
+```{r eval=FALSE}
+RSS <- sum(residuals(sem_model_Generell_k10)^2)
+TSS <- sum((Analyse_sf$pm2 - mean(Analyse_sf$pm2))^2)
+n <- nrow(Analyse_sf)
+p <- length(coefficients(sem_model_Generell_k10)) - 1
+R2 <- 1 - (RSS / TSS)
+AdjR2 <- 1 - (1 - R2) * ((n - 1) / (n - p - 1))
+AdjR2
+```
+
 
 ### Morans I av SEM-modell (Prøver å finne ut av)
 
 #### SEM, Kommune, K3
 
--
+```{r eval=FALSE}
+resid_model <- residuals(sem_model_Bergen_k3)
+moran.test(resid_model, listw = Analyse_W3_red)
+```
+
+#### SEM, Kommune, K10
+
+```{r eval=FALSE}
+resid_model <- residuals(sem_model_Bergen_k10)
+moran.test(resid_model, listw = Analyse_W10_red)
+```
+
+#### SEM, Generell, K3
+
+```{r eval=FALSE}
+resid_model <- residuals(sem_model_Generell_k3)
+moran.test(resid_model, listw = Analyse_W3)
+```
+
+#### SEM, Generell, K10
+
+```{r eval=FALSE}
+resid_model <- residuals(sem_model_Generell_k10)
+moran.test(resid_model, listw = Analyse_W10)
+```
 
 ### Plot av SEM-modell
 
@@ -2439,7 +2487,7 @@ moran.plot(
 
 ### SLX-Modellene
 
-```{r}
+```{r eval=FALSE}
 slx_model_Bergen_k3 <- lmSLX(Modell_Bergen,
                                  data = Bergen_sf,
                                  listw = Analyse_W3_red,
@@ -2447,7 +2495,7 @@ slx_model_Bergen_k3 <- lmSLX(Modell_Bergen,
                                )
 ```
 
-```{r}
+```{r eval=FALSE}
 log_likelihood <- function(slx_model_Bergen_k3) {
   n <- length(slx_model_Bergen_k3$residuals)
   sigma2 <- sum(slx_model_Bergen_k3$residuals^2) / n
@@ -2459,7 +2507,7 @@ ll_value <- log_likelihood(slx_model_Bergen_k3)
 print(ll_value)
 ```
 
-```{r}
+```{r eval=FALSE}
 slx_model_Bergen_k10 <- lmSLX(Modell_Bergen,
                                  data = Bergen_sf,
                                  listw = Analyse_W10_red,
@@ -2467,7 +2515,7 @@ slx_model_Bergen_k10 <- lmSLX(Modell_Bergen,
                                )
 ```
 
-```{r}
+```{r eval=FALSE}
 log_likelihood <- function(slx_model_Bergen_k10) {
   n <- length(slx_model_Bergen_k10$residuals)
   sigma2 <- sum(slx_model_Bergen_k10$residuals^2) / n
@@ -2479,7 +2527,7 @@ ll_value <- log_likelihood(slx_model_Bergen_k10)
 print(ll_value)
 ```
 
-```{r}
+```{r eval=FALSE}
 slx_model_Generell_k3 <- lmSLX(Modell_Generell,
                                  data = Analyse_sf,
                                  listw = Analyse_W3,
@@ -2487,7 +2535,7 @@ slx_model_Generell_k3 <- lmSLX(Modell_Generell,
                                )
 ```
 
-```{r}
+```{r eval=FALSE}
 log_likelihood <- function(slx_model_Generell_k3) {
   n <- length(slx_model_Generell_k3$residuals)
   sigma2 <- sum(slx_model_Generell_k3$residuals^2) / n
@@ -2499,7 +2547,7 @@ ll_value <- log_likelihood(slx_model_Generell_k3)
 print(ll_value)
 ```
 
-```{r}
+```{r eval=FALSE}
 slx_model_Generell_k10 <- lmSLX(Modell_Generell,
                                  data = Analyse_sf,
                                  listw = Analyse_W10,
@@ -2507,7 +2555,7 @@ slx_model_Generell_k10 <- lmSLX(Modell_Generell,
                                )
 ```
 
-```{r}
+```{r eval=FALSE}
 log_likelihood <- function(slx_model_Generell_k10) {
   n <- length(slx_model_Generell_k10$residuals)
   sigma2 <- sum(slx_model_Generell_k10$residuals^2) / n
@@ -2521,28 +2569,28 @@ print(ll_value)
 
 ### Summary av SLX-modeller
 
-```{r}
+```{r eval=FALSE}
 cat("Summary for SLX Model - Bergen, K3:\n")
 summary(slx_model_Bergen_k3)
 AIC(slx_model_Bergen_k3)
 BIC(slx_model_Bergen_k3)
 ```
 
-```{r}
+```{r eval=FALSE}
 cat("Summary for SLX Model - Bergen, K10:\n")
 summary(slx_model_Bergen_k10)
 AIC(slx_model_Bergen_k10)
 BIC(slx_model_Bergen_k10)
 ```
 
-```{r}
+```{r eval=FALSE}
 cat("Summary for SLX Model - Generell, K3:\n")
 summary(slx_model_Generell_k3)
 AIC(slx_model_Generell_k3)
 BIC(slx_model_Generell_k3)
 ```
 
-```{r}
+```{r eval=FALSE}
 cat("Summary for SLX Model - Generell, K10:\n")
 summary(slx_model_Generell_k10)
 AIC(slx_model_Generell_k10)
@@ -2553,11 +2601,11 @@ BIC(slx_model_Generell_k10)
 
 #### SLX, Bergen, K3
 
-```{r}
+```{r eval=FALSE}
 summary(impacts(slx_model_Bergen_k3), z.values = TRUE)
 ```
 
-```{r}
+```{r eval=FALSE}
 lm.morantest(slx_model_Bergen_k3,
              listw = Analyse_W3_red,
              alternative = "greater",
@@ -2572,11 +2620,11 @@ moran.plot(residuals(slx_model_Bergen_k3), listw = Analyse_W3_red)
 
 #### SLX, Bergen, K10
 
-```{r}
+```{r eval=FALSE}
 summary(impacts(slx_model_Bergen_k10), z.values = TRUE)
 ```
 
-```{r}
+```{r eval=FALSE}
 lm.morantest(slx_model_Bergen_k10,
              listw = Analyse_W10_red,
              alternative = "greater",
@@ -2591,11 +2639,11 @@ moran.plot(residuals(slx_model_Bergen_k10), listw = Analyse_W10_red)
 
 #### SLX, Generell, K3
 
-```{r}
+```{r eval=FALSE}
 summary(impacts(slx_model_Generell_k3), z.values = TRUE)
 ```
 
-```{r}
+```{r eval=FALSE}
 lm.morantest(slx_model_Generell_k3,
              listw = Analyse_W3,
              alternative = "greater",
@@ -2610,11 +2658,11 @@ moran.plot(residuals(slx_model_Generell_k3), listw = Analyse_W3)
 
 #### SLX, Generell, K10
 
-```{r}
+```{r eval=FALSE}
 summary(impacts(slx_model_Generell_k10), z.values = TRUE)
 ```
 
-```{r}
+```{r eval=FALSE}
 lm.morantest(slx_model_Generell_k10,
              listw = Analyse_W10,
              alternative = "greater",
@@ -2709,6 +2757,20 @@ summary(SDM_modell_Generell_K10)
 ```{r eval=FALSE}
 cat("Summary for SDM Model - Generell, K15:\n")
 summary(SDM_modell_Generell_K15)
+```
+
+### Impacts av SDM-modellene
+
+#### SDM, Bergen, K10
+
+```{r eval=FALSE}
+impacts(SDM_modell_Bergen_K10, listw = Analyse_W10_red)
+```
+
+#### SDM, Generell, K10
+
+```{r eval=FALSE}
+impacts(SDM_modell_Generell_K10, listw = Analyse_W10)
 ```
 
 # Tester modellene, for å finne hvilken som er mest aktuell
