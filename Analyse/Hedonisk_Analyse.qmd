@@ -94,9 +94,10 @@ Blokker_Eksl_Bergen_sf <- transform(Blokker_Eksl_Bergen_sf, BebygdAreal = as.num
 ```{r}
 Analyse_sf <- Analyse_sf %>%
   mutate(KPI = case_when(
-    DokumentAr == 2019 ~ 1 + 0.022 + 0.053 + 0.059,
-    DokumentAr == 2020 ~ 1 + 0.053 + 0.059,
-    DokumentAr == 2021 ~ 1 + 0.059,
+    DokumentAr == 2019 ~ 1 + 0.022,
+    DokumentAr == 2020 ~ 1 + 0.022 + 0.013,
+    DokumentAr == 2021 ~ 1 + 0.022 + 0.013 + 0.035,
+    DokumentAr == 2022 ~ 1 + 0.022 + 0.013 + 0.035 + 0.058,
     TRUE ~ 1
   ))
 
@@ -115,6 +116,16 @@ Analyse_sf <- Analyse_sf %>%
 Analyse_sf <- Analyse_sf %>% 
   select(DokumentAr, everything())
 ```
+
+```{r}
+Analyse_sf <- Analyse_sf %>% 
+  select(-pm2)
+```
+
+```{r}
+colnames(Analyse_sf)[colnames(Analyse_sf) == "justert_pm2"] <- "pm2"
+```
+
 
 # Fjerner SNR = 0
 
@@ -711,6 +722,19 @@ Tallene etter Moran's I-verdiene i resultatene (-0.0003374958 og 0.0001646533 fo
 # Korrelasjonsmatriser
 
 ## Sjekket for korrelasjon og multikollinearitet
+
+```{r}
+correlation <- cor(Blokker_sf$O.Karak_num, Blokker_sf$pm2)
+
+print(correlation)
+```
+
+```{r}
+correlation_test <- cor.test(Blokker_sf$O.Karak_num, Blokker_sf$pm2)
+
+print(correlation_test)
+```
+
 
 Sjekk korrelasjon mellom - EiendomAreal - BRA.Bolig - BRA.Annet - BRA.Tot - BebygdAreal - Bruksareal.Enhet
 
@@ -1958,7 +1982,7 @@ BIC(OLSGenerell)
 ```{r Modell Blokk_Energi_Perioden}
 options(scipen = 999)
 
-modBlokkEnergi <- "pm2 ~ EL.Kar.Original + O.Karak + BLEnergikWh + MatValg + Alder + YearQuarter"
+modBlokkEnergi <- "log(pm2) ~ EL.Kar.Original + O.Karak + log(BLEnergikWh) + MatValg + log(Alder+1)"
 OLSBlokkEnergi <- lm(modBlokkEnergi, data = Blokker_sf)
 summary(OLSBlokkEnergi)
 AIC(OLSBlokkEnergi)
@@ -1970,7 +1994,7 @@ BIC(OLSBlokkEnergi)
 ```{r Modell Blokk_Energi_Perioden}
 options(scipen = 999)
 
-modBlokkEnergi <- "pm2 ~ EL.Kar.Original + O.Karak + BLEnergikWh + MatValg + Alder + YearQuarter + Kommune"
+modBlokkEnergi <- "log(pm2) ~ EL.Kar.Original + O.Karak + log(BLEnergikWh) + MatValg + log(Alder+1)"
 OLSBlokkEnergi <- lm(modBlokkEnergi, data = Blokker_sf)
 summary(OLSBlokkEnergi)
 AIC(OLSBlokkEnergi)
@@ -1982,7 +2006,7 @@ BIC(OLSBlokkEnergi)
 ```{r Modell Bergen_Energi_Perioden}
 options(scipen = 999)
 
-BergenEnergi <- "pm2 ~ EL.Kar.Original + O.Karak + BLEnergikWh + MatValg + Alder + YearQuarter"
+BergenEnergi <- "log(pm2) ~ EL.Kar.Original + O.Karak + log(BLEnergikWh) + MatValg + log(Alder+1)"
 OLSBergenEnergi <- lm(BergenEnergi, data = Bergen_sf)
 summary(OLSBergenEnergi)
 AIC(OLSBergenEnergi)
@@ -1995,19 +2019,18 @@ BIC(OLSBergenEnergi)
 
 ```{r Modell_Done_Pre_Krise}
 options(scipen = 999)
-modBlokk_Pre_Krise <- "pm2 ~ 
+modBlokk_Pre_Krise <- "log(pm2) ~ 
   EL.Kar.Original + 
-  (Alder) + 
+  log((Alder+1)) + 
   O.Karak + 
-  BLEnergikWh + 
+  log(BLEnergikWh) + 
   MatValg + 
-  (AntallRom) + 
-  (AntallBad) + 
-  (AntallWC) + 
+  log(AntallRom) + 
+  log(AntallBad) + 
+  log(AntallWC) + 
   HarHeis + 
-  BolType + 
-  YearQuarter +
-  (dist_cbd_km)"
+  BolType +
+  log(dist_cbd_km)"
 OLSBlokk_Pre_Krise <- lm(modBlokk_Pre_Krise, data = Blokker_sf_Pre_Krise)
 summary(OLSBlokk_Pre_Krise)
 AIC(OLSBlokk_Pre_Krise)
@@ -2018,19 +2041,18 @@ BIC(OLSBlokk_Pre_Krise)
 
 ```{r Modell_Done_Etter_Krise}
 options(scipen = 999)
-modBlokk_Etter_Krise <- "pm2 ~ 
+modBlokk_Etter_Krise <- "log(pm2) ~ 
   EL.Kar.Original + 
-  (Alder) + 
+  log((Alder+1)) + 
   O.Karak + 
-  BLEnergikWh + 
+  log(BLEnergikWh) + 
   MatValg + 
-  (AntallRom) + 
-  (AntallBad) + 
-  (AntallWC) + 
+  log(AntallRom) + 
+  log(AntallBad) + 
+  log(AntallWC) + 
   HarHeis + 
   BolType + 
-  YearQuarter +
-  (dist_cbd_km)"
+  log(dist_cbd_km)"
 OLSBlokk_Etter_Krise <- lm(modBlokk_Etter_Krise, data = Blokker_sf_Etter_Krise)
 summary(OLSBlokk_Etter_Krise)
 AIC(OLSBlokk_Etter_Krise)
@@ -2041,19 +2063,19 @@ BIC(OLSBlokk_Etter_Krise)
 
 ```{r Modell_Done_Pre_Krise}
 options(scipen = 999)
-Bergen_Pre_Krise <- "pm2 ~ 
+Bergen_Pre_Krise <- "log(pm2) ~ 
   EL.Kar.Original + 
-  (Alder) + 
+  log((Alder+1)) + 
   O.Karak + 
-  BLEnergikWh + 
+  log(BLEnergikWh) + 
   MatValg + 
-  (AntallRom) + 
-  (AntallBad) + 
-  (AntallWC) + 
+  log(AntallRom) + 
+  log(AntallBad) + 
+  log(AntallWC) + 
   HarHeis + 
   BolType + 
   YearQuarter +
-  (dist_cbd_km)"
+  log(dist_cbd_km)"
 OLSBergen_Pre_Krise <- lm(Bergen_Pre_Krise, data = Bergen_sf_Pre_Krise)
 summary(OLSBergen_Pre_Krise)
 AIC(OLSBergen_Pre_Krise)
@@ -2064,19 +2086,19 @@ BIC(OLSBergen_Pre_Krise)
 
 ```{r Modell_Done_Etter_Krise}
 options(scipen = 999)
-Bergen_Etter_Krise <- "pm2 ~ 
+Bergen_Etter_Krise <- "log(pm2) ~ 
   EL.Kar.Original + 
-  (Alder) + 
+  log((Alder+1)) + 
   O.Karak + 
-  BLEnergikWh + 
+  log(BLEnergikWh) + 
   MatValg + 
-  (AntallRom) + 
-  (AntallBad) + 
-  (AntallWC) + 
+  log(AntallRom) + 
+  log(AntallBad) + 
+  log(AntallWC) + 
   HarHeis + 
   BolType + 
   YearQuarter +
-  (dist_cbd_km)"
+  log(dist_cbd_km)"
 OLSBergen_Etter_Krise <- lm(Bergen_Etter_Krise, data = Bergen_sf_Etter_Krise)
 summary(OLSBergen_Etter_Krise)
 AIC(OLSBergen_Etter_Krise)
@@ -2176,9 +2198,50 @@ Modell_Generell <- "log(pm2) ~ EL.Kar.Original + log(Alder+1) + O.Karak + log(BL
 Modell_Generell <- "pm2 ~ EL.Kar.Original + Alder + O.Karak + BLEnergikWh + MatValg + AntallRom + AntallBad + AntallWC + HarHeis + YearQuarter + Bruksareal.Enhet + dist_cbd_km"
 ```
 
-### SAR-Modellene
+## Anselin Approach (LaGrange Multiplikator)
+**Arnsteins Slider fra forelesning:**
 
-```{r eval=FALSE}
+**https://msb205.netlify.app/spatmetrics/spatreg/#/is-multicollinearity-a-problem**
+
+### Bergen
+
+```{r}
+lm_Bergen <- lm(Modell_Bergen, data = Bergen_sf)
+```
+
+#### LM_test, K=3
+
+```{r}
+lm.LMtests(lm_Bergen, listw = Analyse_W3_red, test = "all")
+```
+
+#### LM_test, K=10
+
+```{r}
+lm.LMtests(lm_Bergen, listw = Analyse_W10_red, test = "all")
+```
+
+### Regionen
+
+```{r}
+lm_Region <- lm(Modell_Generell, data = Blokker_sf)
+```
+
+#### LM_test, K=3
+
+```{r}
+lm.LMtests(lm_Region, listw = Analyse_W3, test = "all")
+```
+
+#### LM_test, K=10
+
+```{r}
+lm.LMtests(lm_Region, listw = Analyse_W10, test = "all")
+```
+
+### SAR
+
+```{r}
 sar_model_Bergen_k3 <- lagsarlm(Modell_Bergen,
                       data = Bergen_sf,
                       listw = Analyse_W3_red,
@@ -2186,7 +2249,7 @@ sar_model_Bergen_k3 <- lagsarlm(Modell_Bergen,
                       tol.solve = 1e-10)
 ```
 
-```{r eval=FALSE}
+```{r}
 sar_model_Bergen_k10 <- lagsarlm(Modell_Bergen,
                       data = Bergen_sf,
                       listw = Analyse_W10_red,
@@ -2194,7 +2257,7 @@ sar_model_Bergen_k10 <- lagsarlm(Modell_Bergen,
                       tol.solve = 1e-10)
 ```
 
-```{r eval=FALSE}
+```{r}
 sar_model_generell_k3 <- lagsarlm(Modell_Generell,
                       data = Analyse_sf,
                       listw = Analyse_W3,
@@ -2202,7 +2265,7 @@ sar_model_generell_k3 <- lagsarlm(Modell_Generell,
                       tol.solve = 1e-10)
 ```
 
-```{r eval=FALSE}
+```{r}
 sar_model_generell_k10 <- lagsarlm(Modell_Generell,
                       data = Analyse_sf,
                       listw = Analyse_W10,
@@ -2212,29 +2275,29 @@ sar_model_generell_k10 <- lagsarlm(Modell_Generell,
 
 ### Summary av SAR-modellen
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SAR Model - Bergen, K3:\n")
 print(summary(sar_model_Bergen_k3))
 ```
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SAR Model - Bergen, K10:\n")
 print(summary(sar_model_Bergen_k10))
 ```
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SAR Model - Generell, K3:\n")
 print(summary(sar_model_generell_k3))
 ```
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SAR Model - Generell, K10:\n")
 print(summary(sar_model_generell_k10))
 ```
 
 ## SAC (Spatial Simultaneous Autoregressiv)
 
-### SAC-Modellane
+### SAC
 
 **OLA: Trur da e Durbin = False her. Men eg finne ikkje noke konkret på Arnsteins slida, så ekje 100% sikker**
 
@@ -2302,7 +2365,7 @@ Link til Arnsteins slide om SDEM og SEM for Durbin funksjon.
 
 https://msb205.netlify.app/spatmetrics/spatreg/#/sem-model
 
-### SEM-Modellene
+### SEM
 
 ```{r}
 sem_model_Bergen_k3 <- errorsarlm(Modell_Bergen,
@@ -2493,11 +2556,11 @@ moran.plot(
 
 ## SLX (Spatial lag of X-model)
 
-### SLX-Modellene
+### SLX
 
 Durbin = as.formula(~ EL.Kar.Original + log(Alder+1) + O.Karak + log(BLEnergikWh) + MatValg + log(AntallRom) + log(AntallBad) + log(AntallWC) + HarHeis + YearQuarter + log(Bruksareal.Enhet) + log(dist_cbd_km))
 
-```{r eval=FALSE}
+```{r}
 slx_model_Bergen_k3 <- lmSLX(Modell_Bergen,
                                  data = Bergen_sf,
                                  listw = Analyse_W3_red,
@@ -2517,7 +2580,7 @@ ll_value <- log_likelihood(slx_model_Bergen_k3)
 print(ll_value)
 ```
 
-```{r eval=FALSE}
+```{r}
 slx_model_Bergen_k10 <- lmSLX(Modell_Bergen,
                                  data = Bergen_sf,
                                  listw = Analyse_W10_red,
@@ -2537,7 +2600,7 @@ ll_value <- log_likelihood(slx_model_Bergen_k10)
 print(ll_value)
 ```
 
-```{r eval=FALSE}
+```{r}
 slx_model_Generell_k3 <- lmSLX(Modell_Generell,
                                  data = Analyse_sf,
                                  listw = Analyse_W3,
@@ -2557,7 +2620,7 @@ ll_value <- log_likelihood(slx_model_Generell_k3)
 print(ll_value)
 ```
 
-```{r eval=FALSE}
+```{r}
 slx_model_Generell_k10 <- lmSLX(Modell_Generell,
                                  data = Analyse_sf,
                                  listw = Analyse_W10,
@@ -2579,28 +2642,28 @@ print(ll_value)
 
 ### Summary av SLX-modeller
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SLX Model - Bergen, K3:\n")
 summary(slx_model_Bergen_k3)
 AIC(slx_model_Bergen_k3)
 BIC(slx_model_Bergen_k3)
 ```
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SLX Model - Bergen, K10:\n")
 summary(slx_model_Bergen_k10)
 AIC(slx_model_Bergen_k10)
 BIC(slx_model_Bergen_k10)
 ```
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SLX Model - Generell, K3:\n")
 summary(slx_model_Generell_k3)
 AIC(slx_model_Generell_k3)
 BIC(slx_model_Generell_k3)
 ```
 
-```{r eval=FALSE}
+```{r}
 cat("Summary for SLX Model - Generell, K10:\n")
 summary(slx_model_Generell_k10)
 AIC(slx_model_Generell_k10)
@@ -2611,11 +2674,11 @@ BIC(slx_model_Generell_k10)
 
 #### SLX, Bergen, K3
 
-```{r eval=FALSE}
+```{r}
 summary(impacts(slx_model_Bergen_k3), z.values = TRUE)
 ```
 
-```{r eval=FALSE}
+```{r}
 lm.morantest(slx_model_Bergen_k3,
              listw = Analyse_W3_red,
              alternative = "greater",
@@ -2630,11 +2693,11 @@ moran.plot(residuals(slx_model_Bergen_k3), listw = Analyse_W3_red)
 
 #### SLX, Bergen, K10
 
-```{r eval=FALSE}
+```{r}
 summary(impacts(slx_model_Bergen_k10), z.values = TRUE)
 ```
 
-```{r eval=FALSE}
+```{r}
 lm.morantest(slx_model_Bergen_k10,
              listw = Analyse_W10_red,
              alternative = "greater",
@@ -2649,11 +2712,11 @@ moran.plot(residuals(slx_model_Bergen_k10), listw = Analyse_W10_red)
 
 #### SLX, Generell, K3
 
-```{r eval=FALSE}
+```{r}
 summary(impacts(slx_model_Generell_k3), z.values = TRUE)
 ```
 
-```{r eval=FALSE}
+```{r}
 lm.morantest(slx_model_Generell_k3,
              listw = Analyse_W3,
              alternative = "greater",
@@ -2668,11 +2731,11 @@ moran.plot(residuals(slx_model_Generell_k3), listw = Analyse_W3)
 
 #### SLX, Generell, K10
 
-```{r eval=FALSE}
+```{r}
 summary(impacts(slx_model_Generell_k10), z.values = TRUE)
 ```
 
-```{r eval=FALSE}
+```{r}
 lm.morantest(slx_model_Generell_k10,
              listw = Analyse_W10,
              alternative = "greater",
@@ -2818,26 +2881,27 @@ BIC(SDM_modell_Generell_K10)
 ## Tester Bergen, K3
 
 ```{r eval=FALSE}
-lmtest::lrtest(sar_model_Bergen_k3, sac_model_Bergen_K3, sem_model_Bergen_k3, slx_model_Bergen_k3, SDM_modell_Bergen_K3)
+lmtest::lrtest(sar_model_Bergen_k3, sem_model_Bergen_k3, slx_model_Bergen_k3, SDM_modell_Bergen_K3)
 ```
-
+sac_model_Bergen_K3, 
 ## Tester Bergen, K10
 
 ```{r eval=FALSE}
-lmtest::lrtest(sar_model_Bergen_k10, sac_model_Bergen_K10, sem_model_Bergen_k10, slx_model_Bergen_k10, SDM_modell_Bergen_K10)
+lmtest::lrtest(sar_model_Bergen_k10, sem_model_Bergen_k10, slx_model_Bergen_k10, SDM_modell_Bergen_K10)
 ```
-
+sac_model_Bergen_K10, 
 ## Tester Generell, K3
 
 ```{r eval=FALSE}
-lmtest::lrtest(sar_model_generell_k3, sac_model_Generell_K3, sem_model_Generell_k3, slx_model_Generell_k3, SDM_modell_Generell_K3)
+lmtest::lrtest(sar_model_generell_k3, sem_model_Generell_k3, slx_model_Generell_k3, SDM_modell_Generell_K3)
 ```
-
+sac_model_Generell_K3, 
 ## Tester Generell, K10
 
 ```{r eval=FALSE}
-lmtest::lrtest(sar_model_generell_k10, sac_model_Generell_K10, sem_model_Generell_k10, slx_model_Generell_k10, SDM_modell_Generell_K10)
+lmtest::lrtest(sar_model_generell_k10, sem_model_Generell_k10, slx_model_Generell_k10, SDM_modell_Generell_K10)
 ```
+sac_model_Generell_K10, 
 
 
 # Temp Slutt
