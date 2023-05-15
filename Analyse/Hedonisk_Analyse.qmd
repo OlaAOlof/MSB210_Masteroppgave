@@ -37,6 +37,7 @@ library(xgboost)
 library(ranger)
 library(rpart)
 library(lavaan)
+library(strucchange)
 options(paged.print = FALSE)
 ```
 
@@ -2104,6 +2105,33 @@ summary(OLSBergen_Etter_Krise)
 AIC(OLSBergen_Etter_Krise)
 BIC(OLSBergen_Etter_Krise)
 ```
+
+```{r}
+t_test_result <- t.test(Bergen_sf_Etter_Krise$pm2, Bergen_sf_Pre_Krise$pm2)
+print(t_test_result)
+```
+
+```{r}
+ts_data_Etter_Krise <- ts(Bergen_sf_Etter_Krise$pm2, start=start(Bergen_sf_Etter_Krise$YearQuarter), end=end(Bergen_sf_Etter_Krise$YearQuarter))
+ts_data_Pre_Krise <- ts(Bergen_sf_Pre_Krise$pm2, start=start(Bergen_sf_Pre_Krise$YearQuarter), end=end(Bergen_sf_Pre_Krise$YearQuarter))
+
+bp_Etter_Krise <- breakpoints(ts_data_Etter_Krise ~ 1)
+bp_Pre_Krise <- breakpoints(ts_data_Pre_Krise ~ 1)
+
+print(bp_Etter_Krise)
+print(bp_Pre_Krise)
+```
+
+```{r}
+YearQuarter_Etter_Krise_295 <- Bergen_sf_Etter_Krise$YearQuarter[295]
+YearQuarter_Pre_Krise_182 <- Bergen_sf_Pre_Krise$YearQuarter[182]
+YearQuarter_Pre_Krise_799 <- Bergen_sf_Pre_Krise$YearQuarter[799]
+
+print(paste("Kvartal ved observasjon 295 i Bergen etter strømpriskrisen:", YearQuarter_Etter_Krise_295))
+print(paste("Kvartal ved observasjon 182 i Bergen før strømpriskrisen:", YearQuarter_Pre_Krise_182))
+print(paste("Kvartal ved observasjon 799 i Bergen før strømpriskrisen:", YearQuarter_Pre_Krise_799))
+```
+
 
 # HuxReg av OLS-modeller
 
