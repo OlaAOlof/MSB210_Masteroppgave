@@ -2323,6 +2323,28 @@ cat("Summary for SAR Model - Generell, K10:\n")
 print(summary(sar_model_generell_k10))
 ```
 
+```{r}
+impacts(sar_model_Bergen_k10, listw = Analyse_W10_red)
+```
+
+### Moran's Plot for SAR
+
+```{r}
+moran.plot(residuals(sar_model_Bergen_k3), listw = Analyse_W3_red)
+```
+
+```{r}
+moran.plot(residuals(sar_model_Bergen_k10), listw = Analyse_W10_red)
+```
+
+```{r}
+moran.plot(residuals(sar_model_generell_k3), listw = Analyse_W3)
+```
+
+```{r}
+moran.plot(residuals(sar_model_generell_k10), listw = Analyse_W10)
+```
+
 ## SAC (Spatial Simultaneous Autoregressiv)
 
 ### SAC
@@ -2886,6 +2908,24 @@ resid_model <- residuals(SDM_modell_Generell_K10)
 moran.test(resid_model, listw = Analyse_W10)
 ```
 
+### Moran's Plot for SDM
+
+```{r}
+moran.plot(residuals(SDM_modell_Bergen_K3), listw = Analyse_W3_red)
+```
+
+```{r}
+moran.plot(residuals(SDM_modell_Bergen_K10), listw = Analyse_W10_red)
+```
+
+```{r}
+moran.plot(residuals(SDM_modell_Generell_K3), listw = Analyse_W3)
+```
+
+```{r}
+moran.plot(residuals(SDM_modell_Generell_K10), listw = Analyse_W10)
+```
+
 ## BIC-verdier for sentrale modeller
 
 ```{r}
@@ -2933,6 +2973,12 @@ sac_model_Generell_K10,
 
 
 # Temp Slutt
+
+```{r eval=FALSE}
+Bergen_sf_Etter_Krise %>% 
+  count(O.Karak)
+```
+
 
 ```{r eval=FALSE}
 # Sammenligner SAR model med SEM model
