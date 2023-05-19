@@ -1910,20 +1910,21 @@ Blokker_sf_Etter_Krise$YearQuarter <- relevel(Blokker_sf_Etter_Krise$YearQuarter
 
 ```{r Modell_Kommuner}
 options(scipen = 999)
-modBlokk <- "pm2 ~ 
+modBlokk <- "log(pm2) ~ 
   EL.Kar.Original + 
-  (Alder) + 
+  log(Alder+1) + 
   O.Karak + 
-  BLEnergikWh + 
+  log(BLEnergikWh) + 
   MatValg + 
-  (AntallRom) + 
-  (AntallBad) + 
-  (AntallWC) + 
+  log(AntallRom) + 
+  log(AntallBad) + 
+  log(AntallWC) + 
   HarHeis + 
   BolType + 
   YearQuarter +
   Kommune + 
-  (dist_cbd_km)"
+  log(Bruksareal.Enhet) + 
+  log(dist_cbd_km)"
 OLSBlokk <- lm(modBlokk, data = Blokker_sf)
 summary(OLSBlokk)
 AIC(OLSBlokk)
@@ -1934,19 +1935,20 @@ BIC(OLSBlokk)
 
 ```{r Modell_Bergen}
 options(scipen = 999)
-modBergen <- "pm2 ~ 
+modBergen <- "log(pm2) ~ 
   EL.Kar.Original + 
-  (Alder) + 
+  log(Alder+1) + 
   O.Karak + 
-  BLEnergikWh + 
+  log(BLEnergikWh) + 
   MatValg + 
-  (AntallRom) + 
-  (AntallBad) + 
-  (AntallWC) + 
+  log(AntallRom) + 
+  log(AntallBad) + 
+  log(AntallWC) + 
   HarHeis + 
   BolType + 
   YearQuarter +
-  (dist_cbd_km)"
+  log(Bruksareal.Enhet) + 
+  log(dist_cbd_km)"
 OLSBergen <- lm(modBergen, data = Bergen_sf)
 summary(OLSBergen)
 AIC(OLSBergen)
@@ -1957,19 +1959,20 @@ BIC(OLSBergen)
 
 ```{r Modell_Generell}
 options(scipen = 999)
-modGenerell <- "pm2 ~ 
+modGenerell <- "log(pm2) ~ 
   EL.Kar.Original + 
-  (Alder) + 
+  log(Alder+1) + 
   O.Karak + 
-  BLEnergikWh + 
+  log(BLEnergikWh) + 
   MatValg + 
-  (AntallRom) + 
-  (AntallBad) + 
-  (AntallWC) + 
+  log(AntallRom) + 
+  log(AntallBad) + 
+  log(AntallWC) + 
   HarHeis + 
   BolType + 
   YearQuarter +
-  (dist_cbd_km)"
+  log(Bruksareal.Enhet) + 
+  log(dist_cbd_km)"
 OLSGenerell <- lm(modGenerell, data = Blokker_sf)
 summary(OLSGenerell)
 AIC(OLSGenerell)
@@ -2803,10 +2806,18 @@ moran.plot(residuals(slx_model_Generell_k10), listw = Analyse_W10)
 ### SDM-Modellene
 
 ```{r}
+#SDM_modell_Bergen_K3 <- lagsarlm(Modell_Bergen,
+#                                   data = Bergen_sf,
+#                                   listw = Analyse_W3_red,
+#                                   Durbin = as.formula(~ EL.Kar.Original + log(Alder+1) + O.Karak + log(BLEnergikWh) + MatValg + log(AntallRom) + log(AntallBad) + log(AntallWC) + HarHeis + YearQuarter + log(Bruksareal.Enhet) + log(dist_cbd_km)),
+#                                   type = "mixed")
+```
+
+```{r}
 SDM_modell_Bergen_K3 <- lagsarlm(Modell_Bergen,
                                    data = Bergen_sf,
                                    listw = Analyse_W3_red,
-                                   Durbin = as.formula(~ EL.Kar.Original + log(Alder+1) + O.Karak + log(BLEnergikWh) + MatValg + log(AntallRom) + log(AntallBad) + log(AntallWC) + HarHeis + YearQuarter + log(Bruksareal.Enhet) + log(dist_cbd_km)),
+                                   Durbin = TRUE,
                                    type = "mixed")
 ```
 
@@ -2814,7 +2825,7 @@ SDM_modell_Bergen_K3 <- lagsarlm(Modell_Bergen,
 SDM_modell_Bergen_K10 <- lagsarlm(Modell_Bergen,
                                    data = Bergen_sf,
                                    listw = Analyse_W10_red,
-                                   Durbin = as.formula(~ EL.Kar.Original + log(Alder+1) + O.Karak + log(BLEnergikWh) + MatValg + log(AntallRom) + log(AntallBad) + log(AntallWC) + HarHeis + YearQuarter + log(Bruksareal.Enhet) + log(dist_cbd_km)),
+                                   Durbin = TRUE,
                                    type = "mixed")
 ```
 
@@ -2830,7 +2841,7 @@ SDM_modell_Bergen_K15 <- lagsarlm(Modell_Bergen,
 SDM_modell_Generell_K3 <- lagsarlm(Modell_Generell,
                                    data = Analyse_sf,
                                    listw = Analyse_W3,
-                                   Durbin = as.formula(~ EL.Kar.Original + log(Alder+1) + O.Karak + log(BLEnergikWh) + MatValg + log(AntallRom) + log(AntallBad) + log(AntallWC) + HarHeis + YearQuarter + log(Bruksareal.Enhet) + log(dist_cbd_km)),
+                                   Durbin = TRUE,
                                    type = "mixed")
 ```
 
@@ -2838,7 +2849,7 @@ SDM_modell_Generell_K3 <- lagsarlm(Modell_Generell,
 SDM_modell_Generell_K10 <- lagsarlm(Modell_Generell,
                                    data = Analyse_sf,
                                    listw = Analyse_W10,
-                                   Durbin = as.formula(~ EL.Kar.Original + log(Alder+1) + O.Karak + log(BLEnergikWh) + MatValg + log(AntallRom) + log(AntallBad) + log(AntallWC) + HarHeis + YearQuarter + log(Bruksareal.Enhet) + log(dist_cbd_km)),
+                                   Durbin = TRUE,
                                    type = "mixed")
 ```
 
