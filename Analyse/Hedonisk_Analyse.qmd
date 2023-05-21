@@ -918,6 +918,28 @@ Bolig_Eksl_Bergen_sf <- Bolig_Eksl_Bergen_sf %>%
   filter(Snr > 0)
 ```
 
+# Mini oppdatering av data
+
+```{r eval=FALSE}
+Region_2019 <- Analyse_sf %>% 
+  filter(Knr > 4601, DokumentAr == 2019)
+```
+
+```{r eval=FALSE}
+Region_2022 <- Analyse_sf %>% 
+  filter(Knr > 4601, DokumentAr == 2022)
+```
+
+```{r eval=FALSE}
+Region <- Analyse_sf %>% 
+  filter(Knr > 4601)
+```
+
+```{r eval=FALSE}
+sd(Bergen_sf$BLEnergikWh)
+```
+
+
 # Regresjonsmodeller
 
 ## Blokker
@@ -1903,6 +1925,22 @@ Blokker_sf_Etter_Krise$O.Karak <- relevel(Blokker_sf_Etter_Krise$O.Karak, ref = 
 Blokker_sf_Etter_Krise$YearQuarter <- as.factor(Blokker_sf_Etter_Krise$YearQuarter) # Character -> Factor
 Blokker_sf_Etter_Krise$YearQuarter <- relevel(Blokker_sf_Etter_Krise$YearQuarter, ref = "2022Q4") # Referanseverdi
 ```
+
+```{r}
+Bergen_sf$EL.Kar.Original <- as.factor(Bergen_sf$EL.Kar.Original) # Character -> Factor
+Bergen_sf$EL.Kar.Original <- relevel(Bergen_sf$EL.Kar.Original, ref = "A") # Referanseverdi
+```
+
+```{r}
+Bergen_sf$O.Karak <- as.factor(Bergen_sf$O.Karak) # Character -> Factor
+Bergen_sf$O.Karak <- relevel(Bergen_sf$O.Karak, ref = "Green") # Referanseverdi
+```
+
+```{r}
+Bergen_sf$YearQuarter <- as.factor(Bergen_sf$YearQuarter) # Character -> Factor
+Bergen_sf$YearQuarter <- relevel(Bergen_sf$YearQuarter, ref = "2022Q4") # Referanseverdi
+```
+
 
 ## Forslag, OLS-Modell
 
